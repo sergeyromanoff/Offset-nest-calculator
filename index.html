@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
-<meta name="robots" content="noindex, nofollow">
-  <title>OffsetNest — Калькулятор офсетного нестинга (35×50 / 50×70)</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="googlebot" content="noindex, nofollow" />
+  <title>OffsetNest — Калькулятор офсетного нестинга + Полигональный нестинг по фото (35×50 / 50×70)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -36,6 +37,7 @@
     ::-webkit-scrollbar-thumb:hover { background: #475569; }
     input[type="number"]::-webkit-inner-spin-button,
     input[type="number"]::-webkit-outer-spin-button { opacity: 1; }
+    input[type="range"] { accent-color: #10b981; }
 
     .blueprint-grid {
       background-color: #080d17;
@@ -67,127 +69,287 @@
         <div class="flex items-center gap-2 flex-wrap">
           <h1 class="text-base sm:text-lg font-bold tracking-tight text-white">OffsetNest <span class="text-cyan-400">Lab</span></h1>
           <span class="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">35×50 & 50×70</span>
+          <span id="cvStatusBadge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30">
+            OpenCV: загрузка...
+          </span>
         </div>
-        <p class="text-xs text-slate-400 hidden sm:block">Тестовый стенд нестинга: Прямоугольник / Квадрат и Овал / Круг</p>
+        <p class="text-xs text-slate-400 hidden sm:block">Офсетный нестинг фигур и полигональный раскрой наборов по фото</p>
       </div>
     </div>
 
-    <div class="flex items-center gap-2">
-      <button id="exportSvgBtn" type="button" class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 active:bg-cyan-700 text-white text-xs sm:text-sm font-semibold transition cursor-pointer shadow-lg shadow-cyan-500/20">
-        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-          <polyline points="7 10 12 15 17 10" />
-          <line x1="12" y1="15" x2="12" y2="3" />
-        </svg>
-        <span>Скачать SVG (1:1 мм)</span>
-      </button>
-    </div>
+
   </header>
 
   <!-- ОСНОВНОЙ КОНТЕЙНЕР -->
   <div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
 
     <!-- ЛЕВАЯ КОЛОНКА: ПАРАМЕТРЫ РАСКЛАДКИ -->
-    <aside class="w-full lg:w-[400px] xl:w-[420px] bg-slate-900/95 border-b lg:border-b-0 lg:border-r border-slate-800 flex flex-col shrink-0 lg:h-[calc(100vh-61px)]">
+    <aside class="w-full lg:w-[440px] xl:w-[470px] bg-slate-900/95 border-b lg:border-b-0 lg:border-r border-slate-800 flex flex-col shrink-0 lg:h-[calc(100vh-61px)]">
       <div class="flex-1 overflow-y-auto p-4 space-y-4">
 
-        <!-- 1. ФОРМАТ ПЕЧАТНОГО ЛИСТА -->
-        <section class="bg-slate-850 border border-slate-800 rounded-xl p-3.5 space-y-3">
-          <div class="flex items-center justify-between">
-            <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-300 flex items-center gap-2">
-              <span class="w-1.5 h-4 rounded-full bg-cyan-500"></span>
-              1. Формат листа (поля 10 мм)
-            </h2>
-            <span class="text-[11px] font-mono text-slate-400">Офсет</span>
-          </div>
-
-          <div class="grid grid-cols-2 gap-2.5">
-            <!-- Формат 35x50 -->
-            <button id="btnFormat35x50" type="button" class="text-left p-3 rounded-xl border-2 border-cyan-500 bg-cyan-500/10 transition cursor-pointer">
-              <div class="flex items-center justify-between mb-1">
-                <span class="text-base font-bold font-mono text-white">35×50 см</span>
-                <span id="dotFormat35x50" class="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.8)]"></span>
-              </div>
-              <div class="text-[11px] font-mono text-slate-300">Лист: 350 × 500 мм</div>
-              <div class="mt-1.5 pt-1.5 border-t border-cyan-500/25 text-[11px] font-mono text-cyan-300 font-semibold">
-                Зона: 330 × 480 мм
-              </div>
-            </button>
-
-            <!-- Формат 50x70 -->
-            <button id="btnFormat50x70" type="button" class="text-left p-3 rounded-xl border-2 border-slate-700/80 bg-slate-900/70 hover:border-slate-600 transition cursor-pointer">
-              <div class="flex items-center justify-between mb-1">
-                <span class="text-base font-bold font-mono text-white">50×70 см</span>
-                <span id="dotFormat50x70" class="w-2.5 h-2.5 rounded-full bg-slate-700"></span>
-              </div>
-              <div class="text-[11px] font-mono text-slate-400">Лист: 500 × 700 мм</div>
-              <div class="mt-1.5 pt-1.5 border-t border-slate-800 text-[11px] font-mono text-slate-300 font-semibold">
-                Зона: 480 × 680 мм
-              </div>
-            </button>
-          </div>
-        </section>
-
-        <!-- 2. ФОРМА И РАЗМЕР ЭТИКЕТКИ -->
+        <!-- 2. ФОРМА И РАЗМЕР ЭТИКЕТКИ (3 ВКЛАДКИ) -->
         <section class="bg-slate-850 border border-slate-800 rounded-xl p-3.5 space-y-3">
           <div class="flex items-center justify-between">
             <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-300 flex items-center gap-2">
               <span class="w-1.5 h-4 rounded-full bg-emerald-500"></span>
-              2. Форма и размер этикетки
+              1. Форма и размер этикетки
             </h2>
             <span id="detectedShapeBadge" class="text-[11px] font-mono font-semibold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
               Прямоугольник
             </span>
           </div>
 
-          <!-- Выбор 1 из 2 подвидов -->
+          <!-- 2 главные вкладки: Простые фигуры | Контур по фото -->
           <div class="grid grid-cols-2 gap-2">
-            <button id="btnShapeRect" type="button" class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border-2 border-emerald-500 bg-emerald-500/10 text-white text-xs font-semibold transition cursor-pointer">
+            <button id="btnTabSimple" type="button" class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border-2 border-emerald-500 bg-emerald-500/10 text-white text-xs font-semibold transition cursor-pointer">
               <svg class="w-4 h-4 text-emerald-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                <rect x="4" y="6" width="16" height="12" rx="1.5" />
+                <rect x="3" y="4" width="8" height="7" rx="1" />
+                <circle cx="17" cy="7.5" r="3.5" />
+                <polygon points="12,13 18,21 6,21" />
               </svg>
-              <span>Прямоугольник / Квадрат</span>
+              <span>Простые фигуры</span>
             </button>
 
-            <button id="btnShapeOval" type="button" class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border-2 border-slate-700/80 bg-slate-900/70 hover:border-slate-600 text-slate-300 text-xs font-semibold transition cursor-pointer">
-              <svg class="w-4 h-4 text-slate-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                <ellipse cx="12" cy="12" rx="8" ry="6" />
+            <button id="btnTabPhoto" type="button" class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border-2 border-slate-700/80 bg-slate-900/70 hover:border-slate-600 text-slate-300 text-xs font-semibold transition cursor-pointer">
+              <svg class="w-4 h-4 text-pink-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                <circle cx="12" cy="13" r="4" />
               </svg>
-              <span>Овал / Круг</span>
+              <span>📷 Контур по фото</span>
             </button>
           </div>
 
-          <!-- Ввод ширины, высоты и кнопка поворота 90° -->
-          <div class="flex items-end gap-2">
-            <div class="flex-1">
-              <label for="inputWidth" class="block text-xs text-slate-400 mb-1">Ширина (мм)</label>
-              <input id="inputWidth" type="number" min="5" max="680" step="0.5" value="90" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono text-white focus:outline-none focus:border-emerald-500 transition" />
+          <!-- БЛОК А: ПРОСТЫЕ ФИГУРЫ (ПРЯМОУГОЛЬНИК, ОВАЛ, МНОГОУГОЛЬНИК) -->
+          <div id="standardShapePanel" class="space-y-3">
+            <!-- Подвыбор простой фигуры -->
+            <div class="grid grid-cols-3 gap-1.5">
+              <button id="btnSubRect" type="button" class="flex flex-col items-center justify-center gap-1 py-2 px-1.5 rounded-xl border border-emerald-500 bg-emerald-500/15 text-white text-[11px] font-semibold transition cursor-pointer text-center">
+                <svg class="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <rect x="4" y="6" width="16" height="12" rx="1.5" />
+                </svg>
+                <span>Прямоуг. / Квадр.</span>
+              </button>
+
+              <button id="btnSubOval" type="button" class="flex flex-col items-center justify-center gap-1 py-2 px-1.5 rounded-xl border border-slate-700 bg-slate-900/80 hover:border-slate-600 text-slate-300 text-[11px] font-semibold transition cursor-pointer text-center">
+                <svg class="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <ellipse cx="12" cy="12" rx="8" ry="6" />
+                </svg>
+                <span>Овал / Круг</span>
+              </button>
+
+              <button id="btnSubPoly" type="button" class="flex flex-col items-center justify-center gap-1 py-2 px-1.5 rounded-xl border border-slate-700 bg-slate-900/80 hover:border-slate-600 text-slate-300 text-[11px] font-semibold transition cursor-pointer text-center">
+                <svg class="w-4 h-4 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <polygon points="12 3 20 8.5 17 19 7 19 4 8.5" />
+                </svg>
+                <span>Многоугольник</span>
+              </button>
             </div>
 
-            <button id="swapDimsBtn" type="button" title="Поменять ширину и высоту местами (поворот на 90°)" class="p-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 active:bg-slate-600 text-slate-200 border border-slate-700 transition cursor-pointer shrink-0">
-              <svg class="w-4 h-4 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="17 1 21 5 17 9" />
-                <path d="M3 11V9a4 4 0 0 1 4-4h14" />
-                <polyline points="7 23 3 19 7 15" />
-                <path d="M21 13v2a4 4 0 0 1-4 4H3" />
-              </svg>
-            </button>
+            <!-- Параметры многоугольника (показываются только при выборе Многоугольника) -->
+            <div id="polySidesPanel" class="hidden bg-slate-900/90 border border-amber-500/30 rounded-xl p-2.5 space-y-2">
+              <div class="flex items-center justify-between gap-2">
+                <label for="inputPolySides" class="text-xs text-slate-300 font-medium">Число углов (сторон):</label>
+                <div class="flex items-center gap-1.5">
+                  <input id="inputPolySides" type="number" min="3" max="24" step="1" value="6" class="w-16 bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-xs font-mono text-white text-center focus:outline-none focus:border-amber-500" />
+                  <div class="flex gap-1">
+                    <button type="button" data-sides="3" class="preset-sides-btn px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[10px] font-mono text-slate-200 cursor-pointer" title="Треугольник">3</button>
+                    <button type="button" data-sides="4" class="preset-sides-btn px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[10px] font-mono text-slate-200 cursor-pointer" title="Ромб">4</button>
+                    <button type="button" data-sides="5" class="preset-sides-btn px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[10px] font-mono text-slate-200 cursor-pointer" title="Пятиугольник">5</button>
+                    <button type="button" data-sides="6" class="preset-sides-btn px-2 py-1 rounded bg-amber-500/25 border border-amber-500/50 text-[10px] font-mono text-amber-200 font-bold cursor-pointer" title="Шестигранник">6</button>
+                    <button type="button" data-sides="8" class="preset-sides-btn px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[10px] font-mono text-slate-200 cursor-pointer" title="Восьмигранник">8</button>
+                  </div>
+                </div>
+              </div>
+              <label class="flex items-center gap-2 pt-1 cursor-pointer select-none">
+                <input id="chkPolyProportional" type="checkbox" checked class="rounded bg-slate-800 border-slate-600 text-amber-500 focus:ring-0" />
+                <span class="text-[11px] font-medium text-amber-200">Пропорционально (ровный правильный многоугольник)</span>
+              </label>
+              <p class="text-[10px] text-slate-400 leading-tight">
+                При включённой галочке изменение <b>Ширины</b> или <b>Высоты</b> автоматически пересчитывает второй размер под правильный многоугольник.
+              </p>
+            </div>
+            <div class="flex items-end gap-2">
+              <div class="flex-1">
+                <label for="inputWidth" class="block text-xs text-slate-400 mb-1">Ширина (мм)</label>
+                <input id="inputWidth" type="number" min="5" max="680" step="0.5" value="90" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono text-white focus:outline-none focus:border-emerald-500 transition" />
+              </div>
 
-            <div class="flex-1">
-              <label for="inputHeight" class="block text-xs text-slate-400 mb-1">Высота (мм)</label>
-              <input id="inputHeight" type="number" min="5" max="680" step="0.5" value="50" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono text-white focus:outline-none focus:border-emerald-500 transition" />
+              <button id="swapDimsBtn" type="button" title="Поменять ширину и высоту местами (поворот на 90°)" class="p-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 active:bg-slate-600 text-slate-200 border border-slate-700 transition cursor-pointer shrink-0">
+                <svg class="w-4 h-4 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="17 1 21 5 17 9" />
+                  <path d="M3 11V9a4 4 0 0 1 4-4h14" />
+                  <polyline points="7 23 3 19 7 15" />
+                  <path d="M21 13v2a4 4 0 0 1-4 4H3" />
+                </svg>
+              </button>
+
+              <div class="flex-1">
+                <label for="inputHeight" class="block text-xs text-slate-400 mb-1">Высота (мм)</label>
+                <input id="inputHeight" type="number" min="5" max="680" step="0.5" value="50" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono text-white focus:outline-none focus:border-emerald-500 transition" />
+              </div>
+            </div>
+
+            <div>
+              <span class="block text-[11px] text-slate-400 mb-1.5">Быстрые тестовые размеры (мм):</span>
+              <div class="flex flex-wrap gap-1.5">
+                <button type="button" data-w="50" data-h="50" class="preset-dim-btn px-2.5 py-1 rounded-md bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[11px] font-mono text-slate-300 transition cursor-pointer">50×50</button>
+                <button type="button" data-w="70" data-h="40" class="preset-dim-btn px-2.5 py-1 rounded-md bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[11px] font-mono text-slate-300 transition cursor-pointer">70×40</button>
+                <button type="button" data-w="90" data-h="50" class="preset-dim-btn px-2.5 py-1 rounded-md bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[11px] font-mono text-slate-300 transition cursor-pointer">90×50</button>
+                <button type="button" data-w="80" data-h="80" class="preset-dim-btn px-2.5 py-1 rounded-md bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[11px] font-mono text-slate-300 transition cursor-pointer">80×80</button>
+                <button type="button" data-w="110" data-h="70" class="preset-dim-btn px-2.5 py-1 rounded-md bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[11px] font-mono text-slate-300 transition cursor-pointer">110×70</button>
+              </div>
+            </div>
+
+            <!-- Ручной запуск раскладки простых фигур (без подвисаний при наборе цифр вроде 1, 10, 100) -->
+            <div class="pt-1 space-y-1.5">
+              <button id="runSimpleNestingBtn" type="button" class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-[0.99] text-white font-bold text-xs sm:text-sm shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition cursor-pointer">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <polygon points="5 3 19 12 5 21 5 3" />
+                </svg>
+                <span>Раскидать на лист</span>
+              </button>
+              <div id="simpleNestingDirtyHint" class="hidden text-center text-[11px] text-amber-300 font-medium">
+                Размеры или параметры изменены — нажмите «Раскидать на лист»
+              </div>
             </div>
           </div>
 
-          <!-- Быстрые пресеты размеров -->
-          <div>
-            <span class="block text-[11px] text-slate-400 mb-1.5">Быстрые тестовые размеры (мм):</span>
-            <div class="flex flex-wrap gap-1.5">
-              <button type="button" data-w="50" data-h="50" class="preset-dim-btn px-2.5 py-1 rounded-md bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[11px] font-mono text-slate-300 transition cursor-pointer">50×50</button>
-              <button type="button" data-w="70" data-h="40" class="preset-dim-btn px-2.5 py-1 rounded-md bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[11px] font-mono text-slate-300 transition cursor-pointer">70×40</button>
-              <button type="button" data-w="90" data-h="50" class="preset-dim-btn px-2.5 py-1 rounded-md bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[11px] font-mono text-slate-300 transition cursor-pointer">90×50</button>
-              <button type="button" data-w="80" data-h="80" class="preset-dim-btn px-2.5 py-1 rounded-md bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[11px] font-mono text-slate-300 transition cursor-pointer">80×80</button>
-              <button type="button" data-w="110" data-h="70" class="preset-dim-btn px-2.5 py-1 rounded-md bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[11px] font-mono text-slate-300 transition cursor-pointer">110×70</button>
+          <!-- БЛОК Б: МОДУЛЬ РАСПОЗНАВАНИЯ КОНТУРОВ И НАБОРОВ ПО ФОТО -->
+          <div id="photoContourPanel" class="hidden space-y-3 pt-1">
+            <div class="grid grid-cols-2 gap-2">
+              <label class="cursor-pointer flex items-center justify-center gap-1.5 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-semibold text-xs py-2.5 px-3 rounded-xl transition text-center shadow">
+                <span>📷 Камера</span>
+                <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden" />
+              </label>
+              <label class="cursor-pointer flex items-center justify-center gap-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-semibold text-xs py-2.5 px-3 rounded-xl transition text-center">
+                <span>🖼️ Галерея</span>
+                <input type="file" id="fileInput" accept="image/*" class="hidden" />
+              </label>
+            </div>
+
+            <div id="photoWorkspace" class="hidden space-y-3">
+              <!-- Липкий блок предпросмотра фото + быстрое выравнивание выбранной этикетки (удобно на телефоне) -->
+              <div class="sticky top-0 z-10 bg-slate-950/98 backdrop-blur-md border border-slate-700/90 rounded-xl p-2 space-y-2 shadow-xl">
+                <div class="relative w-full bg-slate-900 rounded-lg overflow-hidden flex items-center justify-center min-h-[145px]">
+                  <canvas id="outputCanvas" class="max-w-full max-h-[190px] object-contain cursor-pointer"></canvas>
+                </div>
+                <div class="flex justify-between items-center px-1 text-[11px] text-slate-400">
+                  <span id="polyInfo">Найдено контуров: 0</span>
+                  <div class="flex items-center gap-1.5">
+                    <span>Линия:</span>
+                    <button type="button" data-color="#ff007f" class="line-color-btn w-3.5 h-3.5 rounded-full bg-[#ff007f] ring-2 ring-offset-1 ring-offset-slate-950 ring-white cursor-pointer" title="Маджента"></button>
+                    <button type="button" data-color="#facc15" class="line-color-btn w-3.5 h-3.5 rounded-full bg-[#facc15] cursor-pointer" title="Жёлтый"></button>
+                    <button type="button" data-color="#00f0ff" class="line-color-btn w-3.5 h-3.5 rounded-full bg-[#00f0ff] cursor-pointer" title="Голубой"></button>
+                  </div>
+                </div>
+
+                <!-- Быстрые кнопки выбора этикетки (#1, #2, #3...) и ползунок поворота прямо под фото -->
+                <div id="quickAlignBar" class="hidden bg-slate-900/95 border border-amber-500/35 rounded-lg p-2 space-y-1.5">
+                  <div id="quickShapeChips" class="flex flex-wrap gap-1.5"></div>
+                  <div class="flex items-center justify-between text-[11px]">
+                    <span id="quickAlignTitle" class="font-semibold text-amber-300">Выравнивание #1: <span id="quickAlignAngle" class="font-mono text-white">0.0°</span></span>
+                    <div class="flex items-center gap-1">
+                      <button type="button" id="quickRotMinus90" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-[10px] font-mono text-slate-200 cursor-pointer">-90°</button>
+                      <button type="button" id="quickRotReset" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-[10px] font-mono text-slate-200 cursor-pointer">0°</button>
+                      <button type="button" id="quickRotPlus90" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-[10px] font-mono text-slate-200 cursor-pointer">+90°</button>
+                    </div>
+                  </div>
+                  <input type="range" id="quickRotSlider" min="-180" max="180" step="0.5" value="0" class="w-full h-2 bg-slate-800 rounded-lg cursor-pointer" />
+                </div>
+              </div>
+
+              <!-- Настройки OpenCV -->
+              <details class="bg-slate-900/90 border border-slate-800 rounded-xl p-2.5 text-xs">
+                <summary class="font-semibold text-slate-300 cursor-pointer select-none flex items-center justify-between">
+                  <span>⚙️ Настройки распознавания силуэта (OpenCV)</span>
+                  <span class="text-[10px] font-mono text-slate-500">порог / дуги</span>
+                </summary>
+                <div class="mt-3 space-y-2.5 pt-2 border-t border-slate-800">
+                  <div class="flex items-center justify-between gap-2">
+                    <span class="text-[11px] text-slate-400">Режим фона:</span>
+                    <select id="detectMode" class="text-[11px] bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-slate-200 focus:outline-none">
+                      <option value="dark" selected>Тёмная на светлом</option>
+                      <option value="light">Светлая на тёмном</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <div class="flex justify-between text-[11px] mb-0.5">
+                      <span id="threshLabel" class="text-slate-400">Порог контраста (отсечение теней)</span>
+                      <span id="threshVal" class="font-mono text-slate-200">130</span>
+                    </div>
+                    <input type="range" id="threshSlider" min="10" max="245" value="130" class="w-full h-1.5 bg-slate-800 rounded-lg cursor-pointer" />
+                  </div>
+
+                  <div>
+                    <div class="flex justify-between text-[11px] mb-0.5">
+                      <span class="text-slate-400">Разделение близких этикеток</span>
+                      <span id="sepVal" class="font-mono text-slate-200">2 px</span>
+                    </div>
+                    <input type="range" id="sepSlider" min="0" max="8" value="2" class="w-full h-1.5 bg-slate-800 rounded-lg cursor-pointer" />
+                  </div>
+
+                  <div>
+                    <div class="flex justify-between text-[11px] mb-0.5">
+                      <span class="text-slate-400">Детализация дуг и полукругов</span>
+                      <span id="epsilonVal" class="font-mono text-slate-200">0.20%</span>
+                    </div>
+                    <input type="range" id="epsilonSlider" min="1" max="25" value="4" class="w-full h-1.5 bg-slate-800 rounded-lg cursor-pointer" />
+                  </div>
+
+                  <label class="inline-flex items-center gap-2 text-[11px] text-slate-300 cursor-pointer">
+                    <input type="checkbox" id="smoothCheck" checked class="rounded bg-slate-800 border-slate-600 text-emerald-500" />
+                    <span>Плавное сглаживание полукругов</span>
+                  </label>
+                </div>
+              </details>
+
+              <!-- КАРТОЧКИ НАЙДЕННЫХ ЭТИКЕТОК В НАБОРЕ -->
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-semibold text-slate-200">Набор этикеток с фото:</span>
+                  <span id="setCompositionSummary" class="text-[11px] font-mono text-emerald-400">0 шт. в наборе</span>
+                </div>
+                <p class="text-[11px] text-slate-400 leading-snug">
+                  Для каждой этикетки: <b>1)</b> выровняйте по жёлтой рамке, <b>2)</b> задайте Ширину, Высоту и кол-во в наборе (<code class="text-slate-300">0</code> = исключить).
+                </p>
+
+                <div id="detectedShapesList" class="space-y-2.5"></div>
+
+                <!-- Режим раскладки контуров с фото + чекбокс внешней рамки + кнопка запуска -->
+                <div class="pt-2 space-y-2.5 border-t border-slate-800/90">
+                  <!-- Выбор: общий набор на 1 лист ИЛИ каждая этикетка на свой отдельный лист -->
+                  <div class="space-y-1">
+                    <span class="block text-[11px] font-semibold text-slate-300">Способ раскладки этикеток с фото:</span>
+                    <div class="grid grid-cols-2 gap-1.5">
+                      <button id="btnPhotoLayoutSet" type="button" class="py-2 px-2 rounded-lg border border-pink-500 bg-pink-500/15 text-white text-[11px] font-semibold transition cursor-pointer text-center">
+                        🧩 Сборный набор (на 1 лист)
+                      </button>
+                      <button id="btnPhotoLayoutSeparate" type="button" class="py-2 px-2 rounded-lg border border-slate-700 bg-slate-900 hover:border-slate-600 text-slate-300 text-[11px] font-semibold transition cursor-pointer text-center">
+                        📄 Каждую на отдельный лист
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Чекбокс: раскладка по внешней рамке (без вложения векторов) -->
+                  <label class="flex items-start gap-2 bg-slate-900/90 border border-slate-800 rounded-lg p-2 cursor-pointer select-none">
+                    <input id="chkPhotoBoundingBox" type="checkbox" class="mt-0.5 rounded bg-slate-800 border-slate-600 text-pink-500 focus:ring-0" />
+                    <span class="text-[11px] text-slate-300 leading-snug">
+                      <b>Раскладывать по внешней рамке</b> (без вложения векторов — чтобы фигурные края гарантированно не касались)
+                    </span>
+                  </label>
+
+                  <button id="runPhotoNestingBtn" type="button" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-[0.99] text-white font-bold text-xs sm:text-sm shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition cursor-pointer">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                      <polygon points="5 3 19 12 5 21 5 3" />
+                    </svg>
+                    <span id="runPhotoNestingBtnText">Разложить набор на листе</span>
+                  </button>
+                  <div id="photoNestingDirtyHint" class="hidden text-center text-[11px] text-amber-300 font-medium">
+                    Параметры изменены — нажмите кнопку выше для пересчёта
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -196,10 +358,9 @@
         <section class="bg-slate-850 border border-slate-800 rounded-xl p-3.5 space-y-3">
           <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-300 flex items-center gap-2">
             <span class="w-1.5 h-4 rounded-full bg-purple-500"></span>
-            3. Зазор и стратегия нестинга
+            2. Зазор и стратегия нестинга
           </h2>
 
-          <!-- Зазор между этикетками + быстрые кнопки -->
           <div>
             <div class="flex items-center justify-between mb-1">
               <label for="inputGap" class="text-xs text-slate-400">Зазор между этикетками (мм)</label>
@@ -207,17 +368,19 @@
             </div>
             <div class="flex items-center gap-2">
               <input id="inputGap" type="number" min="0" max="30" step="0.5" value="3" class="w-24 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-sm font-mono text-white focus:outline-none focus:border-purple-500" />
-              <div class="flex-1 grid grid-cols-4 gap-1">
-                <button type="button" data-gap="0" class="preset-gap-btn py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[11px] font-mono text-slate-300 transition cursor-pointer" title="Вплотную (под гильотинный рез)">0</button>
-                <button type="button" data-gap="2" class="preset-gap-btn py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[11px] font-mono text-slate-300 transition cursor-pointer">2 мм</button>
-                <button type="button" data-gap="3" class="preset-gap-btn py-1.5 rounded-lg bg-purple-500/20 border border-purple-500/50 text-[11px] font-mono text-purple-200 font-semibold transition cursor-pointer">3 мм</button>
-                <button type="button" data-gap="4" class="preset-gap-btn py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[11px] font-mono text-slate-300 transition cursor-pointer">4 мм</button>
+              <div class="flex-1 grid grid-cols-6 gap-1">
+                <button type="button" data-gap="0" class="preset-gap-btn py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[11px] font-mono text-slate-300 transition cursor-pointer" title="Вплотную">0</button>
+                <button type="button" data-gap="1" class="preset-gap-btn py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[11px] font-mono text-slate-300 transition cursor-pointer">1</button>
+                <button type="button" data-gap="2" class="preset-gap-btn py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[11px] font-mono text-slate-300 transition cursor-pointer">2</button>
+                <button type="button" data-gap="3" class="preset-gap-btn py-1.5 rounded-lg bg-purple-500/20 border border-purple-500/50 text-[11px] font-mono text-purple-200 font-semibold transition cursor-pointer">3</button>
+                <button type="button" data-gap="4" class="preset-gap-btn py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[11px] font-mono text-slate-300 transition cursor-pointer">4</button>
+                <button type="button" data-gap="5" class="preset-gap-btn py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[11px] font-mono text-slate-300 transition cursor-pointer">5</button>
               </div>
             </div>
           </div>
 
-          <!-- Режим укладки / Нестинга -->
-          <div>
+          <!-- Режим укладки (для стандартных фигур) -->
+          <div id="standardModeWrapper">
             <label for="selectMode" class="block text-xs text-slate-400 mb-1">Режим раскладки</label>
             <select id="selectMode" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-purple-500 transition">
               <option value="auto" selected>Авто-нестинг (Максимум на лист)</option>
@@ -225,15 +388,30 @@
               <option value="grid90">Поворот 90° (альбомная сетка)</option>
               <option value="nesting_only">Шахматный / Гибридный нестинг</option>
             </select>
-            <p id="modeDescription" class="mt-1.5 text-[11px] text-slate-400 leading-relaxed">
-              Сравнивает сетку 0°, поворот 90° и плотный нестинг (гильотинный комбинированный для прямоугольников / сотовый шахматный для овалов и кругов).
+          </div>
+
+          <!-- Настройки полигонального нестинга (для режима Фото) -->
+          <div id="photoNestingOptions" class="hidden space-y-2 pt-1">
+            <div class="flex items-center justify-between gap-2">
+              <label for="selectPhotoAngleStep" class="text-xs text-slate-400">Вращение контуров на листе:</label>
+              <select id="selectPhotoAngleStep" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-purple-500">
+                <option value="90" selected>Офсет: ортогонально (0°, 90°, 180°, 270°)</option>
+                <option value="180">Офсет: «валетом» (0° и 180°)</option>
+                <option value="0">Без поворота (строго 0°)</option>
+                <option value="45">Диагонали (шаг 45° — 8 углов)</option>
+                <option value="30">Свободно (шаг 30° — 12 углов)</option>
+                <option value="15">Свободно (шаг 15° — 24 угла)</option>
+              </select>
+            </div>
+            <p class="text-[11px] text-slate-400 leading-snug">
+              Используется <b>реальный многоугольник контура</b>: выступы и полукруги соседних этикеток вкладываются друг в друга под любым углом с точным зазором.
             </p>
           </div>
 
           <!-- Тираж и приладка -->
           <div class="grid grid-cols-2 gap-2.5 pt-2 border-t border-slate-800/80">
             <div>
-              <label for="inputQuantity" class="block text-xs text-slate-400 mb-1">Тираж этикеток (шт.)</label>
+              <label id="labelQuantity" for="inputQuantity" class="block text-xs text-slate-400 mb-1">Тираж этикеток (шт.)</label>
               <input id="inputQuantity" type="number" min="1" max="50000000" step="500" value="10000" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-sm font-mono text-white focus:outline-none focus:border-cyan-500" />
             </div>
             <div>
@@ -248,7 +426,7 @@
           <div class="flex items-center justify-between">
             <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-300 flex items-center gap-2">
               <span class="w-1.5 h-4 rounded-full bg-amber-400"></span>
-              Сравнение форматов (живой расчёт)
+              3. Формат листа (живое сравнение)
             </h2>
             <span id="compareWinnerBadge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
               50×70 выгоднее
@@ -256,23 +434,21 @@
           </div>
 
           <div class="grid grid-cols-2 gap-2 text-xs">
-            <!-- Колонка 35x50 -->
             <div id="liveCard35" class="p-2.5 rounded-lg bg-slate-900/90 border border-cyan-500/40 space-y-1 cursor-pointer hover:border-cyan-400 transition">
               <div class="flex items-center justify-between text-[11px] text-slate-400">
                 <span class="font-bold text-white font-mono">35×50 см</span>
                 <span id="liveUtil35" class="font-mono text-cyan-400">0%</span>
               </div>
-              <div class="text-lg font-bold font-mono text-white"><span id="liveCount35">0</span> <span class="text-[11px] font-sans font-normal text-slate-400">шт/л</span></div>
+              <div class="text-lg font-bold font-mono text-white"><span id="liveCount35">0</span> <span id="liveUnit35" class="text-[11px] font-sans font-normal text-slate-400">шт/л</span></div>
               <div class="text-[11px] font-mono text-slate-400">Тираж: <span id="liveSheets35" class="text-slate-200">0</span> л.</div>
             </div>
 
-            <!-- Колонка 50x70 -->
             <div id="liveCard50" class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800 space-y-1 cursor-pointer hover:border-emerald-400 transition">
               <div class="flex items-center justify-between text-[11px] text-slate-400">
                 <span class="font-bold text-white font-mono">50×70 см</span>
                 <span id="liveUtil50" class="font-mono text-emerald-400">0%</span>
               </div>
-              <div class="text-lg font-bold font-mono text-white"><span id="liveCount50">0</span> <span class="text-[11px] font-sans font-normal text-slate-400">шт/л</span></div>
+              <div class="text-lg font-bold font-mono text-white"><span id="liveCount50">0</span> <span id="liveUnit50" class="text-[11px] font-sans font-normal text-slate-400">шт/л</span></div>
               <div class="text-[11px] font-mono text-slate-400">Тираж: <span id="liveSheets50" class="text-slate-200">0</span> л.</div>
             </div>
           </div>
@@ -292,12 +468,12 @@
       <div class="p-3.5 sm:p-4 bg-slate-900/60 border-b border-slate-800 grid grid-cols-2 xl:grid-cols-4 gap-3 shrink-0">
         <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 flex flex-col justify-between">
           <div class="flex items-center justify-between text-xs text-slate-400">
-            <span>На одном листе</span>
+            <span id="kpiTitleCount">На одном листе</span>
             <span id="kpiGainBadge" class="px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 font-mono text-[10px]">+0 шт. нестинг</span>
           </div>
           <div class="mt-1.5 flex items-baseline gap-2">
             <span id="kpiCount" class="text-2xl sm:text-3xl font-bold font-mono text-white">0</span>
-            <span class="text-xs text-slate-400">шт.</span>
+            <span id="kpiUnitLabel" class="text-xs text-slate-400">шт.</span>
           </div>
           <div id="kpiStrategyName" class="mt-1 text-[11px] text-cyan-400 font-medium truncate">—</div>
         </div>
@@ -344,7 +520,7 @@
         <div class="flex flex-wrap items-center gap-3">
           <label class="inline-flex items-center gap-1.5 text-slate-300 cursor-pointer select-none">
             <input id="chkShowNumbers" type="checkbox" checked class="rounded bg-slate-800 border-slate-600 text-cyan-500 focus:ring-0" />
-            <span>Номера на этикетках</span>
+            <span>Номера и углы на этикетках</span>
           </label>
           <label class="inline-flex items-center gap-1.5 text-slate-300 cursor-pointer select-none">
             <input id="chkShowDims" type="checkbox" checked class="rounded bg-slate-800 border-slate-600 text-cyan-500 focus:ring-0" />
@@ -364,7 +540,24 @@
           <button id="btnFitScreen" type="button" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 font-medium cursor-pointer" title="Вписать лист в экран">
             Вписать в экран
           </button>
+          <button id="exportSvgBtn" type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 active:bg-cyan-700 text-white text-xs font-semibold transition cursor-pointer shadow-md shadow-cyan-500/20 ml-1" title="Скачать векторный макет 1:1 в миллиметрах">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            <span>Скачать SVG (1:1 мм)</span>
+          </button>
         </div>
+      </div>
+
+      <!-- ПАНЕЛЬ ПЕРЕКЛЮЧЕНИЯ ОТДЕЛЬНЫХ ЛИСТОВ (показывается в режиме "Каждую на отдельный лист") -->
+      <div id="separateSheetsBar" class="hidden px-4 py-2 bg-slate-950/95 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs shrink-0">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="text-slate-400 font-medium">Листы по этикеткам:</span>
+          <div id="separateSheetsTabs" class="flex flex-wrap gap-1.5"></div>
+        </div>
+        <span id="separateSheetSubtitle" class="font-mono text-[11px] text-pink-300"></span>
       </div>
 
       <!-- ИНТЕРАКТИВНЫЙ SVG ХОЛСТ -->
@@ -392,11 +585,11 @@
           </span>
           <span class="flex items-center gap-1.5">
             <span class="w-3 h-3 rounded-sm bg-cyan-500/25 border border-cyan-400 inline-block"></span>
-            Базовая ориентация (0°)
+            Базовая ориентация / Контур #1
           </span>
           <span class="flex items-center gap-1.5">
             <span class="w-3 h-3 rounded-sm bg-emerald-500/25 border border-emerald-400 inline-block"></span>
-            Нестинг (поворот 90° / сотовое смещение)
+            Нестинг / Другие детали набора
           </span>
         </div>
         <div id="footerSummary" class="font-mono text-slate-400">
@@ -406,50 +599,50 @@
     </main>
   </div>
 
-  <!-- Уведомления (без alert) -->
+  <!-- Скрытое изображение для OpenCV -->
+  <img id="hiddenImg" class="hidden" alt="" />
+
+  <!-- Уведомления -->
   <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm"></div>
 
   <script>
     /**
      * ============================================================================
-     * OFFSET NEST LAB — ГЕОМЕТРИЧЕСКИЙ НЕСТИНГ ДЛЯ 35×50 И 50×70 СМ
-     * Подвиды этикеток:
-     *   1. 'rect' -> Прямоугольник / Квадрат
-     *   2. 'oval' -> Овал / Круг
+     * OFFSET NEST LAB — ГЕОМЕТРИЧЕСКИЙ НЕСТИНГ + ПОЛИГОНАЛЬНЫЙ НЕСТИНГ НАБОРОВ
      * ============================================================================
      */
 
     const SHEET_FORMATS = {
-      '35x50': {
-        id: '35x50',
-        title: '35×50 см',
-        sheetW: 350,
-        sheetH: 500,
-        workW: 330,
-        workH: 480,
-        margin: 10
-      },
-      '50x70': {
-        id: '50x70',
-        title: '50×70 см',
-        sheetW: 500,
-        sheetH: 700,
-        workW: 480,
-        workH: 680,
-        margin: 10
-      }
+      '35x50': { id: '35x50', title: '35×50 см', sheetW: 350, sheetH: 500, workW: 330, workH: 480, margin: 10 },
+      '50x70': { id: '50x70', title: '50×70 см', sheetW: 500, sheetH: 700, workW: 480, workH: 680, margin: 10 }
     };
 
+    const SHAPE_COLORS = [
+      { stroke: '#22d3ee', fill: 'rgba(34, 211, 238, 0.24)', badge: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40' },
+      { stroke: '#34d399', fill: 'rgba(52, 211, 153, 0.24)', badge: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' },
+      { stroke: '#f472b6', fill: 'rgba(244, 114, 182, 0.24)', badge: 'bg-pink-500/20 text-pink-300 border-pink-500/40' },
+      { stroke: '#fbbf24', fill: 'rgba(251, 191, 36, 0.24)', badge: 'bg-amber-500/20 text-amber-300 border-amber-500/40' },
+      { stroke: '#a78bfa', fill: 'rgba(167, 139, 250, 0.24)', badge: 'bg-violet-500/20 text-violet-300 border-violet-500/40' },
+      { stroke: '#fb7185', fill: 'rgba(251, 113, 133, 0.24)', badge: 'bg-rose-500/20 text-rose-300 border-rose-500/40' }
+    ];
+
     const state = {
-      format: '35x50',     // '35x50' | '50x70'
-      shapeType: 'rect',   // 'rect' | 'oval'
-      width: 90,           // мм
-      height: 50,          // мм
-      gap: 3,              // мм
-      mode: 'auto',        // 'auto' | 'grid0' | 'grid90' | 'nesting_only'
-      quantity: 10000,     // шт
-      makeready: 150,      // листов
-      activeResult: null,  // результат для выбранного формата
+      format: '35x50',          // '35x50' | '50x70'
+      shapeType: 'rect',        // 'rect' | 'oval' | 'poly' | 'photo'
+      polySides: 6,             // число углов (3..24) для простых многоугольников
+      width: 90,                // мм
+      height: 50,               // мм
+      gap: 3,                   // мм
+      mode: 'auto',             // 'auto' | 'grid0' | 'grid90' | 'nesting_only'
+      quantity: 10000,          // шт (или наборов)
+      makeready: 150,           // листов
+      photoLayoutMode: 'set',   // 'set' (сборный набор на 1 лист) | 'separate' (каждая этикетка на отдельный лист)
+      activeSeparateTabIdx: 0,  // выбранный лист в режиме 'separate'
+      activeResult: null,
+      simpleNestingDirty: false,
+      cachedSimpleResults: { '35x50': null, '50x70': null },
+      photoNestingDirty: false,
+      cachedPhotoResults: { '35x50': null, '50x70': null },
       zoom: 1,
       panX: 0,
       panY: 0,
@@ -457,6 +650,28 @@
       dragStartX: 0,
       dragStartY: 0
     };
+
+    // Состояние модуля распознавания контуров по фото
+    let cvReady = false;
+    let lastBaseCanvas = null;
+    let activeStrokeColor = '#ff007f';
+    let selectedPhotoShapeIdx = 0;
+
+    /**
+     * Массив найденных на фото контуров:
+     * {
+     *   id: number (1..N),
+     *   name: string,
+     *   pts: [{x, y}],
+     *   bbox: {minX, minY, maxX, maxY},
+     *   angleDeg: number,
+     *   alignedConfirmed: boolean,
+     *   widthMm: string,
+     *   heightMm: string,
+     *   qtyInSet: number
+     * }
+     */
+    let photoShapes = [];
 
     function showToast(text, type = 'info') {
       const container = document.getElementById('toastContainer');
@@ -477,10 +692,9 @@
     }
 
     // ============================================================================
-    // 1. АЛГОРИТМЫ УКЛАДКИ ДЛЯ ПРЯМОУГОЛЬНИКОВ И КВАДРАТОВ
+    // 1. АЛГОРИТМЫ УКЛАДКИ ДЛЯ ПРЯМОУГОЛЬНИКОВ И ОВАЛОВ (БАЗОВЫЕ ВКЛАДКИ)
     // ============================================================================
 
-    // Регулярная сетка для прямоугольников (с заданными размерами itemW x itemH)
     function packRectRegularGrid(zoneW, zoneH, itemW, itemH, gap, isRotated90) {
       if (itemW > zoneW + 1e-6 || itemH > zoneH + 1e-6) return [];
       const cols = Math.floor((zoneW + gap + 1e-6) / (itemW + gap));
@@ -501,14 +715,9 @@
       return items;
     }
 
-    // Двухзонный гильотинный раскрой (Гибридный нестинг):
-    // Основной блок ориентирован (mainW x mainH), а правый и/или нижний остаток
-    // добивается этикетками, повёрнутыми на 90° (subW x subH) с сохранением прямых резов!
     function packRectGuillotineHybrid(zoneW, zoneH, w, h, gap) {
       let bestItems = [];
       let bestDesc = '';
-
-      // Проверяем оба базовых направления: 0° (w x h) и 90° (h x w)
       const orientations = [
         { mainW: w, mainH: h, mainAng: 0, subW: h, subH: w, subAng: 90 },
         { mainW: h, mainH: w, mainAng: 90, subW: w, subH: h, subAng: 0 }
@@ -518,29 +727,21 @@
         const maxCols = Math.floor((zoneW + gap + 1e-6) / (ori.mainW + gap));
         const maxRows = Math.floor((zoneH + gap + 1e-6) / (ori.mainH + gap));
 
-        // Перебираем все возможные разбиения по колонкам и рядам основного блока
         for (let cols = 0; cols <= maxCols; cols++) {
           for (let rows = 0; rows <= maxRows; rows++) {
             const usedW = cols > 0 ? cols * ori.mainW + (cols - 1) * gap : 0;
             const usedH = rows > 0 ? rows * ori.mainH + (rows - 1) * gap : 0;
 
-            // Вариант А: Вертикальный гильотинный рез (справа от основного блока на всю высоту zoneH)
-            // + добивка снизу под основным блоком
             const itemsA = [];
             for (let r = 0; r < rows; r++) {
               for (let c = 0; c < cols; c++) {
                 itemsA.push({
-                  x: c * (ori.mainW + gap),
-                  y: r * (ori.mainH + gap),
-                  w: ori.mainW,
-                  h: ori.mainH,
-                  angle: ori.mainAng,
-                  isNestedVariant: false
+                  x: c * (ori.mainW + gap), y: r * (ori.mainH + gap),
+                  w: ori.mainW, h: ori.mainH, angle: ori.mainAng, isNestedVariant: false
                 });
               }
             }
 
-            // Правая полоса (от rightStartX до zoneW, по всей высоте zoneH)
             const rightStartX = cols > 0 ? usedW + gap : 0;
             const remRightW = zoneW - rightStartX;
             if (remRightW >= ori.subW - 1e-6 && zoneH >= ori.subH - 1e-6) {
@@ -549,18 +750,13 @@
               for (let r = 0; r < rRows; r++) {
                 for (let c = 0; c < rCols; c++) {
                   itemsA.push({
-                    x: rightStartX + c * (ori.subW + gap),
-                    y: r * (ori.subH + gap),
-                    w: ori.subW,
-                    h: ori.subH,
-                    angle: ori.subAng,
-                    isNestedVariant: true
+                    x: rightStartX + c * (ori.subW + gap), y: r * (ori.subH + gap),
+                    w: ori.subW, h: ori.subH, angle: ori.subAng, isNestedVariant: true
                   });
                 }
               }
             }
 
-            // Нижняя полоса под основным блоком (ширина usedW, высота от bottomStartY до zoneH)
             const bottomStartY = rows > 0 ? usedH + gap : 0;
             const remBottomH = zoneH - bottomStartY;
             const bottomZoneW = cols > 0 ? usedW : 0;
@@ -570,12 +766,8 @@
               for (let r = 0; r < bRows; r++) {
                 for (let c = 0; c < bCols; c++) {
                   itemsA.push({
-                    x: c * (ori.subW + gap),
-                    y: bottomStartY + r * (ori.subH + gap),
-                    w: ori.subW,
-                    h: ori.subH,
-                    angle: ori.subAng,
-                    isNestedVariant: true
+                    x: c * (ori.subW + gap), y: bottomStartY + r * (ori.subH + gap),
+                    w: ori.subW, h: ori.subH, angle: ori.subAng, isNestedVariant: true
                   });
                 }
               }
@@ -584,45 +776,32 @@
             if (itemsA.length > bestItems.length) {
               bestItems = itemsA;
               const hasMixed = itemsA.some(it => it.isNestedVariant) && itemsA.some(it => !it.isNestedVariant);
-              bestDesc = hasMixed
-                ? `Гибридный нестинг (${ori.mainAng}° + добивка ${ori.subAng}°)`
-                : `Сетка ${ori.mainAng}°`;
+              bestDesc = hasMixed ? `Гибридный нестинг (${ori.mainAng}° + добивка ${ori.subAng}°)` : `Сетка ${ori.mainAng}°`;
             }
 
-            // Вариант Б: Горизонтальный гильотинный рез (снизу на всю ширину zoneW + справа от основного блока)
             const itemsB = [];
             for (let r = 0; r < rows; r++) {
               for (let c = 0; c < cols; c++) {
                 itemsB.push({
-                  x: c * (ori.mainW + gap),
-                  y: r * (ori.mainH + gap),
-                  w: ori.mainW,
-                  h: ori.mainH,
-                  angle: ori.mainAng,
-                  isNestedVariant: false
+                  x: c * (ori.mainW + gap), y: r * (ori.mainH + gap),
+                  w: ori.mainW, h: ori.mainH, angle: ori.mainAng, isNestedVariant: false
                 });
               }
             }
 
-            // Нижняя полоса на всю ширину zoneW
             if (zoneW >= ori.subW - 1e-6 && remBottomH >= ori.subH - 1e-6) {
               const bCols = Math.floor((zoneW + gap + 1e-6) / (ori.subW + gap));
               const bRows = Math.floor((remBottomH + gap + 1e-6) / (ori.subH + gap));
               for (let r = 0; r < bRows; r++) {
                 for (let c = 0; c < bCols; c++) {
                   itemsB.push({
-                    x: c * (ori.subW + gap),
-                    y: bottomStartY + r * (ori.subH + gap),
-                    w: ori.subW,
-                    h: ori.subH,
-                    angle: ori.subAng,
-                    isNestedVariant: true
+                    x: c * (ori.subW + gap), y: bottomStartY + r * (ori.subH + gap),
+                    w: ori.subW, h: ori.subH, angle: ori.subAng, isNestedVariant: true
                   });
                 }
               }
             }
 
-            // Правая полоса рядом с основным блоком (высота usedH)
             const rightZoneH = rows > 0 ? usedH : 0;
             if (remRightW >= ori.subW - 1e-6 && rightZoneH >= ori.subH - 1e-6) {
               const rCols = Math.floor((remRightW + gap + 1e-6) / (ori.subW + gap));
@@ -630,12 +809,8 @@
               for (let r = 0; r < rRows; r++) {
                 for (let c = 0; c < rCols; c++) {
                   itemsB.push({
-                    x: rightStartX + c * (ori.subW + gap),
-                    y: r * (ori.subH + gap),
-                    w: ori.subW,
-                    h: ori.subH,
-                    angle: ori.subAng,
-                    isNestedVariant: true
+                    x: rightStartX + c * (ori.subW + gap), y: r * (ori.subH + gap),
+                    w: ori.subW, h: ori.subH, angle: ori.subAng, isNestedVariant: true
                   });
                 }
               }
@@ -644,50 +819,29 @@
             if (itemsB.length > bestItems.length) {
               bestItems = itemsB;
               const hasMixed = itemsB.some(it => it.isNestedVariant) && itemsB.some(it => !it.isNestedVariant);
-              bestDesc = hasMixed
-                ? `Гибридный нестинг (${ori.mainAng}° + добивка ${ori.subAng}°)`
-                : `Сетка ${ori.mainAng}°`;
+              bestDesc = hasMixed ? `Гибридный нестинг (${ori.mainAng}° + добивка ${ori.subAng}°)` : `Сетка ${ori.mainAng}°`;
             }
           }
         }
       }
-
       return { items: bestItems, label: bestDesc || 'Гибридный нестинг' };
     }
 
-    // ============================================================================
-    // 2. АЛГОРИТМЫ УКЛАДКИ ДЛЯ ОВАЛОВ И КРУГОВ
-    // ============================================================================
-
-    // Плотная шахматная / гексагональная (сотовая) укладка эллипсов и кругов.
-    // Точная геометрия расстояния между рядами при сотовом смещении на полшага:
-    // Эллипс с полуосями a = (w + gap)/2 и b = (h + gap)/2 при сдвиге на dx = a
-    // касается соседнего ряда по вертикали на расстоянии dy = b * sqrt(3) ≈ 0.866025 * (h + gap)!
-    // Это даёт экономию ~13.4% по высоте (или ширине) и позволяет втиснуть дополнительные ряды.
     function packOvalHexagonal(zoneW, zoneH, w, h, gap) {
       let bestItems = [];
       let bestLabel = '';
-
-      const orientations = [
-        { itemW: w, itemH: h, angle: 0 },
-        { itemW: h, itemH: w, angle: 90 }
-      ];
+      const orientations = [{ itemW: w, itemH: h, angle: 0 }, { itemW: h, itemH: w, angle: 90 }];
 
       for (const ori of orientations) {
         if (ori.itemW > zoneW + 1e-6 || ori.itemH > zoneH + 1e-6) continue;
 
-        // 1. Горизонтальные сотовые ряды (чётные ряды сдвинуты по X на (itemW + gap)/2)
         const pitchX = ori.itemW + gap;
         const shiftX = pitchX * 0.5;
-        // Точный вертикальный шаг между центрами рядов для касания эллипсов с учётом gap:
-        // ((shiftX)^2 / pitchX^2) + (pitchY^2 / (itemH + gap)^2) = 1  =>  pitchY = (itemH + gap) * sqrt(3)/2
         const pitchY = (ori.itemH + gap) * (Math.sqrt(3) / 2);
 
         const colsEven = Math.floor((zoneW + gap + 1e-6) / pitchX);
         const colsOdd = Math.floor((zoneW - shiftX + gap + 1e-6) / pitchX);
-        const rowsHoriz = zoneH >= ori.itemH - 1e-6
-          ? 1 + Math.floor((zoneH - ori.itemH + 1e-6) / pitchY)
-          : 0;
+        const rowsHoriz = zoneH >= ori.itemH - 1e-6 ? 1 + Math.floor((zoneH - ori.itemH + 1e-6) / pitchY) : 0;
 
         if (rowsHoriz > 0 && colsEven > 0) {
           const itemsH = [];
@@ -697,14 +851,7 @@
             const offsetX = isOddRow ? shiftX : 0;
             const y = r * pitchY;
             for (let c = 0; c < cols; c++) {
-              itemsH.push({
-                x: offsetX + c * pitchX,
-                y,
-                w: ori.itemW,
-                h: ori.itemH,
-                angle: ori.angle,
-                isNestedVariant: isOddRow
-              });
+              itemsH.push({ x: offsetX + c * pitchX, y, w: ori.itemW, h: ori.itemH, angle: ori.angle, isNestedVariant: isOddRow });
             }
           }
           if (itemsH.length > bestItems.length) {
@@ -713,16 +860,13 @@
           }
         }
 
-        // 2. Вертикальные сотовые колонки (чётные колонки сдвинуты по Y на (itemH + gap)/2)
         const colPitchY = ori.itemH + gap;
         const shiftY = colPitchY * 0.5;
         const colPitchX = (ori.itemW + gap) * (Math.sqrt(3) / 2);
 
         const rowsEven = Math.floor((zoneH + gap + 1e-6) / colPitchY);
         const rowsOdd = Math.floor((zoneH - shiftY + gap + 1e-6) / colPitchY);
-        const colsVert = zoneW >= ori.itemW - 1e-6
-          ? 1 + Math.floor((zoneW - ori.itemW + 1e-6) / colPitchX)
-          : 0;
+        const colsVert = zoneW >= ori.itemW - 1e-6 ? 1 + Math.floor((zoneW - ori.itemW + 1e-6) / colPitchX) : 0;
 
         if (colsVert > 0 && rowsEven > 0) {
           const itemsV = [];
@@ -732,14 +876,7 @@
             const offsetY = isOddCol ? shiftY : 0;
             const x = c * colPitchX;
             for (let r = 0; r < rows; r++) {
-              itemsV.push({
-                x,
-                y: offsetY + r * colPitchY,
-                w: ori.itemW,
-                h: ori.itemH,
-                angle: ori.angle,
-                isNestedVariant: isOddCol
-              });
+              itemsV.push({ x, y: offsetY + r * colPitchY, w: ori.itemW, h: ori.itemH, angle: ori.angle, isNestedVariant: isOddCol });
             }
           }
           if (itemsV.length > bestItems.length) {
@@ -748,21 +885,940 @@
           }
         }
       }
-
       return { items: bestItems, label: bestLabel || 'Сотовый нестинг' };
     }
 
     // ============================================================================
-    // 3. ЕДИНЫЙ ДИСПЕТЧЕР РАСЧЁТА ДЛЯ ЛЮБОГО ФОРМАТА И РЕЖИМА
+    // 1B. АЛГОРИТМЫ УКЛАДКИ ДЛЯ ПРОСТЫХ МНОГОУГОЛЬНИКОВ (N-УГОЛЬНИКОВ)
     // ============================================================================
-    function calculateLayoutForFormat(formatObj) {
+    function generateRegularPolygonVertices(w, h, sides) {
+      const n = Math.max(3, Math.min(24, parseInt(sides, 10) || 6));
+      const raw = [];
+      // Начальный угол: -PI/2 (вершина вверх) для нечётных и 6-угольника, -PI/4 для 4-угольника (ромб)
+      const startAngle = (n === 4) ? -Math.PI / 2 : -Math.PI / 2;
+      for (let i = 0; i < n; i++) {
+        const ang = startAngle + (2 * Math.PI * i) / n;
+        raw.push({ x: Math.cos(ang), y: Math.sin(ang) });
+      }
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+      raw.forEach(p => {
+        if (p.x < minX) minX = p.x;
+        if (p.y < minY) minY = p.y;
+        if (p.x > maxX) maxX = p.x;
+        if (p.y > maxY) maxY = p.y;
+      });
+      const bw = Math.max(1e-6, maxX - minX);
+      const bh = Math.max(1e-6, maxY - minY);
+      return raw.map(p => ({
+        x: ((p.x - minX) / bw) * w,
+        y: ((p.y - minY) / bh) * h
+      }));
+    }
+
+    function computePolygonArea(pts) {
+      let area = 0;
+      for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+        area += (pts[j].x + pts[i].x) * (pts[j].y - pts[i].y);
+      }
+      return Math.abs(area) / 2;
+    }
+
+    // Проверка пересечения двух выпуклых многоугольников с учётом требуемого зазора gap (мм):
+    // При gap === 0 допускается касание стык-в-стык (только строгое внутреннее пересечение запрещено).
+    // При gap > 0 между любыми точками контуров должно быть расстояние не меньше gap.
+    function polygonsOverlapWithGap(polyA, polyB, gap) {
+      let minAx = Infinity, minAy = Infinity, maxAx = -Infinity, maxAy = -Infinity;
+      polyA.forEach(p => { if (p.x < minAx) minAx = p.x; if (p.y < minAy) minAy = p.y; if (p.x > maxAx) maxAx = p.x; if (p.y > maxAy) maxAy = p.y; });
+      let minBx = Infinity, minBy = Infinity, maxBx = -Infinity, maxBy = -Infinity;
+      polyB.forEach(p => { if (p.x < minBx) minBx = p.x; if (p.y < minBy) minBy = p.y; if (p.x > maxBx) maxBx = p.x; if (p.y > maxBy) maxBy = p.y; });
+
+      const epsPad = gap > 0 ? gap - 1e-4 : -0.15;
+      if (maxAx + epsPad <= minBx || maxBx + epsPad <= minAx || maxAy + epsPad <= minBy || maxBy + epsPad <= minAy) {
+        return false;
+      }
+
+      const ptStrictlyInside = (px, py, poly) => {
+        for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+          const ax = poly[j].x, ay = poly[j].y, bx = poly[i].x, by = poly[i].y;
+          const vx = bx - ax, vy = by - ay;
+          const wx = px - ax, wy = py - ay;
+          const len2 = vx * vx + vy * vy;
+          if (len2 > 1e-9) {
+            const t = Math.max(0, Math.min(1, (vx * wx + vy * wy) / len2));
+            const distEdge = Math.hypot(px - (ax + t * vx), py - (ay + t * vy));
+            if (distEdge < 0.15) return false;
+          }
+        }
+        let inside = false;
+        for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+          const xi = poly[i].x, yi = poly[i].y;
+          const xj = poly[j].x, yj = poly[j].y;
+          const inter = ((yi > py) !== (yj > py)) && (px < (xj - xi) * (py - yi) / ((yj - yi) || 1e-9) + xi);
+          if (inter) inside = !inside;
+        }
+        return inside;
+      };
+
+      const ptToSegDist = (px, py, ax, ay, bx, by) => {
+        const vx = bx - ax, vy = by - ay;
+        const wx = px - ax, wy = py - ay;
+        const c1 = vx * wx + vy * wy;
+        if (c1 <= 0) return Math.hypot(px - ax, py - ay);
+        const c2 = vx * vx + vy * vy;
+        if (c2 <= c1) return Math.hypot(px - bx, py - by);
+        const t = c1 / c2;
+        return Math.hypot(px - (ax + t * vx), py - (ay + t * vy));
+      };
+
+      const segIntersectionDepth = (ax, ay, bx, by, cx, cy, dx, dy) => {
+        const ccw = (p1x, p1y, p2x, p2y, p3x, p3y) => (p3y - p1y) * (p2x - p1x) > (p2y - p1y) * (p3x - p1x);
+        const inter = (ccw(ax, ay, cx, cy, dx, dy) !== ccw(bx, by, cx, cy, dx, dy)) &&
+                      (ccw(ax, ay, bx, by, cx, cy) !== ccw(ax, ay, bx, by, dx, dy));
+        if (!inter) return null;
+        const denom = (ax - bx) * (cy - dy) - (ay - by) * (cx - dx);
+        if (Math.abs(denom) < 1e-9) return { x: (ax + bx) * 0.5, y: (ay + by) * 0.5 };
+        const t = ((ax - cx) * (cy - dy) - (ay - cy) * (cx - dx)) / denom;
+        return { x: ax + t * (bx - ax), y: ay + t * (by - ay) };
+      };
+
+      for (let i = 0; i < polyA.length; i++) {
+        const a1 = polyA[i];
+        const a2 = polyA[(i + 1) % polyA.length];
+        for (let j = 0; j < polyB.length; j++) {
+          const b1 = polyB[j];
+          const b2 = polyB[(j + 1) % polyB.length];
+          const hit = segIntersectionDepth(a1.x, a1.y, a2.x, a2.y, b1.x, b1.y, b2.x, b2.y);
+          if (hit) {
+            if (gap <= 1e-6) {
+              const dA = Math.min(Math.hypot(hit.x - a1.x, hit.y - a1.y), Math.hypot(hit.x - a2.x, hit.y - a2.y));
+              const dB = Math.min(Math.hypot(hit.x - b1.x, hit.y - b1.y), Math.hypot(hit.x - b2.x, hit.y - b2.y));
+              if (dA < 0.25 && dB < 0.25) continue;
+            }
+            return true;
+          }
+        }
+      }
+
+      for (let i = 0; i < polyA.length; i++) {
+        if (ptStrictlyInside(polyA[i].x, polyA[i].y, polyB)) return true;
+      }
+      for (let i = 0; i < polyB.length; i++) {
+        if (ptStrictlyInside(polyB[i].x, polyB[i].y, polyA)) return true;
+      }
+
+      if (gap > 1e-6) {
+        const minAllowed = gap - 1e-4;
+        for (let i = 0; i < polyA.length; i++) {
+          const a1 = polyA[i];
+          const a2 = polyA[(i + 1) % polyA.length];
+          for (let j = 0; j < polyB.length; j++) {
+            const b1 = polyB[j];
+            const b2 = polyB[(j + 1) % polyB.length];
+            const d1 = ptToSegDist(a1.x, a1.y, b1.x, b1.y, b2.x, b2.y);
+            const d2 = ptToSegDist(a2.x, a2.y, b1.x, b1.y, b2.x, b2.y);
+            const d3 = ptToSegDist(b1.x, b1.y, a1.x, a1.y, a2.x, a2.y);
+            const d4 = ptToSegDist(b2.x, b2.y, a1.x, a1.y, a2.x, a2.y);
+            if (Math.min(d1, d2, d3, d4) < minAllowed) {
+              return true;
+            }
+          }
+        }
+      }
+
+      return false;
+    }
+
+    function getPlacedPolygonWorldCoords(item, baseVerts) {
+      const rawW = (item.angle === 90 || item.angle === 270) ? item.h : item.w;
+      const rawH = (item.angle === 90 || item.angle === 270) ? item.w : item.h;
+      const verts = generateRegularPolygonVertices(rawW, rawH, baseVerts.length);
+      const rot = rotatePoints(verts, rawW / 2, rawH / 2, item.angle || 0);
+      let minRx = Infinity, minRy = Infinity;
+      rot.forEach(p => { if (p.x < minRx) minRx = p.x; if (p.y < minRy) minRy = p.y; });
+      return rot.map(p => ({ x: item.x + (p.x - minRx), y: item.y + (p.y - minRy) }));
+    }
+
+    // Точный раскрой многоугольников на сетке с шагом, адаптированным под gap (включая gap = 0 стык-в-стык)
+    function packSimplePolygon(zoneW, zoneH, w, h, sides, gap, mode) {
+      const grid0 = packRectRegularGrid(zoneW, zoneH, w, h, gap, false);
+      const grid90 = packRectRegularGrid(zoneW, zoneH, h, w, gap, true);
+
+      if (mode === 'grid0') return { items: grid0, label: `Сетка 0° (${sides}-угольник)` };
+      if (mode === 'grid90') return { items: grid90, label: `Поворот 90° (${sides}-угольник)` };
+
+      const baseVerts = generateRegularPolygonVertices(w, h, sides);
+      const candidates = [
+        { items: grid0, label: `Сетка 0° (${sides}-угольник)` },
+        { items: grid90, label: `Сетка 90° (${sides}-угольник)` }
+      ];
+
+      const orientations = [
+        { itemW: w, itemH: h, baseAng: 0 },
+        { itemW: h, itemH: w, baseAng: 90 }
+      ];
+
+      const fineStepX = gap <= 1e-6 ? Math.max(0.5, Math.min(w * 0.05, 1.5)) : Math.max(1.0, Math.min(w * 0.15, 3.0));
+      const fineStepY = gap <= 1e-6 ? Math.max(0.5, Math.min(h * 0.05, 1.5)) : Math.max(1.0, Math.min(h * 0.15, 3.0));
+
+      for (const ori of orientations) {
+        if (ori.itemW > zoneW + 1e-6 || ori.itemH > zoneH + 1e-6) continue;
+
+        const anglesToTry = sides === 3 ? [ori.baseAng, (ori.baseAng + 180) % 360] : [ori.baseAng];
+        const placed = [];
+        const placedPolys = [];
+
+        const stepX = (ori.baseAng === 90) ? fineStepY : fineStepX;
+        const stepY = (ori.baseAng === 90) ? fineStepX : fineStepY;
+
+        for (let gy = 0; gy <= zoneH - ori.itemH + 1e-6; gy += stepY) {
+          for (let gx = 0; gx <= zoneW - ori.itemW + 1e-6; gx += stepX) {
+            for (let aIdx = 0; aIdx < anglesToTry.length; aIdx++) {
+              const ang = anglesToTry[aIdx];
+              const candidateItem = {
+                x: Number(gx.toFixed(2)),
+                y: Number(gy.toFixed(2)),
+                w: ori.itemW,
+                h: ori.itemH,
+                angle: ang,
+                isNestedVariant: ang !== ori.baseAng
+              };
+              const candPoly = getPlacedPolygonWorldCoords(candidateItem, baseVerts);
+
+              let collides = false;
+              for (let k = 0; k < placedPolys.length; k++) {
+                if (polygonsOverlapWithGap(candPoly, placedPolys[k], gap)) {
+                  collides = true;
+                  break;
+                }
+              }
+
+              if (!collides) {
+                placed.push(candidateItem);
+                placedPolys.push(candPoly);
+                break;
+              }
+            }
+          }
+        }
+
+        if (placed.length > 0) {
+          const gapNote = gap <= 1e-6 ? 'стык в стык (0 мм)' : `зазор ${gap} мм`;
+          const desc = sides === 3
+            ? `Встречный нестинг треугольников, ${gapNote} (${ori.baseAng}°/180°)`
+            : `Плотный нестинг ${sides}-угольников, ${gapNote} (${ori.baseAng}°)`;
+          candidates.push({ items: placed, label: desc });
+        }
+      }
+
+      let best = candidates[0];
+      for (const c of candidates) {
+        if (c.items.length > best.items.length) best = c;
+      }
+      return best;
+    }
+
+    // ============================================================================
+    // 2. ЧЕСТНЫЙ ПОЛИГОНАЛЬНЫЙ НЕСТИНГ НАБОРОВ ПО ФОТО (СВОБОДНЫЙ УГОЛ 0°..360°)
+    //    Использует точную геометрию контура + морфологический зазор + BitSet
+    // ============================================================================
+
+    function rotatePoints(pts, cx, cy, angleDeg) {
+      if (!angleDeg) return pts.map(p => ({ x: p.x, y: p.y }));
+      const rad = (angleDeg * Math.PI) / 180;
+      const cos = Math.cos(rad);
+      const sin = Math.sin(rad);
+      return pts.map(p => {
+        const dx = p.x - cx;
+        const dy = p.y - cy;
+        return { x: cx + dx * cos - dy * sin, y: cy + dx * sin + dy * cos };
+      });
+    }
+
+    // Получает выровненный и нормализованный (0..1) контур этикетки с фото
+    function getAlignedNormalizedShape(shape) {
+      const cx = (shape.bbox.minX + shape.bbox.maxX) / 2;
+      const cy = (shape.bbox.minY + shape.bbox.maxY) / 2;
+      const rotated = rotatePoints(shape.pts, cx, cy, shape.angleDeg || 0);
+
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+      rotated.forEach(p => {
+        if (p.x < minX) minX = p.x;
+        if (p.y < minY) minY = p.y;
+        if (p.x > maxX) maxX = p.x;
+        if (p.y > maxY) maxY = p.y;
+      });
+      const boxW = Math.max(1, maxX - minX);
+      const boxH = Math.max(1, maxY - minY);
+
+      const normPts = rotated.map(p => ({
+        x: (p.x - minX) / boxW,
+        y: (p.y - minY) / boxH
+      }));
+
+      // Площадь реального многоугольника в долях от описанного прямоугольника
+      let polyAreaFrac = 0;
+      for (let i = 0, j = normPts.length - 1; i < normPts.length; j = i++) {
+        polyAreaFrac += (normPts[j].x + normPts[i].x) * (normPts[j].y - normPts[i].y);
+      }
+      polyAreaFrac = Math.min(1, Math.max(0.05, Math.abs(polyAreaFrac) / 2));
+
+      return { rotatedPts: rotated, bbox: { minX, minY, maxX, maxY, boxW, boxH }, normPts, polyAreaFrac };
+    }
+
+    // Создаёт набор растровых масок (BitSet по 32 бита) с учётом реального контура,
+    // произвольного угла поворота rotDeg и точного зазора gapMm вокруг контура!
+    function buildRotatedPolygonVariants(normPts, wMm, hMm, gapMm, angleStepDeg, resPerMm, useBoundingBox = false) {
+      // Переводим нормализованные точки в реальные миллиметры (относительно центра (0,0))
+      const basePts = normPts.map(p => ({
+        x: (p.x - 0.5) * wMm,
+        y: (p.y - 0.5) * hMm
+      }));
+
+      const angles = [];
+      if (angleStepDeg <= 0) {
+        angles.push(0);
+      } else {
+        for (let a = 0; a < 360 - 1e-6; a += angleStepDeg) {
+          angles.push(Math.round(a * 10) / 10);
+        }
+      }
+
+      const offCanvas = document.createElement('canvas');
+      const offCtx = offCanvas.getContext('2d', { willReadFrequently: true });
+
+      const variants = [];
+      const seenSignatures = new Set();
+
+      for (const ang of angles) {
+        const rad = (ang * Math.PI) / 180;
+        const cos = Math.cos(rad);
+        const sin = Math.sin(rad);
+
+        // Поворачиваем реальные вершины многоугольника в миллиметрах
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        const rotPtsMm = basePts.map(p => {
+          const rx = p.x * cos - p.y * sin;
+          const ry = p.x * sin + p.y * cos;
+          if (rx < minX) minX = rx;
+          if (ry < minY) minY = ry;
+          if (rx > maxX) maxX = rx;
+          if (ry > maxY) maxY = ry;
+          return { x: rx, y: ry };
+        });
+
+        const rotW = maxX - minX;
+        const rotH = maxY - minY;
+
+        // Сдвигаем многоугольник так, чтобы его левый верхний угол был в (0, 0) мм
+        const localPtsMm = rotPtsMm.map(p => ({
+          x: p.x - minX,
+          y: p.y - minY
+        }));
+
+        // Насколько расширяется маска для проверки коллизий:
+        // Сам многоугольник имеет габарит (rotW x rotH), а вокруг него должна быть буферная зона gapMm/2
+        // с каждой стороны (итого +gapMm по ширине и +gapMm по высоте).
+        // Когда две маски с рубашкой gapMm/2 не пересекаются, расстояние между реальными ножами >= gapMm!
+        const halfGap = gapMm * 0.5;
+        const padPx = Math.ceil(halfGap * resPerMm) + 1;
+        const maskW = Math.ceil((rotW + gapMm) * resPerMm);
+        const maskH = Math.ceil((rotH + gapMm) * resPerMm);
+
+        if (maskW <= 0 || maskH <= 0) continue;
+
+        offCanvas.width = maskW;
+        offCanvas.height = maskH;
+        offCtx.clearRect(0, 0, maskW, maskH);
+
+        offCtx.save();
+        offCtx.fillStyle = '#ffffff';
+        offCtx.strokeStyle = '#ffffff';
+        offCtx.lineJoin = 'round';
+        offCtx.lineCap = 'round';
+
+        if (useBoundingBox) {
+          // Режим «по внешней рамке»: блокируем весь габаритный прямоугольник + зазор, чтобы фигурные контуры не входили друг в друга
+          offCtx.fillRect(0, 0, maskW, maskH);
+        } else {
+          offCtx.beginPath();
+          localPtsMm.forEach((p, idx) => {
+            const px = (p.x + halfGap) * resPerMm;
+            const py = (p.y + halfGap) * resPerMm;
+            if (idx === 0) offCtx.moveTo(px, py);
+            else offCtx.lineTo(px, py);
+          });
+          offCtx.closePath();
+          offCtx.fill();
+
+          // Обводка толщиной gapMm * resPerMm расширяет многоугольник наружу ровно на gapMm/2 со всех сторон!
+          if (gapMm > 0) {
+            offCtx.lineWidth = gapMm * resPerMm;
+            offCtx.stroke();
+          }
+        }
+        offCtx.restore();
+
+        const imgData = offCtx.getImageData(0, 0, maskW, maskH).data;
+        const wordsPerRow = Math.ceil(maskW / 32);
+        const bitRows = [];
+        let activeBitsCount = 0;
+
+        for (let y = 0; y < maskH; y++) {
+          const rowWords = new Uint32Array(wordsPerRow);
+          const rowOffset = y * maskW * 4;
+          for (let x = 0; x < maskW; x++) {
+            if (imgData[rowOffset + x * 4 + 3] > 64) {
+              rowWords[x >>> 5] |= (1 << (x & 31));
+              activeBitsCount++;
+            }
+          }
+          bitRows.push(rowWords);
+        }
+
+        // Отсеиваем симметричные дубликаты (например, для квадрата или круга 0° и 180° идентичны)
+        const sig = `${maskW}x${maskH}_${activeBitsCount}_${bitRows[Math.floor(maskH / 2)][0]}`;
+        if (seenSignatures.has(sig)) continue;
+        seenSignatures.add(sig);
+
+        variants.push({
+          angle: ang,
+          rotW,
+          rotH,
+          localPtsMm, // точки реального ножа в мм относительно (0,0) его габарита
+          maskW,
+          maskH,
+          wordsPerRow,
+          bitRows,
+          activeBitsCount
+        });
+      }
+
+      return variants;
+    }
+
+    // Проверка наложения битовой маски детали на битовую карту листа в позиции (gx, gy)
+    function canPlaceBitMask(sheetRows, sheetWordsPerRow, variant, gx, gy) {
+      const mH = variant.maskH;
+      const wpr = variant.wordsPerRow;
+      const bitShift = gx & 31;
+      const wordOffset = gx >>> 5;
+
+      if (bitShift === 0) {
+        for (let r = 0; r < mH; r++) {
+          const sRow = sheetRows[gy + r];
+          const mRow = variant.bitRows[r];
+          for (let w = 0; w < wpr; w++) {
+            if ((sRow[wordOffset + w] & mRow[w]) !== 0) return false;
+          }
+        }
+      } else {
+        const invShift = 32 - bitShift;
+        for (let r = 0; r < mH; r++) {
+          const sRow = sheetRows[gy + r];
+          const mRow = variant.bitRows[r];
+          for (let w = 0; w < wpr; w++) {
+            const mw = mRow[w];
+            if (mw === 0) continue;
+            if ((sRow[wordOffset + w] & (mw << bitShift)) !== 0) return false;
+            if (wordOffset + w + 1 < sheetWordsPerRow) {
+              if ((sRow[wordOffset + w + 1] & (mw >>> invShift)) !== 0) return false;
+            }
+          }
+        }
+      }
+      return true;
+    }
+
+    // Запись битовой маски детали на битовую карту листа
+    function commitBitMask(sheetRows, sheetWordsPerRow, variant, gx, gy) {
+      const mH = variant.maskH;
+      const wpr = variant.wordsPerRow;
+      const bitShift = gx & 31;
+      const wordOffset = gx >>> 5;
+
+      if (bitShift === 0) {
+        for (let r = 0; r < mH; r++) {
+          const sRow = sheetRows[gy + r];
+          const mRow = variant.bitRows[r];
+          for (let w = 0; w < wpr; w++) {
+            sRow[wordOffset + w] |= mRow[w];
+          }
+        }
+      } else {
+        const invShift = 32 - bitShift;
+        for (let r = 0; r < mH; r++) {
+          const sRow = sheetRows[gy + r];
+          const mRow = variant.bitRows[r];
+          for (let w = 0; w < wpr; w++) {
+            const mw = mRow[w];
+            if (mw === 0) continue;
+            sRow[wordOffset + w] |= (mw << bitShift);
+            if (wordOffset + w + 1 < sheetWordsPerRow) {
+              sRow[wordOffset + w + 1] |= (mw >>> invShift);
+            }
+          }
+        }
+      }
+    }
+
+    // Один проход укладки с заданным направлением (rowMajor: true = ровные ряды слева направо, false = ровные колонки сверху вниз)
+    // и предпочтительным базовым углом (baseAngle: 0 или 90 для 90-градусного режима)
+    function runSinglePassPolygonPack(gridW, gridH, sheetWordsPerRow, queue, gapMm, resPerMm, rowMajor, baseAngle) {
+      const sheetRows = new Array(gridH);
+      for (let y = 0; y < gridH; y++) {
+        sheetRows[y] = new Uint32Array(sheetWordsPerRow);
+      }
+
+      const placed = [];
+      const halfGap = gapMm * 0.5;
+      const scanStep = queue.length > 80 ? 2 : 1;
+
+      for (let idx = 0; idx < queue.length; idx++) {
+        const piece = queue[idx];
+        let bestPos = null;
+        let bestScore = Infinity;
+
+        // Сортируем варианты углов так, чтобы предпочтительные для офсета (baseAngle и baseAngle+180° «валетом») проверялись первыми
+        const orderedVariants = piece.variants.slice().sort((a, b) => {
+          const isPrefA = (a.angle === baseAngle || a.angle === (baseAngle + 180) % 360) ? 0 : 1;
+          const isPrefB = (b.angle === baseAngle || b.angle === (baseAngle + 180) % 360) ? 0 : 1;
+          return isPrefA - isPrefB;
+        });
+
+        for (let vIdx = 0; vIdx < orderedVariants.length; vIdx++) {
+          const variant = orderedVariants[vIdx];
+          const maxGx = gridW - variant.maskW;
+          const maxGy = gridH - variant.maskH;
+          if (maxGx < 0 || maxGy < 0) continue;
+
+          // Небольшой штраф за «нестандартный» наклон, чтобы при равной плотности лист оставался ровным и аккуратным
+          const isPreferredAxis = (variant.angle === baseAngle || variant.angle === (baseAngle + 180) % 360);
+          const anglePenalty = isPreferredAxis ? 0 : 1.8;
+
+          if (rowMajor) {
+            // Заполняем лист ровными горизонтальными рядами (сверху вниз, слева направо)
+            for (let gy = 0; gy <= maxGy; gy += scanStep) {
+              const baseScoreY = gy + variant.maskH * 0.45 + anglePenalty;
+              if (baseScoreY > bestScore) break;
+
+              for (let gx = 0; gx <= maxGx; gx += scanStep) {
+                const score = baseScoreY + gx * 0.04;
+                if (score >= bestScore) break;
+
+                if (canPlaceBitMask(sheetRows, sheetWordsPerRow, variant, gx, gy)) {
+                  let exactGx = gx;
+                  let exactGy = gy;
+                  if (scanStep > 1) {
+                    while (exactGy > 0 && canPlaceBitMask(sheetRows, sheetWordsPerRow, variant, exactGx, exactGy - 1)) exactGy--;
+                    while (exactGx > 0 && canPlaceBitMask(sheetRows, sheetWordsPerRow, variant, exactGx - 1, exactGy)) exactGx--;
+                  }
+                  const exactScore = exactGy + variant.maskH * 0.45 + exactGx * 0.04 + anglePenalty;
+                  if (exactScore < bestScore) {
+                    bestScore = exactScore;
+                    bestPos = { gx: exactGx, gy: exactGy, variant };
+                  }
+                  break;
+                }
+              }
+            }
+          } else {
+            // Заполняем лист ровными вертикальными колонками (слева направо, сверху вниз)
+            for (let gx = 0; gx <= maxGx; gx += scanStep) {
+              const baseScoreX = gx + variant.maskW * 0.45 + anglePenalty;
+              if (baseScoreX > bestScore) break;
+
+              for (let gy = 0; gy <= maxGy; gy += scanStep) {
+                const score = baseScoreX + gy * 0.04;
+                if (score >= bestScore) break;
+
+                if (canPlaceBitMask(sheetRows, sheetWordsPerRow, variant, gx, gy)) {
+                  let exactGx = gx;
+                  let exactGy = gy;
+                  if (scanStep > 1) {
+                    while (exactGx > 0 && canPlaceBitMask(sheetRows, sheetWordsPerRow, variant, exactGx - 1, exactGy)) exactGx--;
+                    while (exactGy > 0 && canPlaceBitMask(sheetRows, sheetWordsPerRow, variant, exactGx, exactGy - 1)) exactGy--;
+                  }
+                  const exactScore = exactGx + variant.maskW * 0.45 + exactGy * 0.04 + anglePenalty;
+                  if (exactScore < bestScore) {
+                    bestScore = exactScore;
+                    bestPos = { gx: exactGx, gy: exactGy, variant };
+                  }
+                  break;
+                }
+              }
+            }
+          }
+        }
+
+        if (!bestPos) return null;
+
+        commitBitMask(sheetRows, sheetWordsPerRow, bestPos.variant, bestPos.gx, bestPos.gy);
+
+        const realX = Math.max(0, bestPos.gx / resPerMm - halfGap);
+        const realY = Math.max(0, bestPos.gy / resPerMm - halfGap);
+
+        placed.push({
+          x: realX,
+          y: realY,
+          w: bestPos.variant.rotW,
+          h: bestPos.variant.rotH,
+          angle: bestPos.variant.angle,
+          isNestedVariant: bestPos.variant.angle !== 0,
+          shapeIndex: piece.shapeIndex,
+          shapeId: piece.shapeId,
+          shapeName: piece.shapeName,
+          setNum: piece.setNum,
+          localPtsMm: bestPos.variant.localPtsMm
+        });
+      }
+
+      return placed;
+    }
+
+    // Укладка K полных наборов многоугольников на зону zoneW x zoneH
+    function tryPackPolygonSetCopies(zoneW, zoneH, preparedShapes, numSets, gapMm, resPerMm) {
+      const gridW = Math.floor((zoneW + gapMm) * resPerMm);
+      const gridH = Math.floor((zoneH + gapMm) * resPerMm);
+      const sheetWordsPerRow = Math.ceil(gridW / 32);
+
+      const queue = [];
+      for (let s = 0; s < numSets; s++) {
+        preparedShapes.forEach(ps => {
+          for (let q = 0; q < ps.qtyInSet; q++) {
+            queue.push({
+              shapeIndex: ps.shapeIndex,
+              shapeId: ps.id,
+              shapeName: ps.name,
+              setNum: s + 1,
+              variants: ps.variants,
+              sortArea: ps.realAreaMm2
+            });
+          }
+        });
+      }
+
+      queue.sort((a, b) => b.sortArea - a.sortArea);
+
+      // Проверяем ровную укладку по рядам и по колонкам (и базовые оси 0°/180° и 90°/270°), выбирая самую компактную!
+      const strategies = [
+        { rowMajor: true, baseAngle: 0 },
+        { rowMajor: false, baseAngle: 0 },
+        { rowMajor: true, baseAngle: 90 },
+        { rowMajor: false, baseAngle: 90 }
+      ];
+
+      let bestPlaced = null;
+      let bestBoundingArea = Infinity;
+
+      for (const st of strategies) {
+        const res = runSinglePassPolygonPack(gridW, gridH, sheetWordsPerRow, queue, gapMm, resPerMm, st.rowMajor, st.baseAngle);
+        if (res) {
+          let maxRight = 0, maxBottom = 0;
+          res.forEach(it => {
+            if (it.x + it.w > maxRight) maxRight = it.x + it.w;
+            if (it.y + it.h > maxBottom) maxBottom = it.y + it.h;
+          });
+          const usedBox = maxRight * maxBottom;
+          if (usedBox < bestBoundingArea) {
+            bestBoundingArea = usedBox;
+            bestPlaced = res;
+          }
+        }
+      }
+
+      return bestPlaced;
+    }
+
+    function calculatePhotoSetLayoutForFormat(formatObj) {
+      const zoneW = formatObj.workW;
+      const zoneH = formatObj.workH;
+      const gap = state.gap;
+      const angleStepDeg = parseFloat(document.getElementById('selectPhotoAngleStep').value);
+      const useBBox = document.getElementById('chkPhotoBoundingBox').checked;
+
+      // Разрешение растровой сетки: 2 клетки на 1 мм для 35×50 и 1.5 клетки/мм для 50×70
+      const resPerMm = formatObj.id === '35x50' ? 2.0 : 1.5;
+
+      const preparedShapes = [];
+      let totalPiecesPerSet = 0;
+      let singleSetRealArea = 0;
+
+      photoShapes.forEach((sh, idx) => {
+        const qty = parseInt(sh.qtyInSet, 10) || 0;
+        const wMm = parseFloat(sh.widthMm) || 0;
+        const hMm = parseFloat(sh.heightMm) || 0;
+        if (qty > 0 && wMm >= 2 && hMm >= 2) {
+          const aligned = getAlignedNormalizedShape(sh);
+          const realAreaMm2 = wMm * hMm * aligned.polyAreaFrac;
+          const variants = buildRotatedPolygonVariants(aligned.normPts, wMm, hMm, gap, angleStepDeg, resPerMm, useBBox);
+
+          if (variants.length > 0) {
+            preparedShapes.push({
+              shapeIndex: idx,
+              id: sh.id,
+              name: sh.name,
+              wMm,
+              hMm,
+              qtyInSet: qty,
+              realAreaMm2,
+              variants
+            });
+            totalPiecesPerSet += qty;
+            singleSetRealArea += qty * realAreaMm2;
+          }
+        }
+      });
+
+      const modeTag = useBBox ? 'по рамке' : 'по контуру';
+      const rotDesc = angleStepDeg === 0 ? '0°' : `шаг ${angleStepDeg}°`;
+
+      if (preparedShapes.length === 0 || totalPiecesPerSet === 0) {
+        return {
+          format: formatObj,
+          isPhotoSetMode: true,
+          isSeparateMode: state.photoLayoutMode === 'separate',
+          separateSheets: [],
+          items: [],
+          count: 0,
+          totalPiecesOnSheet: 0,
+          piecesPerSet: 0,
+          label: 'Задайте размеры и кол-во (> 0)',
+          gainOverGrid: 0,
+          singlePieceArea: 0,
+          zoneUtilPct: 0,
+          sheetUtilPct: 0,
+          netSheets: 0,
+          grossSheets: 0
+        };
+      }
+
+      // РЕЖИМ Б: КАЖДУЮ ЭТИКЕТКУ НА СВОЙ ОТДЕЛЬНЫЙ ЛИСТ
+      if (state.photoLayoutMode === 'separate') {
+        const separateSheets = preparedShapes.map(ps => {
+          const singleShapeOnly = [{ ...ps, qtyInSet: 1 }];
+          const effectiveArea = useBBox ? (ps.wMm * ps.hMm) : ps.realAreaMm2;
+          const maxPossible = Math.min(300, Math.floor((zoneW * zoneH) / Math.max(1, effectiveArea)));
+
+          let low = 1;
+          let high = Math.max(1, maxPossible);
+          let bestCount = 0;
+          let bestPlaced = [];
+
+          while (low <= high) {
+            const mid = Math.floor((low + high) / 2);
+            const attempt = tryPackPolygonSetCopies(zoneW, zoneH, singleShapeOnly, mid, gap, resPerMm);
+            if (attempt) {
+              bestCount = mid;
+              bestPlaced = attempt;
+              low = mid + 1;
+            } else {
+              high = mid - 1;
+            }
+          }
+
+          const totalArea = bestCount * ps.realAreaMm2;
+          const zoneUtilPct = (totalArea / (zoneW * zoneH)) * 100;
+          const sheetUtilPct = (totalArea / (formatObj.sheetW * formatObj.sheetH)) * 100;
+          const targetQty = state.quantity * ps.qtyInSet;
+          const netSheets = bestCount > 0 ? Math.ceil(targetQty / bestCount) : 0;
+          const grossSheets = bestCount > 0 ? netSheets + state.makeready : 0;
+
+          return {
+            shapeIndex: ps.shapeIndex,
+            shapeId: ps.id,
+            shapeName: ps.name,
+            wMm: ps.wMm,
+            hMm: ps.hMm,
+            qtyInSet: ps.qtyInSet,
+            targetQty,
+            items: bestPlaced,
+            count: bestCount,
+            singlePieceArea: ps.realAreaMm2,
+            zoneUtilPct,
+            sheetUtilPct,
+            netSheets,
+            grossSheets,
+            label: bestCount > 0
+              ? `Лист для #${ps.id} (${modeTag}, ${rotDesc})`
+              : `#${ps.id} не помещается в зону`
+          };
+        });
+
+        const totalNetAllSheets = separateSheets.reduce((s, sh) => s + sh.netSheets, 0);
+        const totalGrossAllSheets = separateSheets.reduce((s, sh) => s + sh.grossSheets, 0);
+        const totalPiecesAllSheets = separateSheets.reduce((s, sh) => s + sh.count, 0);
+
+        return {
+          format: formatObj,
+          isPhotoSetMode: true,
+          isSeparateMode: true,
+          separateSheets,
+          items: separateSheets[0]?.items || [],
+          count: totalPiecesAllSheets,
+          totalPiecesOnSheet: totalPiecesAllSheets,
+          piecesPerSet: totalPiecesPerSet,
+          label: `Отдельные листы (${separateSheets.length} форм • ${modeTag})`,
+          gainOverGrid: 0,
+          singlePieceArea: singleSetRealArea,
+          zoneUtilPct: separateSheets[0]?.zoneUtilPct || 0,
+          sheetUtilPct: separateSheets[0]?.sheetUtilPct || 0,
+          netSheets: totalNetAllSheets,
+          grossSheets: totalGrossAllSheets
+        };
+      }
+
+      // РЕЖИМ А: СБОРНЫЙ КОМПЛЕКТ НА ОДИН ЛИСТ
+      const effectiveSetArea = useBBox
+        ? preparedShapes.reduce((acc, s) => acc + s.qtyInSet * s.wMm * s.hMm, 0)
+        : singleSetRealArea;
+      const maxPossibleSets = Math.min(180, Math.floor((zoneW * zoneH) / Math.max(1, effectiveSetArea)));
+
+      let low = 1;
+      let high = Math.max(1, maxPossibleSets);
+      let bestSets = 0;
+      let bestPlaced = [];
+
+      while (low <= high) {
+        const mid = Math.floor((low + high) / 2);
+        const attempt = tryPackPolygonSetCopies(zoneW, zoneH, preparedShapes, mid, gap, resPerMm);
+        if (attempt) {
+          bestSets = mid;
+          bestPlaced = attempt;
+          low = mid + 1;
+        } else {
+          high = mid - 1;
+        }
+      }
+
+      const totalPiecesOnSheet = bestSets * totalPiecesPerSet;
+      const totalArea = bestSets * singleSetRealArea;
+      const zoneUtilPct = (totalArea / (zoneW * zoneH)) * 100;
+      const sheetUtilPct = (totalArea / (formatObj.sheetW * formatObj.sheetH)) * 100;
+
+      const netSheets = bestSets > 0 ? Math.ceil(state.quantity / bestSets) : 0;
+      const grossSheets = bestSets > 0 ? netSheets + state.makeready : 0;
+
+      return {
+        format: formatObj,
+        isPhotoSetMode: true,
+        isSeparateMode: false,
+        separateSheets: [],
+        items: bestPlaced,
+        count: bestSets,
+        totalPiecesOnSheet,
+        piecesPerSet: totalPiecesPerSet,
+        label: bestSets > 0
+          ? `Сборный набор (${modeTag}, ${rotDesc} • ${totalPiecesOnSheet} дет./л)`
+          : 'Набор не помещается в зону листа',
+        gainOverGrid: 0,
+        singlePieceArea: singleSetRealArea,
+        zoneUtilPct,
+        sheetUtilPct,
+        netSheets,
+        grossSheets
+      };
+    }
+
+    function markPhotoNestingDirty() {
+      state.photoNestingDirty = true;
+      const hint = document.getElementById('photoNestingDirtyHint');
+      const btn = document.getElementById('runPhotoNestingBtn');
+      if (hint) hint.classList.remove('hidden');
+      if (btn) {
+        btn.classList.add('ring-2', 'ring-amber-400/70');
+      }
+    }
+
+    function runPhotoNestingManual() {
+      const btn = document.getElementById('runPhotoNestingBtn');
+      const hint = document.getElementById('photoNestingDirtyHint');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<svg class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9" stroke-dasharray="28" /></svg><span>Выполняется раскладка...</span>`;
+      }
+
+      // Даём браузеру отрисовать состояние кнопки перед тяжёлым расчётом
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          try {
+            readInputs();
+            state.cachedPhotoResults['35x50'] = calculatePhotoSetLayoutForFormat(SHEET_FORMATS['35x50']);
+            state.cachedPhotoResults['50x70'] = calculatePhotoSetLayoutForFormat(SHEET_FORMATS['50x70']);
+            state.photoNestingDirty = false;
+            if (hint) hint.classList.add('hidden');
+            if (btn) btn.classList.remove('ring-2', 'ring-amber-400/70');
+            recalculateAndRender();
+            const activeRes = state.format === '35x50' ? state.cachedPhotoResults['35x50'] : state.cachedPhotoResults['50x70'];
+            if (activeRes && activeRes.count > 0) {
+              showToast(`Готово: ${activeRes.count} наб. (${activeRes.totalPiecesOnSheet} дет.) на листе`, 'success');
+            }
+          } finally {
+            if (btn) {
+              btn.disabled = false;
+              const lbl = state.photoLayoutMode === 'separate' ? 'Разложить каждую этикетку на свой лист' : 'Разложить набор на листе';
+              btn.innerHTML = `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="5 3 19 12 5 21 5 3" /></svg><span id="runPhotoNestingBtnText">${lbl}</span>`;
+            }
+          }
+        }, 20);
+      });
+    }
+
+    // ============================================================================
+    // 3. ЕДИНЫЙ ДИСПЕТЧЕР РАСЧЁТА
+    // ============================================================================
+    function markSimpleNestingDirty() {
+      state.simpleNestingDirty = true;
+      const hint = document.getElementById('simpleNestingDirtyHint');
+      const btn = document.getElementById('runSimpleNestingBtn');
+      if (hint) hint.classList.remove('hidden');
+      if (btn) btn.classList.add('ring-2', 'ring-amber-400/70');
+      // Обновляем бейдж формы и тираж на закэшированном расчёте без запуска тяжёлой раскладки
+      updateShapeSubTypeBadge();
+      const res35 = calculateLayoutForFormat(SHEET_FORMATS['35x50'], false);
+      const res50 = calculateLayoutForFormat(SHEET_FORMATS['50x70'], false);
+      const activeRes = state.format === '35x50' ? res35 : res50;
+      state.activeResult = activeRes;
+      applyResultToUi(res35, res50, activeRes);
+    }
+
+    function runSimpleNestingManual() {
+      const btn = document.getElementById('runSimpleNestingBtn');
+      const hint = document.getElementById('simpleNestingDirtyHint');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<svg class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9" stroke-dasharray="28" /></svg><span>Выполняется раскладка...</span>`;
+      }
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          try {
+            readInputs();
+            state.cachedSimpleResults['35x50'] = computeSimpleLayoutCore(SHEET_FORMATS['35x50']);
+            state.cachedSimpleResults['50x70'] = computeSimpleLayoutCore(SHEET_FORMATS['50x70']);
+            state.simpleNestingDirty = false;
+            if (hint) hint.classList.add('hidden');
+            if (btn) btn.classList.remove('ring-2', 'ring-amber-400/70');
+            recalculateAndRender();
+            const activeRes = state.format === '35x50' ? state.cachedSimpleResults['35x50'] : state.cachedSimpleResults['50x70'];
+            if (activeRes && activeRes.count > 0) {
+              showToast(`Готово: ${activeRes.count} шт. на листе`, 'success');
+            }
+          } finally {
+            if (btn) {
+              btn.disabled = false;
+              btn.innerHTML = `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="5 3 19 12 5 21 5 3" /></svg><span>Раскидать на лист</span>`;
+            }
+          }
+        }, 15);
+      });
+    }
+
+    function computeSimpleLayoutCore(formatObj) {
       const zoneW = formatObj.workW;
       const zoneH = formatObj.workH;
       const w = state.width;
       const h = state.height;
       const gap = state.gap;
 
-      // Считаем стандартную сетку (0° и 90°) для сравнения прироста от нестинга
       const grid0Items = packRectRegularGrid(zoneW, zoneH, w, h, gap, false);
       const grid90Items = packRectRegularGrid(zoneW, zoneH, h, w, gap, true);
       const bestGridCount = Math.max(grid0Items.length, grid90Items.length);
@@ -770,7 +1826,11 @@
       let chosenItems = [];
       let chosenLabel = '';
 
-      if (state.mode === 'grid0') {
+      if (state.shapeType === 'poly') {
+        const res = packSimplePolygon(zoneW, zoneH, w, h, state.polySides, gap, state.mode);
+        chosenItems = res.items;
+        chosenLabel = res.label;
+      } else if (state.mode === 'grid0') {
         chosenItems = grid0Items;
         chosenLabel = 'Обычная сетка 0°';
       } else if (state.mode === 'grid90') {
@@ -787,19 +1847,15 @@
           chosenLabel = res.label;
         }
       } else {
-        // Режим 'auto': сравниваем обычную сетку 0°, сетку 90° и алгоритм нестинга
         const candidates = [
           { items: grid0Items, label: 'Обычная сетка 0°' },
           { items: grid90Items, label: 'Сетка с поворотом 90°' }
         ];
-
         if (state.shapeType === 'rect') {
           candidates.push(packRectGuillotineHybrid(zoneW, zoneH, w, h, gap));
         } else {
           candidates.push(packOvalHexagonal(zoneW, zoneH, w, h, gap));
         }
-
-        // Выбираем вариант с максимальным количеством штук
         for (const cand of candidates) {
           if (cand.items.length > chosenItems.length) {
             chosenItems = cand.items;
@@ -810,21 +1866,24 @@
 
       const count = chosenItems.length;
       const gainOverGrid = Math.max(0, count - bestGridCount);
-
-      // Площадь одной этикетки (в мм²)
-      const singlePieceArea = state.shapeType === 'rect'
-        ? w * h
-        : Math.PI * (w / 2) * (h / 2);
-
+      let singlePieceArea = 0;
+      if (state.shapeType === 'rect') {
+        singlePieceArea = w * h;
+      } else if (state.shapeType === 'oval') {
+        singlePieceArea = Math.PI * (w / 2) * (h / 2);
+      } else {
+        const polyVerts = generateRegularPolygonVertices(w, h, state.polySides);
+        singlePieceArea = computePolygonArea(polyVerts);
+      }
       const totalPiecesArea = singlePieceArea * count;
       const zoneUtilPct = (totalPiecesArea / (zoneW * zoneH)) * 100;
       const sheetUtilPct = (totalPiecesArea / (formatObj.sheetW * formatObj.sheetH)) * 100;
-
       const netSheets = count > 0 ? Math.ceil(state.quantity / count) : 0;
       const grossSheets = count > 0 ? netSheets + state.makeready : 0;
 
       return {
         format: formatObj,
+        isPhotoSetMode: false,
         items: chosenItems,
         count,
         label: chosenLabel || 'Не помещается в зону',
@@ -837,6 +1896,108 @@
       };
     }
 
+    function calculateLayoutForFormat(formatObj, allowComputeIfMissing = true) {
+      if (state.shapeType === 'photo') {
+        const cached = state.cachedPhotoResults[formatObj.id];
+        if (cached) {
+          if (cached.isSeparateMode && cached.separateSheets && cached.separateSheets.length > 0) {
+            const tabIdx = Math.min(state.activeSeparateTabIdx, cached.separateSheets.length - 1);
+            const activeSheet = cached.separateSheets[tabIdx];
+
+            const updatedSeparate = cached.separateSheets.map(sh => {
+              const targetQty = state.quantity * sh.qtyInSet;
+              const netSheets = sh.count > 0 ? Math.ceil(targetQty / sh.count) : 0;
+              const grossSheets = sh.count > 0 ? netSheets + state.makeready : 0;
+              return { ...sh, targetQty, netSheets, grossSheets };
+            });
+            const cur = updatedSeparate[tabIdx];
+            const sumNetAll = updatedSeparate.reduce((a, b) => a + b.netSheets, 0);
+            const sumGrossAll = updatedSeparate.reduce((a, b) => a + b.grossSheets, 0);
+
+            return {
+              ...cached,
+              separateSheets: updatedSeparate,
+              activeSeparateSheet: cur,
+              items: cur.items,
+              count: cur.count,
+              singlePieceArea: cur.singlePieceArea,
+              zoneUtilPct: cur.zoneUtilPct,
+              sheetUtilPct: cur.sheetUtilPct,
+              netSheets: cur.netSheets,
+              grossSheets: cur.grossSheets,
+              sumNetAllSheets: sumNetAll,
+              sumGrossAllSheets: sumGrossAll,
+              label: state.photoNestingDirty
+                ? `${cur.label} (изменено — пересчитайте)`
+                : cur.label
+            };
+          }
+
+          const netSheets = cached.count > 0 ? Math.ceil(state.quantity / cached.count) : 0;
+          const grossSheets = cached.count > 0 ? netSheets + state.makeready : 0;
+          return {
+            ...cached,
+            netSheets,
+            grossSheets,
+            label: state.photoNestingDirty
+              ? `${cached.label} (изменено — нажмите «Разложить»)`
+              : cached.label
+          };
+        }
+        return {
+          format: formatObj,
+          isPhotoSetMode: true,
+          isSeparateMode: state.photoLayoutMode === 'separate',
+          separateSheets: [],
+          items: [],
+          count: 0,
+          totalPiecesOnSheet: 0,
+          piecesPerSet: 0,
+          label: 'Настройте контуры и нажмите «Разложить»',
+          gainOverGrid: 0,
+          singlePieceArea: 0,
+          zoneUtilPct: 0,
+          sheetUtilPct: 0,
+          netSheets: 0,
+          grossSheets: 0
+        };
+      }
+
+      const cachedSimple = state.cachedSimpleResults[formatObj.id];
+      if (cachedSimple) {
+        const netSheets = cachedSimple.count > 0 ? Math.ceil(state.quantity / cachedSimple.count) : 0;
+        const grossSheets = cachedSimple.count > 0 ? netSheets + state.makeready : 0;
+        return {
+          ...cachedSimple,
+          netSheets,
+          grossSheets,
+          label: state.simpleNestingDirty
+            ? `${cachedSimple.label} (изменено — нажмите «Раскидать»)`
+            : cachedSimple.label
+        };
+      }
+
+      if (!allowComputeIfMissing) {
+        return {
+          format: formatObj,
+          isPhotoSetMode: false,
+          items: [],
+          count: 0,
+          label: 'Нажмите «Раскидать на лист»',
+          gainOverGrid: 0,
+          singlePieceArea: 0,
+          zoneUtilPct: 0,
+          sheetUtilPct: 0,
+          netSheets: 0,
+          grossSheets: 0
+        };
+      }
+
+      const computed = computeSimpleLayoutCore(formatObj);
+      state.cachedSimpleResults[formatObj.id] = computed;
+      return computed;
+    }
+
     // ============================================================================
     // 4. ОБНОВЛЕНИЕ ВСЕГО ИНТЕРФЕЙСА И ОТРИСОВКА ЧЕРТЕЖА
     // ============================================================================
@@ -844,19 +2005,39 @@
       readInputs();
       updateShapeSubTypeBadge();
 
-      // Считаем сразу для обоих форматов (для живого сравнения)
       const res35 = calculateLayoutForFormat(SHEET_FORMATS['35x50']);
       const res50 = calculateLayoutForFormat(SHEET_FORMATS['50x70']);
-
       const activeRes = state.format === '35x50' ? res35 : res50;
       state.activeResult = activeRes;
 
-      // Обновляем 4 верхние карточки статистики
+      applyResultToUi(res35, res50, activeRes);
+    }
+
+    function applyResultToUi(res35, res50, activeRes) {
+      const isSep = activeRes.isPhotoSetMode && activeRes.isSeparateMode;
+      const isSet = activeRes.isPhotoSetMode && !isSep;
+      const unitShort = isSet ? 'наб.' : 'шт.';
+      const unitPerSheet = isSet ? 'наб/л' : 'шт/л';
+
+      renderSeparateSheetsBar(activeRes);
+
+      document.getElementById('kpiTitleCount').textContent = isSet
+        ? 'Наборов на листе'
+        : isSep && activeRes.activeSeparateSheet
+          ? `На листе (#${activeRes.activeSeparateSheet.shapeId})`
+          : 'На одном листе';
+      document.getElementById('kpiUnitLabel').textContent = unitShort;
       document.getElementById('kpiCount').textContent = activeRes.count;
       document.getElementById('kpiStrategyName').textContent = activeRes.label;
 
       const gainBadge = document.getElementById('kpiGainBadge');
-      if (activeRes.gainOverGrid > 0) {
+      if (isSet) {
+        gainBadge.textContent = `${activeRes.totalPiecesOnSheet} дет./лист`;
+        gainBadge.className = 'px-1.5 py-0.5 rounded bg-pink-500/20 text-pink-300 border border-pink-500/30 font-mono text-[10px] font-semibold';
+      } else if (isSep && activeRes.separateSheets && activeRes.separateSheets.length > 0) {
+        gainBadge.textContent = `Всего ${activeRes.separateSheets.length} отд. форм`;
+        gainBadge.className = 'px-1.5 py-0.5 rounded bg-pink-500/20 text-pink-300 border border-pink-500/30 font-mono text-[10px] font-semibold';
+      } else if (activeRes.gainOverGrid > 0) {
         gainBadge.textContent = `+${activeRes.gainOverGrid} шт. от нестинга`;
         gainBadge.className = 'px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-mono text-[10px] font-semibold';
       } else {
@@ -868,30 +2049,71 @@
       document.getElementById('kpiSheetUtil').textContent = `От всего листа: ${activeRes.sheetUtilPct.toFixed(1)}%`;
 
       document.getElementById('kpiNetSheets').textContent = activeRes.netSheets.toLocaleString('ru-RU');
-      document.getElementById('kpiTotalProduced').textContent = `Выход: ${(activeRes.netSheets * activeRes.count).toLocaleString('ru-RU')} шт.`;
+      document.getElementById('kpiTotalProduced').textContent = isSep && activeRes.sumNetAllSheets
+        ? `Все формы нетто: ${activeRes.sumNetAllSheets.toLocaleString('ru-RU')} л.`
+        : `Выход: ${(activeRes.netSheets * activeRes.count).toLocaleString('ru-RU')} ${unitShort}`;
 
       document.getElementById('kpiGrossSheets').textContent = activeRes.grossSheets.toLocaleString('ru-RU');
-      document.getElementById('kpiMakereadyInfo').textContent = `Приладка: ${state.makeready} л.`;
+      document.getElementById('kpiMakereadyInfo').textContent = isSep && activeRes.sumGrossAllSheets
+        ? `Все формы брутто: ${activeRes.sumGrossAllSheets.toLocaleString('ru-RU')} л.`
+        : `Приладка: ${state.makeready} л.`;
 
-      // Обновляем блок живого сравнения 35x50 vs 50x70
-      updateLiveComparisonCard(res35, res50);
+      updateLiveComparisonCard(res35, res50, unitPerSheet, unitShort);
 
-      // Обновляем подвал чертежа
       const fmt = activeRes.format;
-      document.getElementById('footerSummary').textContent =
-        `Лист: ${fmt.sheetW}×${fmt.sheetH} мм | Допустимая зона: ${fmt.workW}×${fmt.workH} мм | 1 шт: ${(activeRes.singlePieceArea / 100).toFixed(2)} см²`;
+      document.getElementById('footerSummary').textContent = isSet
+        ? `Лист: ${fmt.sheetW}×${fmt.sheetH} мм | Зона: ${fmt.workW}×${fmt.workH} мм | 1 набор (${activeRes.piecesPerSet} дет.): ${(activeRes.singlePieceArea / 100).toFixed(2)} см²`
+        : `Лист: ${fmt.sheetW}×${fmt.sheetH} мм | Допустимая зона: ${fmt.workW}×${fmt.workH} мм | 1 шт: ${(activeRes.singlePieceArea / 100).toFixed(2)} см²`;
 
       renderBlueprintSvg(activeRes);
     }
 
-    function updateLiveComparisonCard(res35, res50) {
+    function renderSeparateSheetsBar(activeRes) {
+      const bar = document.getElementById('separateSheetsBar');
+      const tabsEl = document.getElementById('separateSheetsTabs');
+      const subEl = document.getElementById('separateSheetSubtitle');
+      if (!bar) return;
+
+      if (!activeRes.isPhotoSetMode || !activeRes.isSeparateMode || !activeRes.separateSheets || activeRes.separateSheets.length === 0) {
+        bar.classList.add('hidden');
+        return;
+      }
+
+      bar.classList.remove('hidden');
+      const curIdx = Math.min(state.activeSeparateTabIdx, activeRes.separateSheets.length - 1);
+      const cur = activeRes.separateSheets[curIdx];
+
+      tabsEl.innerHTML = activeRes.separateSheets.map((sh, idx) => {
+        const isSel = idx === curIdx;
+        const cls = isSel
+          ? 'bg-pink-600 text-white border-pink-400 shadow'
+          : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700';
+        return `<button type="button" data-tab-idx="${idx}" class="sep-sheet-tab-btn px-2.5 py-1 rounded-lg border text-[11px] font-mono font-bold transition cursor-pointer ${cls}">Лист #${sh.shapeId}: ${sh.shapeName} (${sh.count} шт/л)</button>`;
+      }).join('');
+
+      document.querySelectorAll('.sep-sheet-tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.activeSeparateTabIdx = parseInt(btn.dataset.tabIdx, 10);
+          recalculateAndRender();
+        });
+      });
+
+      subEl.textContent = `${cur.wMm}×${cur.hMm} мм • Тираж формы: ${cur.targetQty.toLocaleString('ru-RU')} шт. (${cur.netSheets} л. нетто)`;
+    }
+
+    function updateLiveComparisonCard(res35, res50, unitPerSheet, unitShort) {
+      const s35 = (res35.isSeparateMode && res35.sumNetAllSheets) ? res35.sumNetAllSheets : res35.netSheets;
+      const s50 = (res50.isSeparateMode && res50.sumNetAllSheets) ? res50.sumNetAllSheets : res50.netSheets;
+
       document.getElementById('liveCount35').textContent = res35.count;
+      document.getElementById('liveUnit35').textContent = unitPerSheet;
       document.getElementById('liveUtil35').textContent = `${res35.zoneUtilPct.toFixed(1)}%`;
-      document.getElementById('liveSheets35').textContent = res35.netSheets.toLocaleString('ru-RU');
+      document.getElementById('liveSheets35').textContent = s35.toLocaleString('ru-RU');
 
       document.getElementById('liveCount50').textContent = res50.count;
+      document.getElementById('liveUnit50').textContent = unitPerSheet;
       document.getElementById('liveUtil50').textContent = `${res50.zoneUtilPct.toFixed(1)}%`;
-      document.getElementById('liveSheets50').textContent = res50.netSheets.toLocaleString('ru-RU');
+      document.getElementById('liveSheets50').textContent = s50.toLocaleString('ru-RU');
 
       const card35 = document.getElementById('liveCard35');
       const card50 = document.getElementById('liveCard50');
@@ -903,34 +2125,40 @@
 
       const twoSmallSheetsCount = res35.count * 2;
       if (res50.count === 0 && res35.count === 0) {
-        winnerBadge.textContent = 'Не помещается';
-        winnerBadge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-rose-500/15 text-rose-300 border border-rose-500/30';
-        note.textContent = 'Размер этикетки превышает допустимую зону печати.';
+        winnerBadge.textContent = state.shapeType === 'photo' ? 'Ожидает настройки' : 'Не помещается';
+        winnerBadge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30';
+        note.textContent = state.shapeType === 'photo'
+          ? 'Загрузите фото, выровняйте нужные этикетки и задайте их размеры (мм) и долю в наборе (> 0).'
+          : 'Размер этикетки превышает допустимую зону печати.';
       } else if (res50.count > twoSmallSheetsCount) {
         const diff = res50.count - twoSmallSheetsCount;
-        winnerBadge.textContent = `50×70 выгоднее (+${diff} шт/л)`;
+        winnerBadge.textContent = `50×70 выгоднее (+${diff} ${unitShort})`;
         winnerBadge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30';
-        note.innerHTML = `Один лист <b class="text-slate-200">50×70</b> вмещает <b class="text-emerald-400 font-mono">${res50.count} шт.</b> против <span class="font-mono">${twoSmallSheetsCount} шт.</span> на двух листах 35×50 (экономия за счёт общих внутренних полей).`;
+        note.innerHTML = `Один лист <b class="text-slate-200">50×70</b> вмещает <b class="text-emerald-400 font-mono">${res50.count} ${unitShort}</b> против <span class="font-mono">${twoSmallSheetsCount} ${unitShort}</span> на двух листах 35×50.`;
       } else if (twoSmallSheetsCount > res50.count) {
         const diff = twoSmallSheetsCount - res50.count;
-        winnerBadge.textContent = `35×50 выгоднее (+${diff} шт/2л)`;
+        winnerBadge.textContent = `35×50 выгоднее (+${diff} ${unitShort})`;
         winnerBadge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-500/15 text-cyan-300 border border-cyan-500/30';
-        note.innerHTML = `Два листа <b class="text-slate-200">35×50</b> дают <b class="text-cyan-400 font-mono">${twoSmallSheetsCount} шт.</b> против <span class="font-mono">${res50.count} шт.</span> на одном 50×70 (геометрия лучше кратна зоне 330×480 мм).`;
+        note.innerHTML = `Два листа <b class="text-slate-200">35×50</b> дают <b class="text-cyan-400 font-mono">${twoSmallSheetsCount} ${unitShort}</b> против <span class="font-mono">${res50.count} ${unitShort}</span> на одном 50×70.`;
       } else {
         winnerBadge.textContent = 'Паритет (1:2)';
         winnerBadge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700';
-        note.textContent = `Два листа 35×50 (${twoSmallSheetsCount} шт.) равны по выходу одному листу 50×70 (${res50.count} шт.).`;
+        note.textContent = `Два листа 35×50 (${twoSmallSheetsCount} ${unitShort}) равны по выходу одному листу 50×70 (${res50.count} ${unitShort}).`;
       }
     }
 
-    // Отрисовка точного векторного чертежа в масштабе 1:1 мм
+    // Построение строки координат SVG-многоугольника из уже повёрнутых в миллиметрах точек localPtsMm
+    function buildPlacedPolygonPoints(item, offsetX, offsetY) {
+      return item.localPtsMm.map(p => `${(offsetX + p.x).toFixed(2)},${(offsetY + p.y).toFixed(2)}`).join(' ');
+    }
+
     function renderBlueprintSvg(res) {
       const svg = document.getElementById('sheetSvg');
       const fmt = res.format;
       const W = fmt.sheetW;
       const H = fmt.sheetH;
-      const M = fmt.margin; // 10 мм техполей
-      const pad = 36;       // отступ под размерные линии и линейку
+      const M = fmt.margin;
+      const pad = 36;
 
       const viewport = document.getElementById('canvasViewport');
       const availW = Math.max(280, viewport.clientWidth - 48);
@@ -951,27 +2179,22 @@
           </pattern>
         </defs>
 
-        <!-- 1. Внешний формат печатного листа -->
         <rect x="0" y="0" width="${W}" height="${H}" fill="#111827" stroke="#64748b" stroke-width="1.4" />
         <rect x="0" y="0" width="${W}" height="${H}" fill="url(#techMarginHatch)" />
 
-        <!-- 2. Допустимая зона печати и высечки (отступ 10 мм со всех сторон) -->
         <rect x="${M}" y="${M}" width="${fmt.workW}" height="${fmt.workH}" fill="#0b1220" stroke="#f59e0b" stroke-width="1.15" stroke-dasharray="5,3" />
         <text x="${M + 5}" y="${M + 9.5}" fill="#fbbf24" font-size="8" font-weight="600" font-family="JetBrains Mono, monospace" opacity="0.9">
           Допустимая зона ${fmt.workW}×${fmt.workH} мм (техполя 10 мм)
         </text>
       `;
 
-      // Габаритные размеры листа (если включено)
       if (showDims) {
         html += `
-          <!-- Верхний размер (Ширина листа) -->
           <line x1="0" y1="-12" x2="${W}" y2="-12" stroke="#64748b" stroke-width="0.8" />
           <line x1="0" y1="-3" x2="0" y2="-17" stroke="#64748b" stroke-width="0.8" />
           <line x1="${W}" y1="-3" x2="${W}" y2="-17" stroke="#64748b" stroke-width="0.8" />
           <text x="${W / 2}" y="-16" text-anchor="middle" fill="#94a3b8" font-size="9.5" font-family="JetBrains Mono, monospace">${W} мм (зона ${fmt.workW} мм)</text>
 
-          <!-- Левый размер (Высота листа) -->
           <line x1="-12" y1="0" x2="-12" y2="${H}" stroke="#64748b" stroke-width="0.8" />
           <line x1="-3" y1="0" x2="-17" y2="0" stroke="#64748b" stroke-width="0.8" />
           <line x1="-3" y1="${H}" x2="-17" y2="${H}" stroke="#64748b" stroke-width="0.8" />
@@ -979,38 +2202,69 @@
         `;
       }
 
-      // 3. Отрисовка разложенных этикеток внутри допустимой зоны (отступ M = 10 мм)
       res.items.forEach((item, idx) => {
         const px = M + item.x;
         const py = M + item.y;
 
-        const fillCol = item.isNestedVariant ? 'rgba(16, 185, 129, 0.22)' : 'rgba(6, 182, 212, 0.22)';
-        const strokeCol = item.isNestedVariant ? '#34d399' : '#22d3ee';
+        if (res.isPhotoSetMode) {
+          const palette = SHAPE_COLORS[item.shapeIndex % SHAPE_COLORS.length];
+          const ptsStr = buildPlacedPolygonPoints(item, px, py);
+          const titleEscaped = (item.shapeName || `Этикетка #${item.shapeId}`).replace(/"/g, '&quot;');
 
-        html += `<g class="label-item cursor-pointer hover:opacity-80 transition-opacity" data-idx="${idx}" data-x="${item.x.toFixed(1)}" data-y="${item.y.toFixed(1)}" data-w="${item.w}" data-h="${item.h}" data-angle="${item.angle}">`;
+          // Вычисляем центроид многоугольника для аккуратной подписи внутри детали
+          let sumX = 0, sumY = 0;
+          item.localPtsMm.forEach(p => { sumX += p.x; sumY += p.y; });
+          const cx = px + (sumX / item.localPtsMm.length);
+          const cy = py + (sumY / item.localPtsMm.length);
 
-        if (state.shapeType === 'rect') {
-          html += `<rect x="${px.toFixed(2)}" y="${py.toFixed(2)}" width="${item.w.toFixed(2)}" height="${item.h.toFixed(2)}" fill="${fillCol}" stroke="${strokeCol}" stroke-width="0.85" />`;
+          html += `<g class="label-item cursor-pointer hover:opacity-80 transition-opacity" data-idx="${idx}" data-title="${titleEscaped}" data-set="${item.setNum}" data-x="${item.x.toFixed(1)}" data-y="${item.y.toFixed(1)}" data-w="${item.w.toFixed(1)}" data-h="${item.h.toFixed(1)}" data-angle="${item.angle}">`;
+          html += `<polygon points="${ptsStr}" fill="${palette.fill}" stroke="${palette.stroke}" stroke-width="0.95" stroke-linejoin="round" />`;
+
+          if (showNumbers) {
+            const fontSize = Math.max(4.2, Math.min(8.5, Math.min(item.w, item.h) * 0.18));
+            const angleTag = item.angle !== 0 ? ` (${item.angle}°)` : '';
+            html += `
+              <text x="${cx.toFixed(1)}" y="${(cy + fontSize * 0.35).toFixed(1)}" text-anchor="middle" fill="#f8fafc" font-size="${fontSize.toFixed(1)}" font-weight="700" font-family="JetBrains Mono, monospace">
+                #${item.shapeId}${angleTag}
+              </text>
+            `;
+          }
+          html += `</g>`;
         } else {
-          const cx = px + item.w / 2;
-          const cy = py + item.h / 2;
-          const rx = item.w / 2;
-          const ry = item.h / 2;
-          html += `<ellipse cx="${cx.toFixed(2)}" cy="${cy.toFixed(2)}" rx="${rx.toFixed(2)}" ry="${ry.toFixed(2)}" fill="${fillCol}" stroke="${strokeCol}" stroke-width="0.85" />`;
-        }
+          const fillCol = item.isNestedVariant ? 'rgba(16, 185, 129, 0.22)' : 'rgba(6, 182, 212, 0.22)';
+          const strokeCol = item.isNestedVariant ? '#34d399' : '#22d3ee';
 
-        if (showNumbers) {
-          const cx = px + item.w / 2;
-          const cy = py + item.h / 2;
-          const fontSize = Math.max(4.5, Math.min(9.5, Math.min(item.w, item.h) * 0.22));
-          html += `
-            <text x="${cx.toFixed(1)}" y="${(cy + fontSize * 0.35).toFixed(1)}" text-anchor="middle" fill="#f8fafc" font-size="${fontSize.toFixed(1)}" font-weight="600" font-family="JetBrains Mono, monospace">
-              ${idx + 1}${item.angle === 90 ? '↻' : ''}
-            </text>
-          `;
-        }
+          html += `<g class="label-item cursor-pointer hover:opacity-80 transition-opacity" data-idx="${idx}" data-x="${item.x.toFixed(1)}" data-y="${item.y.toFixed(1)}" data-w="${item.w}" data-h="${item.h}" data-angle="${item.angle}">`;
 
-        html += `</g>`;
+          if (state.shapeType === 'rect') {
+            html += `<rect x="${px.toFixed(2)}" y="${py.toFixed(2)}" width="${item.w.toFixed(2)}" height="${item.h.toFixed(2)}" fill="${fillCol}" stroke="${strokeCol}" stroke-width="0.85" />`;
+          } else if (state.shapeType === 'oval') {
+            const cx = px + item.w / 2;
+            const cy = py + item.h / 2;
+            html += `<ellipse cx="${cx.toFixed(2)}" cy="${cy.toFixed(2)}" rx="${(item.w / 2).toFixed(2)}" ry="${(item.h / 2).toFixed(2)}" fill="${fillCol}" stroke="${strokeCol}" stroke-width="0.85" />`;
+          } else if (state.shapeType === 'poly') {
+            const baseVerts = generateRegularPolygonVertices(state.width, state.height, state.polySides);
+            const cxLocal = state.width / 2;
+            const cyLocal = state.height / 2;
+            const rotVerts = rotatePoints(baseVerts, cxLocal, cyLocal, item.angle || 0);
+            let minRx = Infinity, minRy = Infinity;
+            rotVerts.forEach(p => { if (p.x < minRx) minRx = p.x; if (p.y < minRy) minRy = p.y; });
+            const ptsStr = rotVerts.map(p => `${(px + (p.x - minRx)).toFixed(2)},${(py + (p.y - minRy)).toFixed(2)}`).join(' ');
+            html += `<polygon points="${ptsStr}" fill="${fillCol}" stroke="${strokeCol}" stroke-width="0.85" stroke-linejoin="round" />`;
+          }
+
+          if (showNumbers) {
+            const cx = px + item.w / 2;
+            const cy = py + item.h / 2;
+            const fontSize = Math.max(4.5, Math.min(9.5, Math.min(item.w, item.h) * 0.22));
+            html += `
+              <text x="${cx.toFixed(1)}" y="${(cy + fontSize * 0.35).toFixed(1)}" text-anchor="middle" fill="#f8fafc" font-size="${fontSize.toFixed(1)}" font-weight="600" font-family="JetBrains Mono, monospace">
+                ${idx + 1}${item.angle === 90 ? '↻' : ''}
+              </text>
+            `;
+          }
+          html += `</g>`;
+        }
       });
 
       svg.innerHTML = html;
@@ -1023,12 +2277,20 @@
       document.querySelectorAll('.label-item').forEach(el => {
         el.addEventListener('mouseenter', () => {
           const num = parseInt(el.dataset.idx, 10) + 1;
-          const typeName = getExactShapeRussianName();
-          tooltip.innerHTML = `
-            <div class="text-cyan-400 font-bold mb-0.5">${typeName} #${num}</div>
-            <div>Размер: <span class="text-white">${el.dataset.w} × ${el.dataset.h} мм</span> (${el.dataset.angle}°)</div>
-            <div>В зоне: <span class="text-slate-300">X=${el.dataset.x} мм, Y=${el.dataset.y} мм</span></div>
-          `;
+          if (state.shapeType === 'photo') {
+            tooltip.innerHTML = `
+              <div class="text-pink-400 font-bold mb-0.5">${el.dataset.title} (Набор №${el.dataset.set})</div>
+              <div>Поворот на листе: <span class="text-emerald-300 font-bold">${el.dataset.angle}°</span></div>
+              <div>Позиция в зоне: <span class="text-slate-300">X=${el.dataset.x} мм, Y=${el.dataset.y} мм</span></div>
+            `;
+          } else {
+            const typeName = getExactShapeRussianName();
+            tooltip.innerHTML = `
+              <div class="text-cyan-400 font-bold mb-0.5">${typeName} #${num}</div>
+              <div>Размер: <span class="text-white">${el.dataset.w} × ${el.dataset.h} мм</span> (${el.dataset.angle}°)</div>
+              <div>В зоне: <span class="text-slate-300">X=${el.dataset.x} мм, Y=${el.dataset.y} мм</span></div>
+            `;
+          }
           tooltip.classList.remove('hidden');
         });
         el.addEventListener('mousemove', (e) => {
@@ -1055,55 +2317,713 @@
       const W = fmt.sheetW;
       const H = fmt.sheetH;
       const M = fmt.margin;
-      const shapeName = getExactShapeRussianName();
 
       let svgOut = `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="${W}mm" height="${H}mm" viewBox="0 0 ${W} ${H}">
-  <!-- Экспорт из OffsetNest Lab (Масштаб 1:1 в миллиметрах для проверки в CorelDRAW) -->
+  <!-- Экспорт из OffsetNest Lab (Масштаб 1:1 в миллиметрах) -->
   <g id="Формат_листа_${W}x${H}мм">
     <rect x="0" y="0" width="${W}" height="${H}" fill="none" stroke="#000000" stroke-width="0.2" />
   </g>
   <g id="Допустимая_зона_${fmt.workW}x${fmt.workH}мм">
     <rect x="${M}" y="${M}" width="${fmt.workW}" height="${fmt.workH}" fill="none" stroke="#FF8800" stroke-width="0.2" stroke-dasharray="3,2" />
   </g>
-  <g id="Этикетки_${shapeName}_${res.count}_шт_зазор_${state.gap}мм">
 `;
 
-      res.items.forEach((item, idx) => {
-        const px = M + item.x;
-        const py = M + item.y;
-        if (state.shapeType === 'rect') {
-          svgOut += `    <rect id="Нож_${idx + 1}" x="${px.toFixed(3)}" y="${py.toFixed(3)}" width="${item.w.toFixed(3)}" height="${item.h.toFixed(3)}" fill="none" stroke="#FF0000" stroke-width="0.1" />\n`;
-        } else {
-          const cx = px + item.w / 2;
-          const cy = py + item.h / 2;
-          const rx = item.w / 2;
-          const ry = item.h / 2;
-          svgOut += `    <ellipse id="Нож_${idx + 1}" cx="${cx.toFixed(3)}" cy="${cy.toFixed(3)}" rx="${rx.toFixed(3)}" ry="${ry.toFixed(3)}" fill="none" stroke="#FF0000" stroke-width="0.1" />\n`;
-        }
-      });
-
-      svgOut += `  </g>\n</svg>`;
+      if (res.isPhotoSetMode) {
+        const groupTitle = res.isSeparateMode && res.activeSeparateSheet
+          ? `Отдельный_лист_${res.activeSeparateSheet.shapeName}_${res.count}_шт_зазор_${state.gap}мм`
+          : `Полигональный_набор_${res.count}_наб_${res.totalPiecesOnSheet}_дет_зазор_${state.gap}мм`;
+        svgOut += `  <g id="${groupTitle.replace(/[^a-zA-Zа-яА-Я0-9_-]/g, '_')}">
+`;
+        res.items.forEach((item, idx) => {
+          const px = M + item.x;
+          const py = M + item.y;
+          const ptsStr = buildPlacedPolygonPoints(item, px, py);
+          const safeName = (item.shapeName || `Контур_${item.shapeId}`).replace(/[^a-zA-Zа-яА-Я0-9_-]/g, '_');
+          svgOut += `    <polygon id="${safeName}_Набор_${item.setNum}_Угол_${item.angle}_Дет_${idx + 1}" points="${ptsStr}" fill="none" stroke="#FF0000" stroke-width="0.1" />
+`;
+        });
+        svgOut += `  </g>
+</svg>`;
+      } else {
+        const shapeName = getExactShapeRussianName();
+        svgOut += `  <g id="Этикетки_${shapeName}_${res.count}_шт_зазор_${state.gap}мм">
+`;
+        const basePolyVerts = state.shapeType === 'poly'
+          ? generateRegularPolygonVertices(state.width, state.height, state.polySides)
+          : null;
+        res.items.forEach((item, idx) => {
+          const px = M + item.x;
+          const py = M + item.y;
+          if (state.shapeType === 'rect') {
+            svgOut += `    <rect id="Нож_${idx + 1}" x="${px.toFixed(3)}" y="${py.toFixed(3)}" width="${item.w.toFixed(3)}" height="${item.h.toFixed(3)}" fill="none" stroke="#FF0000" stroke-width="0.1" />
+`;
+          } else if (state.shapeType === 'oval') {
+            svgOut += `    <ellipse id="Нож_${idx + 1}" cx="${(px + item.w / 2).toFixed(3)}" cy="${(py + item.h / 2).toFixed(3)}" rx="${(item.w / 2).toFixed(3)}" ry="${(item.h / 2).toFixed(3)}" fill="none" stroke="#FF0000" stroke-width="0.1" />
+`;
+          } else {
+            const rotVerts = rotatePoints(basePolyVerts, state.width / 2, state.height / 2, item.angle || 0);
+            let minRx = Infinity, minRy = Infinity;
+            rotVerts.forEach(p => { if (p.x < minRx) minRx = p.x; if (p.y < minRy) minRy = p.y; });
+            const ptsStr = rotVerts.map(p => `${(px + (p.x - minRx)).toFixed(3)},${(py + (p.y - minRy)).toFixed(3)}`).join(' ');
+            svgOut += `    <polygon id="Нож_${idx + 1}" points="${ptsStr}" fill="none" stroke="#FF0000" stroke-width="0.1" />
+`;
+          }
+        });
+        svgOut += `  </g>
+</svg>`;
+      }
 
       const blob = new Blob([svgOut], { type: 'image/svg+xml;charset=utf-8' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `OffsetNest_${fmt.id}_${shapeName}_${state.width}x${state.height}mm_${res.count}sht.svg`;
+      if (res.isPhotoSetMode && res.isSeparateMode && res.activeSeparateSheet) {
+        const s = res.activeSeparateSheet;
+        a.download = `OffsetNest_${fmt.id}_List_${s.shapeId}_${s.wMm}x${s.hMm}mm_${s.count}sht.svg`;
+      } else if (res.isPhotoSetMode) {
+        a.download = `OffsetNest_${fmt.id}_PolyNabor_${res.count}nab_${res.totalPiecesOnSheet}det.svg`;
+      } else {
+        a.download = `OffsetNest_${fmt.id}_${getExactShapeRussianName()}_${state.width}x${state.height}mm_${res.count}sht.svg`;
+      }
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
-      showToast(`Файл SVG (1:1 мм, ${res.count} шт.) сохранён`, 'success');
+      showToast('Файл SVG (1:1 мм) сохранён', 'success');
     }
 
     // ============================================================================
-    // 6. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ UI И ОБРАБОТЧИКИ СОБЫТИЙ
+    // 6. МОДУЛЬ OPENCV: ПОИСК КОНТУРОВ, ВЫРАВНИВАНИЕ И КАРТОЧКИ НАБОРА
     // ============================================================================
+    function onOpenCvReady() {
+      cvReady = true;
+      const badge = document.getElementById('cvStatusBadge');
+      badge.textContent = 'OpenCV: готов';
+      badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30';
+      const hiddenImg = document.getElementById('hiddenImg');
+      if (hiddenImg.src) processPhotoContours();
+    }
+
+    function pointInPolygon(x, y, pts) {
+      let inside = false;
+      for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+        const xi = pts[i].x, yi = pts[i].y;
+        const xj = pts[j].x, yj = pts[j].y;
+        const intersect = ((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / ((yj - yi) || 1e-9) + xi);
+        if (intersect) inside = !inside;
+      }
+      return inside;
+    }
+
+    function smoothArcsPreserveCorners(pts) {
+      if (pts.length < 5) return pts;
+      let current = pts.slice();
+      for (let iter = 0; iter < 2; iter++) {
+        const next = [];
+        const n = current.length;
+        for (let i = 0; i < n; i++) {
+          const p0 = current[(i - 1 + n) % n];
+          const p1 = current[i];
+          const p2 = current[(i + 1) % n];
+
+          const v1x = p0.x - p1.x, v1y = p0.y - p1.y;
+          const v2x = p2.x - p1.x, v2y = p2.y - p1.y;
+          const len1 = Math.hypot(v1x, v1y);
+          const len2 = Math.hypot(v2x, v2y);
+
+          if (len1 > 0 && len2 > 0) {
+            const cosAngle = (v1x * v2x + v1y * v2y) / (len1 * len2);
+            if (cosAngle < -0.42) {
+              next.push({ x: 0.75 * p1.x + 0.25 * p0.x, y: 0.75 * p1.y + 0.25 * p0.y });
+              next.push({ x: 0.75 * p1.x + 0.25 * p2.x, y: 0.75 * p1.y + 0.25 * p2.y });
+              continue;
+            }
+          }
+          next.push(p1);
+        }
+        current = next;
+      }
+      return current;
+    }
+
+    function processPhotoContours() {
+      const hiddenImg = document.getElementById('hiddenImg');
+      if (!cvReady || !hiddenImg.naturalWidth) return;
+
+      const maxDim = 900;
+      let scale = 1;
+      if (Math.max(hiddenImg.naturalWidth, hiddenImg.naturalHeight) > maxDim) {
+        scale = maxDim / Math.max(hiddenImg.naturalWidth, hiddenImg.naturalHeight);
+      }
+      const w = Math.round(hiddenImg.naturalWidth * scale);
+      const h = Math.round(hiddenImg.naturalHeight * scale);
+
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = w;
+      tempCanvas.height = h;
+      const ctx = tempCanvas.getContext('2d');
+      ctx.drawImage(hiddenImg, 0, 0, w, h);
+      lastBaseCanvas = tempCanvas;
+
+      let src = cv.imread(tempCanvas);
+      let mask = new cv.Mat();
+      let contours = new cv.MatVector();
+      let hierarchy = new cv.Mat();
+
+      try {
+        const mode = document.getElementById('detectMode').value;
+        const sliderVal = parseInt(document.getElementById('threshSlider').value, 10);
+
+        let gray = new cv.Mat();
+        let blurred = new cv.Mat();
+        cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
+        cv.GaussianBlur(gray, blurred, new cv.Size(5, 5), 0);
+        const threshType = mode === 'dark' ? cv.THRESH_BINARY_INV : cv.THRESH_BINARY;
+        cv.threshold(blurred, mask, sliderVal, 255, threshType);
+        gray.delete();
+        blurred.delete();
+
+        const sepPx = parseInt(document.getElementById('sepSlider').value, 10);
+        if (sepPx > 0) {
+          const kSize = sepPx * 2 + 1;
+          let erodeKernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, new cv.Size(kSize, kSize));
+          cv.erode(mask, mask, erodeKernel);
+          erodeKernel.delete();
+        }
+
+        cv.findContours(mask, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE);
+
+        const rawShapes = [];
+        const epsFactor = parseFloat(document.getElementById('epsilonSlider').value) * 0.0005;
+        const doSmooth = document.getElementById('smoothCheck').checked;
+
+        for (let i = 0; i < contours.size(); i++) {
+          let cnt = contours.get(i);
+          let area = cv.contourArea(cnt);
+          let rect = cv.boundingRect(cnt);
+
+          const touchesBorder = rect.x <= 2 && rect.y <= 2 && (rect.x + rect.width) >= w - 3 && (rect.y + rect.height) >= h - 3;
+          if (touchesBorder) continue;
+          if (area < (w * h * 0.01) || area > (w * h * 0.92)) continue;
+
+          let approx = new cv.Mat();
+          let peri = cv.arcLength(cnt, true);
+          cv.approxPolyDP(cnt, approx, epsFactor * peri, true);
+
+          let pts = [];
+          for (let j = 0; j < approx.rows; j++) {
+            pts.push({ x: approx.data32S[j * 2], y: approx.data32S[j * 2 + 1] });
+          }
+          approx.delete();
+
+          if (pts.length < 3) continue;
+          if (doSmooth) pts = smoothArcsPreserveCorners(pts);
+
+          let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+          pts.forEach(p => {
+            if (p.x < minX) minX = p.x;
+            if (p.y < minY) minY = p.y;
+            if (p.x > maxX) maxX = p.x;
+            if (p.y > maxY) maxY = p.y;
+          });
+
+          if (sepPx > 0) {
+            const cx = (minX + maxX) / 2;
+            const cy = (minY + maxY) / 2;
+            const halfW = Math.max(1, (maxX - minX) / 2);
+            const halfH = Math.max(1, (maxY - minY) / 2);
+            const scaleX = (halfW + sepPx) / halfW;
+            const scaleY = (halfH + sepPx) / halfH;
+            pts = pts.map(p => ({
+              x: cx + (p.x - cx) * scaleX,
+              y: cy + (p.y - cy) * scaleY
+            }));
+            minX -= sepPx; maxX += sepPx;
+            minY -= sepPx; maxY += sepPx;
+          }
+
+          rawShapes.push({
+            pts,
+            area,
+            bbox: { minX, minY, maxX, maxY }
+          });
+        }
+
+        rawShapes.sort((a, b) => b.area - a.area);
+
+        const prevShapes = photoShapes.slice();
+        photoShapes = rawShapes.map((sh, idx) => {
+          const prev = prevShapes[idx];
+          return {
+            id: idx + 1,
+            name: prev ? prev.name : `Этикетка #${idx + 1}`,
+            pts: sh.pts,
+            bbox: sh.bbox,
+            angleDeg: prev ? prev.angleDeg : 0,
+            alignedConfirmed: prev ? prev.alignedConfirmed : false,
+            widthMm: prev ? prev.widthMm : '',
+            heightMm: prev ? prev.heightMm : '',
+            qtyInSet: prev ? prev.qtyInSet : 1
+          };
+        });
+
+        if (selectedPhotoShapeIdx >= photoShapes.length) {
+          selectedPhotoShapeIdx = 0;
+        }
+
+        state.cachedPhotoResults = { '35x50': null, '50x70': null };
+        markPhotoNestingDirty();
+        renderPhotoPreviewCanvas();
+        renderDetectedShapesCards();
+        recalculateAndRender();
+      } finally {
+        src.delete();
+        mask.delete();
+        contours.delete();
+        hierarchy.delete();
+      }
+    }
+
+    function drawHighContrastPath(ctx, pts, mainColor, lineWidth, isDashed = false) {
+      ctx.save();
+      ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
+      if (isDashed) ctx.setLineDash([8, 6]);
+
+      ctx.strokeStyle = 'rgba(15, 23, 42, 0.92)';
+      ctx.lineWidth = lineWidth + Math.max(3, Math.round(lineWidth * 0.65));
+      ctx.beginPath();
+      pts.forEach((p, idx) => {
+        if (idx === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      });
+      ctx.closePath();
+      ctx.stroke();
+
+      ctx.strokeStyle = mainColor;
+      ctx.lineWidth = lineWidth;
+      ctx.shadowColor = mainColor;
+      ctx.shadowBlur = 6;
+      ctx.beginPath();
+      pts.forEach((p, idx) => {
+        if (idx === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      });
+      ctx.closePath();
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function renderPhotoPreviewCanvas() {
+      if (!lastBaseCanvas) return;
+      const outputCanvas = document.getElementById('outputCanvas');
+      const w = lastBaseCanvas.width;
+      const h = lastBaseCanvas.height;
+
+      outputCanvas.width = w;
+      outputCanvas.height = h;
+      const outCtx = outputCanvas.getContext('2d');
+      outCtx.drawImage(lastBaseCanvas, 0, 0);
+
+      const polyInfo = document.getElementById('polyInfo');
+      if (photoShapes.length === 0) {
+        polyInfo.textContent = 'Контуры не найдены (подвиньте чувствительность)';
+        return;
+      }
+
+      const baseLineW = Math.max(3, Math.round(w / 190));
+
+      photoShapes.forEach((sh, idx) => {
+        if (idx === selectedPhotoShapeIdx) return;
+        const isExcluded = (parseInt(sh.qtyInSet, 10) || 0) === 0;
+        const color = isExcluded ? '#64748b' : '#00f0ff';
+        drawHighContrastPath(outCtx, sh.pts, color, Math.max(2, baseLineW * 0.65), true);
+
+        const cx = (sh.bbox.minX + sh.bbox.maxX) / 2;
+        const cy = (sh.bbox.minY + sh.bbox.maxY) / 2;
+        drawBadgeOnCanvas(outCtx, `#${sh.id}${isExcluded ? ' (0)' : ''}`, cx, cy, w, isExcluded ? '#475569' : '#0284c7');
+      });
+
+      const active = photoShapes[selectedPhotoShapeIdx];
+      const cx = (active.bbox.minX + active.bbox.maxX) / 2;
+      const cy = (active.bbox.minY + active.bbox.maxY) / 2;
+      const angleDeg = active.angleDeg || 0;
+      const aligned = getAlignedNormalizedShape(active);
+      const rotatedPts = aligned.rotatedPts;
+      const { minX, minY, boxW, boxH } = aligned.bbox;
+
+      if (angleDeg !== 0) {
+        outCtx.save();
+        outCtx.fillStyle = 'rgba(7, 11, 18, 0.52)';
+        outCtx.fillRect(0, 0, w, h);
+
+        outCtx.beginPath();
+        rotatedPts.forEach((p, idx) => {
+          if (idx === 0) outCtx.moveTo(p.x, p.y);
+          else outCtx.lineTo(p.x, p.y);
+        });
+        outCtx.closePath();
+        outCtx.clip();
+
+        outCtx.translate(cx, cy);
+        outCtx.rotate((angleDeg * Math.PI) / 180);
+        outCtx.translate(-cx, -cy);
+        outCtx.drawImage(lastBaseCanvas, 0, 0);
+        outCtx.restore();
+      }
+
+      outCtx.save();
+      outCtx.fillStyle = activeStrokeColor + '26';
+      outCtx.beginPath();
+      rotatedPts.forEach((p, idx) => {
+        if (idx === 0) outCtx.moveTo(p.x, p.y);
+        else outCtx.lineTo(p.x, p.y);
+      });
+      outCtx.closePath();
+      outCtx.fill();
+      outCtx.restore();
+
+      outCtx.save();
+      outCtx.setLineDash([6, 5]);
+      outCtx.strokeStyle = 'rgba(15, 23, 42, 0.85)';
+      outCtx.lineWidth = Math.max(2.5, Math.round(w / 320));
+      outCtx.strokeRect(minX, minY, boxW, boxH);
+      outCtx.strokeStyle = '#fde047';
+      outCtx.lineWidth = Math.max(1.5, Math.round(w / 500));
+      outCtx.strokeRect(minX, minY, boxW, boxH);
+      outCtx.restore();
+
+      drawHighContrastPath(outCtx, rotatedPts, activeStrokeColor, baseLineW, false);
+      drawBadgeOnCanvas(outCtx, `#${active.id}`, cx, cy, w, activeStrokeColor);
+
+      polyInfo.textContent = `Найдено: ${photoShapes.length} шт. • Выбрана #${active.id} (${rotatedPts.length} т.)`;
+    }
+
+    function drawBadgeOnCanvas(ctx, text, x, y, canvasW, bgColor) {
+      const fontSize = Math.max(12, Math.round(canvasW / 38));
+      ctx.save();
+      ctx.font = `700 ${fontSize}px "JetBrains Mono", monospace`;
+      const metrics = ctx.measureText(text);
+      const padX = 7;
+      const boxW = metrics.width + padX * 2;
+      const boxH = fontSize + 8;
+
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+      ctx.beginPath();
+      ctx.roundRect(x - boxW / 2, y - boxH / 2, boxW, boxH, 6);
+      ctx.fill();
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = bgColor;
+      ctx.stroke();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(text, x, y + 0.5);
+      ctx.restore();
+    }
+
+    function syncQuickAlignBar() {
+      const bar = document.getElementById('quickAlignBar');
+      const chipsEl = document.getElementById('quickShapeChips');
+      const titleEl = document.getElementById('quickAlignTitle');
+      const sliderEl = document.getElementById('quickRotSlider');
+
+      if (!bar || photoShapes.length === 0) {
+        if (bar) bar.classList.add('hidden');
+        return;
+      }
+
+      bar.classList.remove('hidden');
+
+      chipsEl.innerHTML = photoShapes.map((sh, idx) => {
+        const isSel = idx === selectedPhotoShapeIdx;
+        const qty = parseInt(sh.qtyInSet, 10) || 0;
+        const isExcl = qty === 0;
+        const cls = isSel
+          ? 'bg-pink-600 text-white border-pink-400 shadow'
+          : isExcl
+            ? 'bg-slate-800/70 text-slate-500 border-slate-700'
+            : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700';
+        return `<button type="button" data-idx="${idx}" class="quick-chip-btn px-2.5 py-1 rounded-md border text-[11px] font-mono font-bold transition cursor-pointer ${cls}">#${sh.id} (${sh.angleDeg > 0 ? '+' : ''}${sh.angleDeg.toFixed(0)}° • ${qty}шт)</button>`;
+      }).join('');
+
+      document.querySelectorAll('.quick-chip-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          selectedPhotoShapeIdx = parseInt(btn.dataset.idx, 10);
+          renderPhotoPreviewCanvas();
+          renderDetectedShapesCards();
+        });
+      });
+
+      const active = photoShapes[selectedPhotoShapeIdx];
+      const deg = active.angleDeg || 0;
+      titleEl.innerHTML = `Выравнивание #${active.id}: <span id="quickAlignAngle" class="font-mono text-white">${deg > 0 ? '+' : ''}${deg.toFixed(1)}°</span>`;
+      sliderEl.value = deg;
+    }
+
+    function applyAngleToShape(idx, newDeg, rebuildCards = false) {
+      selectedPhotoShapeIdx = idx;
+      let norm = ((newDeg + 180) % 360 + 360) % 360 - 180;
+      if (newDeg === 180) norm = 180;
+      photoShapes[idx].angleDeg = norm;
+      photoShapes[idx].alignedConfirmed = true;
+      markPhotoNestingDirty();
+      renderPhotoPreviewCanvas();
+      syncQuickAlignBar();
+
+      if (rebuildCards) {
+        renderDetectedShapesCards();
+      }
+    }
+
+    function renderDetectedShapesCards() {
+      const container = document.getElementById('detectedShapesList');
+      const summaryEl = document.getElementById('setCompositionSummary');
+
+      if (photoShapes.length === 0) {
+        container.innerHTML = `<div class="p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-400 text-center">Контуры не найдены. Попробуйте изменить «Режим фона» или «Чувствительность границ».</div>`;
+        summaryEl.textContent = '0 шт. в наборе';
+        syncQuickAlignBar();
+        return;
+      }
+
+      let totalInSet = 0;
+      photoShapes.forEach(sh => {
+        const q = parseInt(sh.qtyInSet, 10) || 0;
+        const w = parseFloat(sh.widthMm) || 0;
+        const h = parseFloat(sh.heightMm) || 0;
+        if (q > 0 && w > 0 && h > 0) totalInSet += q;
+      });
+      summaryEl.textContent = `${totalInSet} дет. в 1 наборе`;
+
+      container.innerHTML = photoShapes.map((sh, idx) => {
+        const isSelected = idx === selectedPhotoShapeIdx;
+        const palette = SHAPE_COLORS[idx % SHAPE_COLORS.length];
+        const qty = parseInt(sh.qtyInSet, 10) || 0;
+        const isExcluded = qty === 0;
+        const hasDims = (parseFloat(sh.widthMm) > 0 && parseFloat(sh.heightMm) > 0);
+        const step2Unlocked = sh.alignedConfirmed || hasDims || Math.abs(sh.angleDeg) > 0;
+
+        // Неактивные контуры сворачиваем в одну компактную строку, чтобы на экране телефона не было длинного скролла
+        if (!isSelected) {
+          return `
+            <div class="shape-card rounded-xl border border-slate-800 bg-slate-900/65 hover:border-slate-700 px-3 py-2 flex items-center justify-between gap-2 cursor-pointer select-shape-trigger ${isExcluded ? 'opacity-50' : ''}" data-idx="${idx}">
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold border ${palette.badge}">#${sh.id}</span>
+                <span class="text-xs font-medium text-slate-200 truncate">${sh.name}</span>
+                <span class="text-[10px] font-mono text-slate-400">${sh.angleDeg > 0 ? '+' : ''}${sh.angleDeg.toFixed(0)}°</span>
+              </div>
+              <div class="flex items-center gap-1.5 shrink-0 text-[10px] font-mono">
+                ${isExcluded
+                  ? `<span class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">0 шт (выкл)</span>`
+                  : hasDims
+                    ? `<span class="px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">${sh.widthMm}×${sh.heightMm} • ${qty}шт</span>`
+                    : `<span class="px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300">задать размер</span>`
+                }
+                <span class="text-pink-400 font-semibold">ред.</span>
+              </div>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="shape-card rounded-xl border-2 border-pink-500/80 ring-1 ring-pink-500/30 bg-slate-900 p-3 transition ${isExcluded ? 'opacity-65' : ''}" data-idx="${idx}">
+            <div class="flex items-center justify-between gap-2 mb-2.5">
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold border ${palette.badge}">#${sh.id}</span>
+                <input type="text" value="${sh.name.replace(/"/g, '&quot;')}" data-idx="${idx}"
+                  class="shape-name-input bg-transparent border-b border-slate-700 focus:border-cyan-400 text-xs font-semibold text-white focus:outline-none truncate w-32 sm:w-36"
+                  title="Можно переименовать (например: Передняя, Верхняя)" />
+              </div>
+
+              <div class="flex items-center gap-1.5 shrink-0">
+                ${isExcluded
+                  ? `<span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">Исключён (0)</span>`
+                  : hasDims
+                    ? `<span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">${sh.widthMm}×${sh.heightMm} мм • ${qty} шт</span>`
+                    : `<span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300">Нужны размеры</span>`
+                }
+              </div>
+            </div>
+
+            <!-- ГАБАРИТЫ (ММ) И КОЛИЧЕСТВО В НАБОРЕ (ШТ.) -->
+            <div class="step2-box transition-opacity">
+              <div class="flex items-center justify-between text-[11px] text-slate-400 mb-1">
+                <span class="font-semibold text-emerald-300">Размеры и доля в наборе:</span>
+                <button type="button" data-idx="${idx}" class="zero-qty-btn text-[10px] font-mono text-slate-400 hover:text-rose-300 underline cursor-pointer">
+                  Поставить 0 (убрать)
+                </button>
+              </div>
+              <div class="grid grid-cols-3 gap-2">
+                <div>
+                  <label class="block text-[10px] text-slate-400 mb-0.5">Ширина (мм)</label>
+                  <input type="number" step="0.1" min="2" max="680" placeholder="мм" value="${sh.widthMm}" data-idx="${idx}"
+                    class="shape-w-input w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-emerald-500" />
+                </div>
+                <div>
+                  <label class="block text-[10px] text-slate-400 mb-0.5">Высота (мм)</label>
+                  <input type="number" step="0.1" min="2" max="680" placeholder="мм" value="${sh.heightMm}" data-idx="${idx}"
+                    class="shape-h-input w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-emerald-500" />
+                </div>
+                <div>
+                  <label class="block text-[10px] text-slate-400 mb-0.5">В наборе (шт)</label>
+                  <input type="number" step="1" min="0" max="50" value="${qty}" data-idx="${idx}"
+                    class="shape-qty-input w-full bg-slate-950 border ${isExcluded ? 'border-rose-500/50 text-rose-300' : 'border-cyan-500/50 text-cyan-300'} rounded-lg px-2 py-1.5 text-xs font-mono font-bold focus:outline-none focus:border-cyan-400" />
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      syncQuickAlignBar();
+      bindShapeCardsEvents();
+    }
+
+    function bindShapeCardsEvents() {
+      document.querySelectorAll('.select-shape-trigger').forEach(el => {
+        el.addEventListener('click', (e) => {
+          if (e.target.tagName === 'INPUT') return;
+          selectedPhotoShapeIdx = parseInt(el.dataset.idx, 10);
+          renderPhotoPreviewCanvas();
+          renderDetectedShapesCards();
+        });
+      });
+
+      document.querySelectorAll('.shape-name-input').forEach(inp => {
+        inp.addEventListener('input', () => {
+          const idx = parseInt(inp.dataset.idx, 10);
+          photoShapes[idx].name = inp.value;
+          markPhotoNestingDirty();
+        });
+      });
+
+      document.querySelectorAll('.shape-rot-slider').forEach(sl => {
+        sl.addEventListener('input', () => {
+          const idx = parseInt(sl.dataset.idx, 10);
+          applyAngleToShape(idx, parseFloat(sl.value) || 0, false);
+        });
+      });
+
+      document.querySelectorAll('.rot-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = parseInt(btn.dataset.idx, 10);
+          const cur = photoShapes[idx].angleDeg || 0;
+          const next = btn.dataset.reset ? 0 : cur + parseFloat(btn.dataset.delta);
+          applyAngleToShape(idx, next, true);
+        });
+      });
+
+      document.querySelectorAll('.confirm-align-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = parseInt(btn.dataset.idx, 10);
+          selectedPhotoShapeIdx = idx;
+          photoShapes[idx].alignedConfirmed = true;
+          renderPhotoPreviewCanvas();
+          renderDetectedShapesCards();
+        });
+      });
+
+      document.querySelectorAll('.shape-w-input').forEach(inp => {
+        inp.addEventListener('input', () => {
+          const idx = parseInt(inp.dataset.idx, 10);
+          selectedPhotoShapeIdx = idx;
+          photoShapes[idx].widthMm = inp.value;
+          updateSetSummaryBadgeOnly();
+          markPhotoNestingDirty();
+        });
+      });
+
+      document.querySelectorAll('.shape-h-input').forEach(inp => {
+        inp.addEventListener('input', () => {
+          const idx = parseInt(inp.dataset.idx, 10);
+          selectedPhotoShapeIdx = idx;
+          photoShapes[idx].heightMm = inp.value;
+          updateSetSummaryBadgeOnly();
+          markPhotoNestingDirty();
+        });
+      });
+
+      document.querySelectorAll('.shape-qty-input').forEach(inp => {
+        inp.addEventListener('input', () => {
+          const idx = parseInt(inp.dataset.idx, 10);
+          selectedPhotoShapeIdx = idx;
+          const val = Math.max(0, parseInt(inp.value, 10) || 0);
+          photoShapes[idx].qtyInSet = val;
+          renderPhotoPreviewCanvas();
+          updateSetSummaryBadgeOnly();
+          markPhotoNestingDirty();
+        });
+        inp.addEventListener('change', () => {
+          renderDetectedShapesCards();
+        });
+      });
+
+      document.querySelectorAll('.zero-qty-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = parseInt(btn.dataset.idx, 10);
+          photoShapes[idx].qtyInSet = 0;
+          renderPhotoPreviewCanvas();
+          renderDetectedShapesCards();
+          markPhotoNestingDirty();
+        });
+      });
+    }
+
+    function updateSetSummaryBadgeOnly() {
+      let totalInSet = 0;
+      photoShapes.forEach(sh => {
+        const q = parseInt(sh.qtyInSet, 10) || 0;
+        const w = parseFloat(sh.widthMm) || 0;
+        const h = parseFloat(sh.heightMm) || 0;
+        if (q > 0 && w > 0 && h > 0) totalInSet += q;
+      });
+      document.getElementById('setCompositionSummary').textContent = `${totalInSet} дет. в 1 наборе`;
+    }
+
+    // ============================================================================
+    // 7. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ UI И ОБРАБОТЧИКИ СОБЫТИЙ
+    // ============================================================================
+    function getRegularPolygonAspectRatio(sides) {
+      const verts = generateRegularPolygonVertices(100, 100, sides);
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+      verts.forEach(p => {
+        if (p.x < minX) minX = p.x;
+        if (p.y < minY) minY = p.y;
+        if (p.x > maxX) maxX = p.x;
+        if (p.y > maxY) maxY = p.y;
+      });
+      return Math.max(0.1, (maxX - minX) / Math.max(1e-6, maxY - minY));
+    }
+
+    function syncPolyDimensions(changedField) {
+      if (state.shapeType !== 'poly') return;
+      const chk = document.getElementById('chkPolyProportional');
+      if (!chk || !chk.checked) return;
+
+      const wEl = document.getElementById('inputWidth');
+      const hEl = document.getElementById('inputHeight');
+      const sides = Math.max(3, Math.min(24, parseInt(document.getElementById('inputPolySides').value, 10) || 6));
+      const ratioWH = getRegularPolygonAspectRatio(sides);
+
+      if (changedField === 'width' || changedField === 'sides') {
+        const wVal = Math.max(5, Math.min(680, parseFloat(wEl.value) || 90));
+        const newH = Math.max(5, Math.min(680, Number((wVal / ratioWH).toFixed(1))));
+        hEl.value = newH;
+      } else if (changedField === 'height') {
+        const hVal = Math.max(5, Math.min(680, parseFloat(hEl.value) || 50));
+        const newW = Math.max(5, Math.min(680, Number((hVal * ratioWH).toFixed(1))));
+        wEl.value = newW;
+      }
+    }
+
     function readInputs() {
       state.width = Math.max(5, Math.min(680, parseFloat(document.getElementById('inputWidth').value) || 90));
       state.height = Math.max(5, Math.min(680, parseFloat(document.getElementById('inputHeight').value) || 50));
+      state.polySides = Math.max(3, Math.min(24, parseInt(document.getElementById('inputPolySides').value, 10) || 6));
       state.gap = Math.max(0, Math.min(30, parseFloat(document.getElementById('inputGap').value) || 0));
       state.mode = document.getElementById('selectMode').value;
       state.quantity = Math.max(1, parseInt(document.getElementById('inputQuantity').value, 10) || 10000);
@@ -1111,53 +3031,77 @@
     }
 
     function getExactShapeRussianName() {
+      if (state.shapeType === 'photo') return 'Контур по фото';
       const isEqual = Math.abs(state.width - state.height) < 0.01;
-      if (state.shapeType === 'rect') {
-        return isEqual ? 'Квадрат' : 'Прямоугольник';
-      } else {
-        return isEqual ? 'Круг' : 'Овал';
-      }
+      if (state.shapeType === 'rect') return isEqual ? 'Квадрат' : 'Прямоугольник';
+      if (state.shapeType === 'oval') return isEqual ? 'Круг' : 'Овал';
+      const n = state.polySides;
+      if (n === 3) return 'Треугольник';
+      if (n === 4) return 'Ромб (4-угольник)';
+      if (n === 6) return 'Шестигранник';
+      return `${n}-угольник`;
     }
 
     function updateShapeSubTypeBadge() {
-      const badge = document.getElementById('detectedShapeBadge');
-      badge.textContent = getExactShapeRussianName();
+      document.getElementById('detectedShapeBadge').textContent = getExactShapeRussianName();
     }
 
     function setFormat(fmtId) {
       state.format = fmtId;
-      const b35 = document.getElementById('btnFormat35x50');
-      const b50 = document.getElementById('btnFormat50x70');
-      const d35 = document.getElementById('dotFormat35x50');
-      const d50 = document.getElementById('dotFormat50x70');
-
-      if (fmtId === '35x50') {
-        b35.className = 'text-left p-3 rounded-xl border-2 border-cyan-500 bg-cyan-500/10 transition cursor-pointer';
-        d35.className = 'w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.8)]';
-        b50.className = 'text-left p-3 rounded-xl border-2 border-slate-700/80 bg-slate-900/70 hover:border-slate-600 transition cursor-pointer';
-        d50.className = 'w-2.5 h-2.5 rounded-full bg-slate-700';
-      } else {
-        b50.className = 'text-left p-3 rounded-xl border-2 border-emerald-500 bg-emerald-500/10 transition cursor-pointer';
-        d50.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]';
-        b35.className = 'text-left p-3 rounded-xl border-2 border-slate-700/80 bg-slate-900/70 hover:border-slate-600 transition cursor-pointer';
-        d35.className = 'w-2.5 h-2.5 rounded-full bg-slate-700';
-      }
       recalculateAndRender();
     }
 
     function setShapeType(type) {
       state.shapeType = type;
-      const bRect = document.getElementById('btnShapeRect');
-      const bOval = document.getElementById('btnShapeOval');
+      const isPhoto = type === 'photo';
 
-      if (type === 'rect') {
-        bRect.className = 'flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border-2 border-emerald-500 bg-emerald-500/10 text-white text-xs font-semibold transition cursor-pointer';
-        bOval.className = 'flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border-2 border-slate-700/80 bg-slate-900/70 hover:border-slate-600 text-slate-300 text-xs font-semibold transition cursor-pointer';
-      } else {
-        bOval.className = 'flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border-2 border-emerald-500 bg-emerald-500/10 text-white text-xs font-semibold transition cursor-pointer';
-        bRect.className = 'flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border-2 border-slate-700/80 bg-slate-900/70 hover:border-slate-600 text-slate-300 text-xs font-semibold transition cursor-pointer';
-      }
+      const bTabSimple = document.getElementById('btnTabSimple');
+      const bTabPhoto = document.getElementById('btnTabPhoto');
+      const tabActiveSimple = 'flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border-2 border-emerald-500 bg-emerald-500/10 text-white text-xs font-semibold transition cursor-pointer';
+      const tabActivePhoto = 'flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border-2 border-pink-500 bg-pink-500/10 text-white text-xs font-semibold transition cursor-pointer';
+      const tabInactive = 'flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border-2 border-slate-700/80 bg-slate-900/70 hover:border-slate-600 text-slate-300 text-xs font-semibold transition cursor-pointer';
+
+      bTabSimple.className = !isPhoto ? tabActiveSimple : tabInactive;
+      bTabPhoto.className = isPhoto ? tabActivePhoto : tabInactive;
+
+      const bRect = document.getElementById('btnSubRect');
+      const bOval = document.getElementById('btnSubOval');
+      const bPoly = document.getElementById('btnSubPoly');
+      const subActive = 'flex flex-col items-center justify-center gap-1 py-2 px-1.5 rounded-xl border border-emerald-500 bg-emerald-500/15 text-white text-[11px] font-semibold transition cursor-pointer text-center';
+      const subInactive = 'flex flex-col items-center justify-center gap-1 py-2 px-1.5 rounded-xl border border-slate-700 bg-slate-900/80 hover:border-slate-600 text-slate-300 text-[11px] font-semibold transition cursor-pointer text-center';
+
+      bRect.className = type === 'rect' ? subActive : subInactive;
+      bOval.className = type === 'oval' ? subActive : subInactive;
+      bPoly.className = type === 'poly' ? subActive : subInactive;
+
+      document.getElementById('polySidesPanel').classList.toggle('hidden', type !== 'poly');
+      document.getElementById('standardShapePanel').classList.toggle('hidden', isPhoto);
+      document.getElementById('photoContourPanel').classList.toggle('hidden', !isPhoto);
+      document.getElementById('standardModeWrapper').classList.toggle('hidden', isPhoto);
+      document.getElementById('photoNestingOptions').classList.toggle('hidden', !isPhoto);
+      document.getElementById('labelQuantity').textContent = isPhoto ? 'Тираж наборов (компл.)' : 'Тираж этикеток (шт.)';
+
       recalculateAndRender();
+    }
+
+    function setPhotoLayoutMode(mode) {
+      state.photoLayoutMode = mode;
+      state.activeSeparateTabIdx = 0;
+      const bSet = document.getElementById('btnPhotoLayoutSet');
+      const bSep = document.getElementById('btnPhotoLayoutSeparate');
+      const btnText = document.getElementById('runPhotoNestingBtnText');
+
+      const activeCls = 'py-2 px-2 rounded-lg border border-pink-500 bg-pink-500/15 text-white text-[11px] font-semibold transition cursor-pointer text-center';
+      const inactiveCls = 'py-2 px-2 rounded-lg border border-slate-700 bg-slate-900 hover:border-slate-600 text-slate-300 text-[11px] font-semibold transition cursor-pointer text-center';
+
+      bSet.className = mode === 'set' ? activeCls : inactiveCls;
+      bSep.className = mode === 'separate' ? activeCls : inactiveCls;
+      if (btnText) {
+        btnText.textContent = mode === 'separate'
+          ? 'Разложить каждую этикетку на свой лист'
+          : 'Разложить набор на листе';
+      }
+      markPhotoNestingDirty();
     }
 
     function applyTransform() {
@@ -1166,37 +3110,98 @@
       document.getElementById('zoomValueText').textContent = `${Math.round(state.zoom * 100)}%`;
     }
 
+    function handleImageUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const hiddenImg = document.getElementById('hiddenImg');
+        hiddenImg.onload = () => {
+          selectedPhotoShapeIdx = 0;
+          photoShapes = [];
+          document.getElementById('photoWorkspace').classList.remove('hidden');
+          if (cvReady) {
+            processPhotoContours();
+          } else {
+            showToast('Подождите секунду, OpenCV ещё загружается...', 'info');
+          }
+        };
+        hiddenImg.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
     function initEvents() {
-      // Переключение форматов 35x50 и 50x70
-      document.getElementById('btnFormat35x50').addEventListener('click', () => setFormat('35x50'));
-      document.getElementById('btnFormat50x70').addEventListener('click', () => setFormat('50x70'));
+
       document.getElementById('liveCard35').addEventListener('click', () => setFormat('35x50'));
       document.getElementById('liveCard50').addEventListener('click', () => setFormat('50x70'));
 
-      // Переключение подвидов форм
-      document.getElementById('btnShapeRect').addEventListener('click', () => setShapeType('rect'));
-      document.getElementById('btnShapeOval').addEventListener('click', () => setShapeType('oval'));
+      document.getElementById('btnTabSimple').addEventListener('click', () => {
+        if (state.shapeType === 'photo') setShapeType('rect');
+      });
+      document.getElementById('btnTabPhoto').addEventListener('click', () => setShapeType('photo'));
 
-      // Кнопка поворота на 90° (обмен ширины и высоты)
+      document.getElementById('btnSubRect').addEventListener('click', () => setShapeType('rect'));
+      document.getElementById('btnSubOval').addEventListener('click', () => setShapeType('oval'));
+      document.getElementById('btnSubPoly').addEventListener('click', () => {
+        setShapeType('poly');
+        syncPolyDimensions('width');
+        recalculateAndRender();
+      });
+
+      document.getElementById('runSimpleNestingBtn').addEventListener('click', runSimpleNestingManual);
+
+      document.getElementById('inputPolySides').addEventListener('input', () => {
+        syncPolyDimensions('sides');
+        markSimpleNestingDirty();
+      });
+      document.querySelectorAll('.preset-sides-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.getElementById('inputPolySides').value = btn.dataset.sides;
+          document.querySelectorAll('.preset-sides-btn').forEach(b => {
+            b.className = 'preset-sides-btn px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[10px] font-mono text-slate-200 cursor-pointer';
+          });
+          btn.className = 'preset-sides-btn px-2 py-1 rounded bg-amber-500/25 border border-amber-500/50 text-[10px] font-mono text-amber-200 font-bold cursor-pointer';
+          syncPolyDimensions('sides');
+          markSimpleNestingDirty();
+        });
+      });
+      document.getElementById('chkPolyProportional').addEventListener('change', (e) => {
+        if (e.target.checked) syncPolyDimensions('width');
+        markSimpleNestingDirty();
+      });
+      document.getElementById('inputWidth').addEventListener('input', () => {
+        syncPolyDimensions('width');
+        markSimpleNestingDirty();
+      });
+      document.getElementById('inputHeight').addEventListener('input', () => {
+        syncPolyDimensions('height');
+        markSimpleNestingDirty();
+      });
+
+      document.getElementById('btnPhotoLayoutSet').addEventListener('click', () => setPhotoLayoutMode('set'));
+      document.getElementById('btnPhotoLayoutSeparate').addEventListener('click', () => setPhotoLayoutMode('separate'));
+      document.getElementById('chkPhotoBoundingBox').addEventListener('change', () => {
+        markPhotoNestingDirty();
+      });
+
       document.getElementById('swapDimsBtn').addEventListener('click', () => {
         const wEl = document.getElementById('inputWidth');
         const hEl = document.getElementById('inputHeight');
         const tmp = wEl.value;
         wEl.value = hEl.value;
         hEl.value = tmp;
-        recalculateAndRender();
+        markSimpleNestingDirty();
       });
 
-      // Быстрые пресеты размеров
       document.querySelectorAll('.preset-dim-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           document.getElementById('inputWidth').value = btn.dataset.w;
           document.getElementById('inputHeight').value = btn.dataset.h;
-          recalculateAndRender();
+          runSimpleNestingManual();
         });
       });
 
-      // Быстрые кнопки зазора
       document.querySelectorAll('.preset-gap-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           document.getElementById('inputGap').value = btn.dataset.gap;
@@ -1204,17 +3209,115 @@
             b.className = 'preset-gap-btn py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[11px] font-mono text-slate-300 transition cursor-pointer';
           });
           btn.className = 'preset-gap-btn py-1.5 rounded-lg bg-purple-500/20 border border-purple-500/50 text-[11px] font-mono text-purple-200 font-semibold transition cursor-pointer';
-          recalculateAndRender();
+          if (state.shapeType === 'photo') markPhotoNestingDirty();
+          else markSimpleNestingDirty();
         });
       });
 
-      // Живой пересчёт при любом вводе
-      ['inputWidth', 'inputHeight', 'inputGap', 'selectMode', 'inputQuantity', 'inputMakeready'].forEach(id => {
+      ['selectMode'].forEach(id => {
+        document.getElementById(id).addEventListener('input', markSimpleNestingDirty);
+        document.getElementById(id).addEventListener('change', markSimpleNestingDirty);
+      });
+
+      ['inputQuantity', 'inputMakeready'].forEach(id => {
         document.getElementById(id).addEventListener('input', recalculateAndRender);
         document.getElementById(id).addEventListener('change', recalculateAndRender);
       });
 
-      // Чекбоксы отображения чертежа
+      ['inputGap'].forEach(id => {
+        const handler = () => {
+          if (state.shapeType === 'photo') {
+            markPhotoNestingDirty();
+          } else {
+            markSimpleNestingDirty();
+          }
+        };
+        document.getElementById(id).addEventListener('input', handler);
+        document.getElementById(id).addEventListener('change', handler);
+      });
+
+      document.getElementById('selectPhotoAngleStep').addEventListener('change', () => {
+        if (state.shapeType === 'photo') markPhotoNestingDirty();
+      });
+
+      document.getElementById('runPhotoNestingBtn').addEventListener('click', runPhotoNestingManual);
+
+      document.getElementById('quickRotSlider').addEventListener('input', (e) => {
+        if (!photoShapes.length) return;
+        applyAngleToShape(selectedPhotoShapeIdx, parseFloat(e.target.value) || 0, false);
+      });
+      document.getElementById('quickRotMinus90').addEventListener('click', () => {
+        if (!photoShapes.length) return;
+        applyAngleToShape(selectedPhotoShapeIdx, (photoShapes[selectedPhotoShapeIdx].angleDeg || 0) - 90, true);
+      });
+      document.getElementById('quickRotReset').addEventListener('click', () => {
+        if (!photoShapes.length) return;
+        applyAngleToShape(selectedPhotoShapeIdx, 0, true);
+      });
+      document.getElementById('quickRotPlus90').addEventListener('click', () => {
+        if (!photoShapes.length) return;
+        applyAngleToShape(selectedPhotoShapeIdx, (photoShapes[selectedPhotoShapeIdx].angleDeg || 0) + 90, true);
+      });
+
+      document.getElementById('fileInput').addEventListener('change', handleImageUpload);
+      document.getElementById('cameraInput').addEventListener('change', handleImageUpload);
+
+      document.querySelectorAll('.line-color-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          activeStrokeColor = btn.dataset.color;
+          document.querySelectorAll('.line-color-btn').forEach(b => b.classList.remove('ring-2', 'ring-offset-1', 'ring-offset-slate-950', 'ring-white'));
+          btn.classList.add('ring-2', 'ring-offset-1', 'ring-offset-slate-950', 'ring-white');
+          renderPhotoPreviewCanvas();
+        });
+      });
+
+      document.getElementById('detectMode').addEventListener('change', () => {
+        processPhotoContours();
+      });
+
+      document.getElementById('threshSlider').addEventListener('input', (e) => {
+        document.getElementById('threshVal').textContent = e.target.value;
+        processPhotoContours();
+      });
+
+      document.getElementById('sepSlider').addEventListener('input', (e) => {
+        document.getElementById('sepVal').textContent = e.target.value + ' px';
+        processPhotoContours();
+      });
+
+      document.getElementById('epsilonSlider').addEventListener('input', (e) => {
+        document.getElementById('epsilonVal').textContent = (e.target.value * 0.05).toFixed(2) + '%';
+        processPhotoContours();
+      });
+
+      document.getElementById('smoothCheck').addEventListener('change', processPhotoContours);
+
+      const outputCanvas = document.getElementById('outputCanvas');
+      outputCanvas.addEventListener('click', (e) => {
+        if (photoShapes.length <= 1) return;
+        const rect = outputCanvas.getBoundingClientRect();
+        const clickX = (e.clientX - rect.left) * (outputCanvas.width / rect.width);
+        const clickY = (e.clientY - rect.top) * (outputCanvas.height / rect.height);
+
+        for (let i = 0; i < photoShapes.length; i++) {
+          if (pointInPolygon(clickX, clickY, photoShapes[i].pts)) {
+            selectedPhotoShapeIdx = i;
+            renderPhotoPreviewCanvas();
+            renderDetectedShapesCards();
+            return;
+          }
+        }
+        for (let i = 0; i < photoShapes.length; i++) {
+          const b = photoShapes[i].bbox;
+          if (clickX >= b.minX && clickX <= b.maxX && clickY >= b.minY && clickY <= b.maxY) {
+            selectedPhotoShapeIdx = i;
+            renderPhotoPreviewCanvas();
+            renderDetectedShapesCards();
+            return;
+          }
+        }
+      });
+
       document.getElementById('chkShowNumbers').addEventListener('change', () => {
         if (state.activeResult) renderBlueprintSvg(state.activeResult);
       });
@@ -1222,10 +3325,8 @@
         if (state.activeResult) renderBlueprintSvg(state.activeResult);
       });
 
-      // Экспорт в SVG 1:1
       document.getElementById('exportSvgBtn').addEventListener('click', exportLayoutToSvg);
 
-      // Масштабирование и панорамирование
       const viewport = document.getElementById('canvasViewport');
       const sheetSvg = document.getElementById('sheetSvg');
       const coordDisplay = document.getElementById('cursorCoordDisplay');
@@ -1234,16 +3335,12 @@
         state.zoom = Math.min(4, state.zoom + 0.25);
         applyTransform();
       });
-
       document.getElementById('btnZoomOut').addEventListener('click', () => {
         state.zoom = Math.max(0.4, state.zoom - 0.25);
         applyTransform();
       });
-
       document.getElementById('btnFitScreen').addEventListener('click', () => {
-        state.zoom = 1;
-        state.panX = 0;
-        state.panY = 0;
+        state.zoom = 1; state.panX = 0; state.panY = 0;
         applyTransform();
       });
 
@@ -1275,7 +3372,6 @@
         viewport.classList.remove('grabbing');
       });
 
-      // Поддержка тач-перетаскивания на мобильных устройствах
       viewport.addEventListener('touchstart', (e) => {
         if (e.touches.length === 1) {
           state.isDragging = true;
@@ -1292,11 +3388,8 @@
         }
       }, { passive: true });
 
-      viewport.addEventListener('touchend', () => {
-        state.isDragging = false;
-      });
+      viewport.addEventListener('touchend', () => { state.isDragging = false; });
 
-      // Координаты курсора на листе в мм
       sheetSvg.addEventListener('mousemove', (e) => {
         const fmt = SHEET_FORMATS[state.format];
         const rect = sheetSvg.getBoundingClientRect();
@@ -1323,5 +3416,6 @@
       recalculateAndRender();
     });
   </script>
+  <script async src="https://docs.opencv.org/4.8.0/opencv.js" onload="onOpenCvReady()"></script>
 </body>
 </html>
