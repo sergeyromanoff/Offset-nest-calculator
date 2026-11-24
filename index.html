@@ -30,6 +30,7 @@
       }
     };
   </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #0f172a; }
@@ -73,7 +74,7 @@
             OpenCV: загрузка...
           </span>
         </div>
-        <p class="text-xs text-slate-400 hidden sm:block">Офсетный нестинг фигур и полигональный раскрой наборов по фото</p>
+        <p class="text-xs text-slate-400 hidden sm:block">Офсетный нестинг фигур, раскрой по фото и параметрический генератор коробок ECMA (3D + крой)</p>
       </div>
     </div>
 
@@ -99,23 +100,32 @@
             </span>
           </div>
 
-          <!-- 2 главные вкладки: Простые фигуры | Контур по фото -->
-          <div class="grid grid-cols-2 gap-2">
-            <button id="btnTabSimple" type="button" class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border-2 border-emerald-500 bg-emerald-500/10 text-white text-xs font-semibold transition cursor-pointer">
+          <!-- 3 главные вкладки: Простые фигуры | Контур по фото | Коробки ECMA -->
+          <div class="grid grid-cols-3 gap-1.5">
+            <button id="btnTabSimple" type="button" class="flex flex-col sm:flex-row items-center justify-center gap-1.5 py-2 px-2 rounded-xl border-2 border-emerald-500 bg-emerald-500/10 text-white text-[11px] sm:text-xs font-semibold transition cursor-pointer text-center">
               <svg class="w-4 h-4 text-emerald-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                 <rect x="3" y="4" width="8" height="7" rx="1" />
                 <circle cx="17" cy="7.5" r="3.5" />
                 <polygon points="12,13 18,21 6,21" />
               </svg>
-              <span>Простые фигуры</span>
+              <span>Фигуры</span>
             </button>
 
-            <button id="btnTabPhoto" type="button" class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border-2 border-slate-700/80 bg-slate-900/70 hover:border-slate-600 text-slate-300 text-xs font-semibold transition cursor-pointer">
+            <button id="btnTabPhoto" type="button" class="flex flex-col sm:flex-row items-center justify-center gap-1.5 py-2 px-2 rounded-xl border-2 border-slate-700/80 bg-slate-900/70 hover:border-slate-600 text-slate-300 text-[11px] sm:text-xs font-semibold transition cursor-pointer text-center">
               <svg class="w-4 h-4 text-pink-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                 <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
                 <circle cx="12" cy="13" r="4" />
               </svg>
-              <span>📷 Контур по фото</span>
+              <span>📷 По фото</span>
+            </button>
+
+            <button id="btnTabBox" type="button" class="flex flex-col sm:flex-row items-center justify-center gap-1.5 py-2 px-2 rounded-xl border-2 border-slate-700/80 bg-slate-900/70 hover:border-slate-600 text-slate-300 text-[11px] sm:text-xs font-semibold transition cursor-pointer text-center">
+              <svg class="w-4 h-4 text-cyan-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                <line x1="12" y1="22.08" x2="12" y2="12" />
+              </svg>
+              <span>📦 Коробки</span>
             </button>
           </div>
 
@@ -352,6 +362,149 @@
               </div>
             </div>
           </div>
+
+          <!-- БЛОК В: ПАРАМЕТРИЧЕСКИЙ ГЕНЕРАТОР КОРОБОК ECMA (A60.20 / A55.20 / A20.20 + 3D + НЕСТИНГ) -->
+          <div id="boxGeneratorPanel" class="hidden space-y-3 pt-1">
+            <!-- Выбор типа конструкции ECMA -->
+            <div class="space-y-1.5">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-semibold text-slate-300">Тип конструкции (ECMA):</span>
+                <span id="boxTypeCodeBadge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">ECMA A60.20</span>
+              </div>
+
+              <div class="grid grid-cols-3 gap-1.5">
+                <button id="btnBoxTypeAutolock" type="button" class="text-left p-2 rounded-xl border-2 border-cyan-500 bg-cyan-500/10 transition cursor-pointer">
+                  <div class="flex items-center justify-between mb-0.5">
+                    <span class="text-[11px] font-bold text-white leading-none">Автодно</span>
+                    <span id="dotBoxTypeAutolock" class="w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.8)] shrink-0"></span>
+                  </div>
+                  <div class="text-[9px] font-mono text-cyan-300/90 leading-tight">A60.20.01.01</div>
+                  <div class="text-[9px] text-slate-400 leading-tight mt-0.5">С окошком</div>
+                </button>
+
+                <button id="btnBoxTypeEcma055" type="button" class="text-left p-2 rounded-xl border-2 border-slate-700/80 bg-slate-900/70 hover:border-slate-600 transition cursor-pointer">
+                  <div class="flex items-center justify-between mb-0.5">
+                    <span class="text-[11px] font-bold text-white leading-none">Замок</span>
+                    <span id="dotBoxTypeEcma055" class="w-1.5 h-1.5 rounded-full bg-slate-700 shrink-0"></span>
+                  </div>
+                  <div class="text-[9px] font-mono text-purple-300/90 leading-tight">A55.20.01.01</div>
+                  <div class="text-[9px] text-slate-400 leading-tight mt-0.5">Крючки + паз</div>
+                </button>
+
+                <button id="btnBoxTypeEcma020" type="button" class="text-left p-2 rounded-xl border-2 border-slate-700/80 bg-slate-900/70 hover:border-slate-600 transition cursor-pointer">
+                  <div class="flex items-center justify-between mb-0.5">
+                    <span class="text-[11px] font-bold text-white leading-none">Встречн.</span>
+                    <span id="dotBoxTypeEcma020" class="w-1.5 h-1.5 rounded-full bg-slate-700 shrink-0"></span>
+                  </div>
+                  <div class="text-[9px] font-mono text-amber-300/90 leading-tight">A20.20.03.01</div>
+                  <div class="text-[9px] text-slate-400 leading-tight mt-0.5">Клапаны P1/P3</div>
+                </button>
+              </div>
+            </div>
+
+            <!-- Габариты коробки L x W x H -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-2.5 space-y-2.5">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-semibold text-slate-300">Габариты коробки (мм):</span>
+                <span class="text-[10px] font-mono text-slate-400">L × W × H</span>
+              </div>
+
+              <div class="flex items-end gap-1.5">
+                <div class="flex-1 min-w-0">
+                  <label for="inputBoxL" class="block text-[10px] text-slate-400 mb-1 truncate" title="Глубина крышки и боковые панели P2, P4">Длина L</label>
+                  <input id="inputBoxL" type="number" min="25" max="600" step="0.5" value="90" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-cyan-500 transition" />
+                </div>
+
+                <button id="btnBoxSwapLW" type="button" title="Поменять длину L и ширину W местами" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 active:bg-slate-600 text-cyan-400 border border-slate-700 transition cursor-pointer shrink-0 mb-[1px]">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <polyline points="17 1 21 5 17 9" />
+                    <path d="M3 11V9a4 4 0 0 1 4-4h14" />
+                    <polyline points="7 23 3 19 7 15" />
+                    <path d="M21 13v2a4 4 0 0 1-4 4H3" />
+                  </svg>
+                </button>
+
+                <div class="flex-1 min-w-0">
+                  <label for="inputBoxW" class="block text-[10px] text-slate-400 mb-1 truncate" title="Фасад P1 (с крышкой) и P3">Ширина W</label>
+                  <input id="inputBoxW" type="number" min="25" max="600" step="0.5" value="90" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-cyan-500 transition" />
+                </div>
+
+                <div class="flex-1 min-w-0">
+                  <label for="inputBoxH" class="block text-[10px] text-slate-400 mb-1 truncate">Высота H</label>
+                  <input id="inputBoxH" type="number" min="30" max="900" step="0.5" value="297" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-cyan-500 transition" />
+                </div>
+              </div>
+
+              <!-- Быстрые пресеты размеров для выбранного типа ECMA -->
+              <div id="boxPresetsContainer" class="flex flex-wrap gap-1.5"></div>
+            </div>
+
+            <!-- Припуск d, клеевой клапан и язычок -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-2.5 space-y-2.5">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-semibold text-slate-300">Припуск и клапаны:</span>
+                <span class="text-[10px] font-mono text-emerald-400">Бристоль 300–350 г</span>
+              </div>
+
+              <div class="grid grid-cols-3 gap-2">
+                <div>
+                  <label for="inputBoxD" class="block text-[10px] text-slate-400 mb-1">Припуск d</label>
+                  <input id="inputBoxD" type="number" min="0" max="5" step="0.1" value="0.5" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-emerald-500" />
+                  <div class="flex gap-1 mt-1">
+                    <button type="button" data-d="0.4" class="box-d-preset flex-1 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[9px] font-mono text-slate-400 cursor-pointer">0.4</button>
+                    <button type="button" data-d="0.5" class="box-d-preset flex-1 py-0.5 rounded bg-emerald-500/15 border border-emerald-500/40 text-[9px] font-mono text-emerald-300 cursor-pointer">0.5</button>
+                    <button type="button" data-d="1.2" class="box-d-preset flex-1 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[9px] font-mono text-slate-400 cursor-pointer">1.2</button>
+                  </div>
+                </div>
+                <div>
+                  <label for="inputBoxGlueW" class="block text-[10px] text-slate-400 mb-1">Клеевой (мм)</label>
+                  <input id="inputBoxGlueW" type="number" min="8" max="40" step="0.5" value="15" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-emerald-500" />
+                </div>
+                <div>
+                  <label for="inputBoxTuckH" class="block text-[10px] text-slate-400 mb-1">Язычок (мм)</label>
+                  <input id="inputBoxTuckH" type="number" min="8" max="40" step="0.5" value="15.5" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-emerald-500" />
+                </div>
+              </div>
+
+              <!-- Переключатель нижних клапанов для ECMA A55.20 -->
+              <div id="boxBottomSwapWrap" class="hidden pt-1.5 border-t border-slate-800/80">
+                <button id="btnBoxSwapBottom" type="button" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-700 text-[11px] font-medium text-slate-200 flex items-center justify-between gap-2 transition cursor-pointer">
+                  <span class="flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 text-purple-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                      <polyline points="17 1 21 5 17 9" />
+                      <path d="M3 11V9a4 4 0 0 1 4-4h14" />
+                      <polyline points="7 23 3 19 7 15" />
+                      <path d="M21 13v2a4 4 0 0 1-4 4H3" />
+                    </svg>
+                    <span>Поменять нижние клапаны</span>
+                  </span>
+                  <span id="boxSwapBottomBadge" class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-[10px] font-mono text-slate-300">P2/P4 крючки</span>
+                </button>
+              </div>
+
+              <label class="flex items-center justify-between gap-2 text-[11px] text-slate-300 cursor-pointer select-none pt-1 border-t border-slate-800/80">
+                <span>Насечки под клей на боковом клапане</span>
+                <input id="chkBoxGlueNotches" type="checkbox" checked class="w-4 h-4 rounded bg-slate-900 border-slate-600 text-cyan-500 focus:ring-0 cursor-pointer" />
+              </label>
+            </div>
+
+            <!-- Сводка габаритов развёртки и кнопка пересчёта раскладки -->
+            <div class="bg-slate-900/90 border border-cyan-500/30 rounded-xl p-2.5 space-y-2">
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-slate-400">Габарит развёртки:</span>
+                <span id="boxBlankSizeSummary" class="font-mono font-bold text-white">—</span>
+              </div>
+              <div id="boxPanelBreakdown" class="text-[10px] font-mono text-slate-400 leading-relaxed">
+                —
+              </div>
+              <button id="runBoxNestingBtn" type="button" class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 active:scale-[0.99] text-white font-bold text-xs sm:text-sm shadow-lg shadow-cyan-500/20 flex items-center justify-center gap-2 transition cursor-pointer">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <polygon points="5 3 19 12 5 21 5 3" />
+                </svg>
+                <span>Раскидать коробки на лист</span>
+              </button>
+            </div>
+          </div>
         </section>
 
         <!-- 3. ЗАЗОР, РЕЖИМ НЕСТИНГА И ТИРАЖ -->
@@ -408,6 +561,21 @@
             </p>
           </div>
 
+          <!-- Настройки раскладки коробок на листе (для режима Коробки) -->
+          <div id="boxNestingOptions" class="hidden space-y-2 pt-1">
+            <div>
+              <label for="selectBoxNestStrategy" class="block text-xs text-slate-400 mb-1">Укладка коробок на листе</label>
+              <select id="selectBoxNestStrategy" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-2 text-xs text-white focus:outline-none focus:border-cyan-500 cursor-pointer">
+                <option value="max_auto" selected>Максимум (0°/90°/180°/270° — валет + микс)</option>
+                <option value="valet_axis">Валетом по 1 оси (сохранение долевой)</option>
+                <option value="no_flip">Без переворота (только 0° / 90°)</option>
+              </select>
+            </div>
+            <p class="text-[11px] text-slate-400 leading-snug">
+              Клапаны и крышки соседних коробок вкладываются друг в друга «валетом» с точным зазором между ножами.
+            </p>
+          </div>
+
           <!-- Тираж и приладка -->
           <div class="grid grid-cols-2 gap-2.5 pt-2 border-t border-slate-800/80">
             <div>
@@ -421,16 +589,37 @@
           </div>
         </section>
 
-        <!-- 4. ЖИВОЕ СРАВНЕНИЕ 35×50 см vs 50×70 см -->
-        <section class="bg-gradient-to-br from-slate-850 to-slate-900 border border-slate-800 rounded-xl p-3.5 space-y-2.5">
+        <!-- 3. ФОРМАТ ЛИСТА, ПОЛЯ И ЖИВОЕ СРАВНЕНИЕ -->
+        <section class="bg-gradient-to-br from-slate-850 to-slate-900 border border-slate-800 rounded-xl p-3.5 space-y-3">
           <div class="flex items-center justify-between">
             <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-300 flex items-center gap-2">
               <span class="w-1.5 h-4 rounded-full bg-amber-400"></span>
-              3. Формат листа (живое сравнение)
+              3. Формат листа и поля
             </h2>
             <span id="compareWinnerBadge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
               50×70 выгоднее
             </span>
+          </div>
+
+          <!-- Настройка полей листа (по умолчанию 10 мм, можно изменить на 5 мм или любое другое значение) -->
+          <div class="bg-slate-950/80 border border-slate-800/90 rounded-lg p-2.5 space-y-1.5">
+            <div class="flex items-center justify-between gap-2">
+              <label for="inputSheetMargin" id="labelSheetMargin" class="text-[11px] text-slate-300 font-medium">
+                Поля листа 35×50 (мм):
+              </label>
+              <div class="flex items-center gap-1.5">
+                <input id="inputSheetMargin" type="number" min="0" max="80" step="0.5" value="10"
+                  class="w-20 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs font-mono text-white text-right focus:outline-none focus:border-amber-400" />
+                <div class="flex gap-1">
+                  <button type="button" data-margin="0" class="preset-margin-btn px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[10px] font-mono text-slate-300 cursor-pointer" title="Без полей (весь лист)">0</button>
+                  <button type="button" data-margin="5" class="preset-margin-btn px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[10px] font-mono text-slate-300 cursor-pointer" title="Уменьшенные поля 5 мм">5</button>
+                  <button type="button" data-margin="10" class="preset-margin-btn px-2 py-1 rounded bg-amber-500/20 border border-amber-500/50 text-[10px] font-mono text-amber-200 font-semibold cursor-pointer" title="Стандартные поля 10 мм">10</button>
+                </div>
+              </div>
+            </div>
+            <div id="activeZoneSummaryText" class="text-[10px] font-mono text-slate-400">
+              Рабочая зона 35×50: 330 × 480 мм (поля по 10 мм с каждой стороны)
+            </div>
           </div>
 
           <div class="grid grid-cols-2 gap-2 text-xs">
@@ -516,7 +705,7 @@
       </div>
 
       <!-- ПАНЕЛЬ ИНСТРУМЕНТОВ ЧЕРТЕЖА -->
-      <div class="px-4 py-2 bg-slate-900 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs shrink-0">
+      <div id="toolbar2d" class="px-4 py-2 bg-slate-900 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs shrink-0">
         <div class="flex flex-wrap items-center gap-3">
           <label class="inline-flex items-center gap-1.5 text-slate-300 cursor-pointer select-none">
             <input id="chkShowNumbers" type="checkbox" checked class="rounded bg-slate-800 border-slate-600 text-cyan-500 focus:ring-0" />
@@ -551,6 +740,73 @@
         </div>
       </div>
 
+      <!-- ПАНЕЛЬ ПЕРЕКЛЮЧЕНИЯ ВИДОВ КОРОБКИ (Раскладка на листе / Крой 1 шт / 3D-сборка) -->
+      <div id="boxSubViewBar" class="hidden px-4 py-2 bg-slate-950/95 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs shrink-0">
+        <div class="flex items-center bg-slate-900 border border-slate-800 rounded-xl p-1 gap-1">
+          <button id="btnBoxSubSheet" type="button" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
+            1. Раскладка на листе
+          </button>
+          <button id="btnBoxSubDie" type="button" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer text-slate-400 hover:text-white border border-transparent">
+            2. Крой 1 шт. (1:1)
+          </button>
+          <button id="btnBoxSub3d" type="button" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer text-slate-400 hover:text-white border border-transparent flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2L2 7l10 5 10-5-10-5z" />
+              <path d="M2 17l10 5 10-5" />
+              <path d="M2 12l10 5 10-5" />
+            </svg>
+            <span>3. 3D-сборка</span>
+          </button>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button id="exportSingleBoxSvgBtn" type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/40 text-xs font-semibold transition cursor-pointer" title="Скачать одиночную развёртку коробки 1:1 в миллиметрах">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            <span>Крой 1 шт. SVG</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ПАНЕЛЬ УПРАВЛЕНИЯ 3D-СБОРКОЙ КОРОБКИ -->
+      <div id="box3dControlsBar" class="hidden px-4 py-2.5 bg-slate-900/95 border-b border-slate-800 space-y-2 shrink-0">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <button id="btn3dPlay" type="button" class="px-3 py-1.5 rounded-lg bg-violet-500 hover:bg-violet-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer shadow-md shadow-violet-500/20">
+              <svg id="icon3dPlay" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3" /></svg>
+              <span id="lbl3dPlay">Анимация</span>
+            </button>
+            <div class="flex items-center gap-1">
+              <button type="button" data-fold="0" class="fold-preset px-2 py-1 rounded-md bg-slate-800 hover:bg-slate-700 border border-slate-700 text-[11px] font-mono text-slate-300 cursor-pointer">0%</button>
+              <button type="button" data-fold="75" class="fold-preset px-2 py-1 rounded-md bg-slate-800 hover:bg-slate-700 border border-slate-700 text-[11px] font-mono text-slate-300 cursor-pointer">75%</button>
+              <button type="button" data-fold="100" class="fold-preset px-2 py-1 rounded-md bg-slate-800 hover:bg-slate-700 border border-slate-700 text-[11px] font-mono text-slate-300 cursor-pointer">100%</button>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-1.5">
+            <select id="select3dMaterial" class="bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-[11px] text-slate-200 focus:outline-none focus:border-violet-400 cursor-pointer">
+              <option value="bristol" selected>Бристоль (белый)</option>
+              <option value="kraft">Крафт-картон</option>
+              <option value="xray">Рентген (прозрачный)</option>
+            </select>
+            <button id="btn3dResetCam" type="button" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-[11px] font-medium cursor-pointer" title="Сбросить ракурс камеры">
+              Ракурс
+            </button>
+          </div>
+        </div>
+
+        <div class="space-y-1">
+          <div class="flex items-center justify-between text-[11px]">
+            <span class="text-slate-300 font-medium">Сборка коробки: <span id="foldStageLabel" class="text-violet-300 font-semibold">Собрана</span></span>
+            <span id="foldPctLabel" class="font-mono font-bold text-cyan-300">85%</span>
+          </div>
+          <input id="foldSlider" type="range" min="0" max="100" step="0.5" value="85" class="w-full h-2 bg-slate-800 rounded-lg cursor-pointer accent-violet-400" />
+        </div>
+      </div>
+
       <!-- ПАНЕЛЬ ПЕРЕКЛЮЧЕНИЯ ОТДЕЛЬНЫХ ЛИСТОВ (показывается в режиме "Каждую на отдельный лист") -->
       <div id="separateSheetsBar" class="hidden px-4 py-2 bg-slate-950/95 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs shrink-0">
         <div class="flex items-center gap-2 flex-wrap">
@@ -574,6 +830,14 @@
 
         <!-- Всплывающая карточка этикетки при наведении -->
         <div id="hoverTooltip" class="pointer-events-none fixed z-50 hidden bg-slate-900/95 border border-cyan-500/50 text-slate-100 px-3 py-2 rounded-lg shadow-xl text-xs font-mono backdrop-blur-sm"></div>
+      </div>
+
+      <!-- ИНТЕРАКТИВНЫЙ 3D ХОЛСТ ДЛЯ КОРОБОК (Three.js) -->
+      <div id="viewport3d" class="hidden flex-1 blueprint-grid relative overflow-hidden select-none min-h-[380px] cursor-grab active:cursor-grabbing touch-none">
+        <canvas id="canvas3d" class="block w-full h-full"></canvas>
+        <div class="absolute bottom-3 left-3 px-2.5 py-1 rounded-md bg-slate-900/85 border border-slate-800 text-[10px] font-mono text-slate-400 pointer-events-none">
+          Вращение: палец / ЛКМ • Зум: щипок / колесо мыши
+        </div>
       </div>
 
       <!-- НИЖНЯЯ ЛЕГЕНДА ЦВЕТОВ -->
@@ -617,6 +881,21 @@
       '50x70': { id: '50x70', title: '50×70 см', sheetW: 500, sheetH: 700, workW: 480, workH: 680, margin: 10 }
     };
 
+    function getActiveSheetSpec(fmtId) {
+      const base = SHEET_FORMATS[fmtId] || SHEET_FORMATS['35x50'];
+      const rawM = Number(state.sheetMargins?.[base.id]);
+      const maxM = Math.floor(Math.min(base.sheetW, base.sheetH) * 0.25);
+      const margin = Number.isFinite(rawM) ? Math.max(0, Math.min(maxM, rawM)) : 10;
+      const workW = Math.max(20, Number((base.sheetW - margin * 2).toFixed(2)));
+      const workH = Math.max(20, Number((base.sheetH - margin * 2).toFixed(2)));
+      return {
+        ...base,
+        margin,
+        workW,
+        workH
+      };
+    }
+
     const SHAPE_COLORS = [
       { stroke: '#22d3ee', fill: 'rgba(34, 211, 238, 0.24)', badge: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40' },
       { stroke: '#34d399', fill: 'rgba(52, 211, 153, 0.24)', badge: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' },
@@ -626,9 +905,31 @@
       { stroke: '#fb7185', fill: 'rgba(251, 113, 133, 0.24)', badge: 'bg-rose-500/20 text-rose-300 border-rose-500/40' }
     ];
 
+    const BOX_PRESETS_BY_TYPE = {
+      autolock: [
+        { label: '90×90×297 (Эталон)', l: 90, w: 90, h: 297, primary: true },
+        { label: '80×80×200', l: 80, w: 80, h: 200 },
+        { label: '100×70×250', l: 100, w: 70, h: 250 },
+        { label: '120×80×180', l: 120, w: 80, h: 180 }
+      ],
+      ecma055: [
+        { label: '70×65×290 (Эталон)', l: 65, w: 70, h: 290, primary: true },
+        { label: '80×80×200', l: 80, w: 80, h: 200 },
+        { label: '100×70×250', l: 100, w: 70, h: 250 },
+        { label: '60×60×150', l: 60, w: 60, h: 150 }
+      ],
+      ecma020: [
+        { label: '80×60×180 (Эталон)', l: 60, w: 80, h: 180, primary: true },
+        { label: '90×90×297', l: 90, w: 90, h: 297 },
+        { label: '70×65×290', l: 65, w: 70, h: 290 },
+        { label: '100×50×200', l: 50, w: 100, h: 200 }
+      ]
+    };
+
     const state = {
       format: '35x50',          // '35x50' | '50x70'
-      shapeType: 'rect',        // 'rect' | 'oval' | 'poly' | 'photo'
+      sheetMargins: { '35x50': 10, '50x70': 10 }, // Поля на сторону (мм), по умолчанию 10 мм
+      shapeType: 'rect',        // 'rect' | 'oval' | 'poly' | 'photo' | 'box'
       polySides: 6,             // число углов (3..24) для простых многоугольников
       width: 90,                // мм
       height: 50,               // мм
@@ -643,6 +944,27 @@
       cachedSimpleResults: { '35x50': null, '50x70': null },
       photoNestingDirty: false,
       cachedPhotoResults: { '35x50': null, '50x70': null },
+
+      // Параметры генератора коробок ECMA
+      boxType: 'autolock',      // 'autolock' (A60.20) | 'ecma055' (A55.20) | 'ecma020' (A20.20)
+      boxBottomSwapped: false,  // Для A55.20: перестановка нижних клапанов
+      boxL: 90,                 // Длина L (глубина крышки и боковины P2, P4)
+      boxW: 90,                 // Ширина W (фасад P1, P3)
+      boxH: 297,                // Высота H
+      boxD: 0.5,                // Припуск на толщину картона d (мм)
+      boxGlueW: 15,             // Ширина бокового клеевого клапана (мм)
+      boxTuckH: 15.5,           // Высота язычка крышки (мм)
+      boxGlueNotches: true,     // Насечки под клей
+      boxNestStrategy: 'max_auto', // 'max_auto' | 'valet_axis' | 'no_flip'
+      boxSubView: 'sheet',      // 'sheet' (раскладка на листе) | 'die' (крой 1 шт.) | '3d' (3D-сборка)
+      cachedBoxResults: { '35x50': null, '50x70': null },
+
+      // Параметры 3D-вида коробки
+      foldPct: 85,
+      material3d: 'bristol',    // 'bristol' | 'kraft' | 'xray'
+      playing3d: false,
+      playDir3d: 1,
+
       zoom: 1,
       panX: 0,
       panY: 0,
@@ -1742,8 +2064,8 @@
         setTimeout(() => {
           try {
             readInputs();
-            state.cachedPhotoResults['35x50'] = calculatePhotoSetLayoutForFormat(SHEET_FORMATS['35x50']);
-            state.cachedPhotoResults['50x70'] = calculatePhotoSetLayoutForFormat(SHEET_FORMATS['50x70']);
+            state.cachedPhotoResults['35x50'] = calculatePhotoSetLayoutForFormat(getActiveSheetSpec('35x50'));
+            state.cachedPhotoResults['50x70'] = calculatePhotoSetLayoutForFormat(getActiveSheetSpec('50x70'));
             state.photoNestingDirty = false;
             if (hint) hint.classList.add('hidden');
             if (btn) btn.classList.remove('ring-2', 'ring-amber-400/70');
@@ -1764,6 +2086,1764 @@
     }
 
     // ============================================================================
+    // 2B. ПАРАМЕТРИЧЕСКИЙ ГЕНЕРАТОР КОРОБОК ECMA (A60.20 / A55.20 / A20.20) + 3D + НЕСТИНГ
+    // ============================================================================
+    function fmtBoxNum(num) {
+      return Number(num.toFixed(3));
+    }
+
+    function filletBoxCorner(pPrev, pCorner, pNext, radius) {
+      const v1x = pPrev.x - pCorner.x;
+      const v1y = pPrev.y - pCorner.y;
+      const len1 = Math.hypot(v1x, v1y);
+
+      const v2x = pNext.x - pCorner.x;
+      const v2y = pNext.y - pCorner.y;
+      const len2 = Math.hypot(v2x, v2y);
+
+      if (len1 < 1e-6 || len2 < 1e-6 || radius <= 1e-6) {
+        return { svg: `L ${fmtBoxNum(pCorner.x)} ${fmtBoxNum(pCorner.y)}` };
+      }
+
+      const u1x = v1x / len1;
+      const u1y = v1y / len1;
+      const u2x = v2x / len2;
+      const u2y = v2y / len2;
+
+      const dot = Math.max(-1, Math.min(1, u1x * u2x + u1y * u2y));
+      const theta = Math.acos(dot);
+
+      if (theta < 1e-4 || Math.abs(Math.PI - theta) < 1e-4) {
+        return { svg: `L ${fmtBoxNum(pCorner.x)} ${fmtBoxNum(pCorner.y)}` };
+      }
+
+      const tanHalf = Math.tan(theta / 2);
+      const maxT = Math.min(len1 * 0.48, len2 * 0.48);
+      const tDist = Math.min(radius / tanHalf, maxT);
+      const actualR = tDist * tanHalf;
+
+      const t1 = { x: pCorner.x + u1x * tDist, y: pCorner.y + u1y * tDist };
+      const t2 = { x: pCorner.x + u2x * tDist, y: pCorner.y + u2y * tDist };
+
+      const cross = (-u1x) * u2y - (-u1y) * u2x;
+      const sweep = cross > 0 ? 1 : 0;
+
+      return {
+        t1, t2, r: actualR, sweep,
+        svg: `L ${fmtBoxNum(t1.x)} ${fmtBoxNum(t1.y)} A ${fmtBoxNum(actualR)} ${fmtBoxNum(actualR)} 0 0 ${sweep} ${fmtBoxNum(t2.x)} ${fmtBoxNum(t2.y)}`
+      };
+    }
+
+    function calculateBoxGeometry() {
+      const f = fmtBoxNum;
+      const isAutolock = state.boxType === 'autolock';
+      const isEcma055 = state.boxType === 'ecma055';
+      const isEcma020 = state.boxType === 'ecma020';
+
+      const defaultL = isEcma055 ? 65 : (isEcma020 ? 60 : 90);
+      const defaultW = isEcma055 ? 70 : (isEcma020 ? 80 : 90);
+      const defaultH = isEcma055 ? 290 : (isEcma020 ? 180 : 297);
+
+      const L = Math.max(25, Math.min(600, Number(state.boxL) || defaultL));
+      const W = Math.max(25, Math.min(600, Number(state.boxW) || defaultW));
+      const H = Math.max(30, Math.min(900, Number(state.boxH) || defaultH));
+      const d = Math.max(0, Math.min(5, Number(state.boxD) || 0));
+      const glueW = Math.max(8, Math.min(40, Number(state.boxGlueW) || 15));
+      const tuckH = Math.max(8, Math.min(40, Number(state.boxTuckH) || 15.5));
+
+      const p1W = W;
+      const p2W = L;
+      const p3W = W;
+      const p4W = Math.max(10, L - d);
+
+      const x0 = 0;
+      const x1 = glueW;
+      const x2 = x1 + p1W;
+      const x3 = x2 + p2W;
+      const x4 = x3 + p3W;
+      const x5 = x4 + p4W;
+
+      const lidDepth = isAutolock ? (L + 0.66) : L;
+      const yTuckTop = 0;
+      const yLidCrease = tuckH;
+      const earUp = 1.0;
+      const yEarTop = yLidCrease - earUp;
+      const yTop1 = yLidCrease + lidDepth;
+      const yTopSide = yTop1 + d;
+      const yBot = yTopSide + H;
+
+      const tuckOffset = 0.5;
+      const earW = isAutolock
+        ? Math.min(Math.max(4.0, W * (6.0 / 90)), 8.0)
+        : Math.min(Math.max(4.0, W * 0.055), 8.0);
+      const tuckInset = Math.min(tuckH * 0.65, W * 0.14);
+
+      const tuckArcDy = Math.max(4.0, tuckH - earUp);
+      const maxTuckArcDx = Math.max(2.0, (W - 2 * tuckOffset - 10.0) / 2);
+      const baseTuckR = Math.max(tuckArcDy + 0.5, tuckArcDy * (20.0 / 14.5));
+      const rawTuckDx = baseTuckR - Math.sqrt(Math.max(0, baseTuckR * baseTuckR - tuckArcDy * tuckArcDy));
+      const tuckArcDx = Math.min(rawTuckDx, maxTuckArcDx);
+      const tuckArcR = (tuckArcDx * tuckArcDx + tuckArcDy * tuckArcDy) / (2 * tuckArcDx);
+
+      const dustInnerOffset = 0.5;
+      const dustH = isAutolock
+        ? Math.max(10, W / 2 - d - 2.7909)
+        : Math.max(10, W / 2 - d - 3.0);
+      const yDustTop = yTopSide - dustH;
+
+      const glueChamfer = isAutolock
+        ? Math.min(H * 0.25, glueW * Math.tan(20.0 * Math.PI / 180))
+        : Math.min(glueW * 0.35, 6.0);
+
+      const outer = [];
+      outer.push(`M ${f(x1)} ${f(yTopSide)}`);
+      outer.push(`L ${f(x1)} ${f(yEarTop)}`);
+      outer.push(`L ${f(x1 + tuckOffset)} ${f(yEarTop)}`);
+
+      if (isAutolock) {
+        outer.push(`A ${f(tuckArcR)} ${f(tuckArcR)} 0 0 1 ${f(x1 + tuckOffset + tuckArcDx)} ${f(yTuckTop)}`);
+        outer.push(`L ${f(x2 - tuckOffset - tuckArcDx)} ${f(yTuckTop)}`);
+        outer.push(`A ${f(tuckArcR)} ${f(tuckArcR)} 0 0 1 ${f(x2 - tuckOffset)} ${f(yEarTop)}`);
+      } else {
+        outer.push(`Q ${f(x1 + tuckOffset)} ${f(yTuckTop)} ${f(x1 + tuckOffset + tuckInset)} ${f(yTuckTop)}`);
+        outer.push(`L ${f(x2 - tuckOffset - tuckInset)} ${f(yTuckTop)}`);
+        outer.push(`Q ${f(x2 - tuckOffset)} ${f(yTuckTop)} ${f(x2 - tuckOffset)} ${f(yEarTop)}`);
+      }
+      outer.push(`L ${f(x2)} ${f(yEarTop)}`);
+      outer.push(`L ${f(x2)} ${f(yTopSide)}`);
+
+      if (isAutolock) {
+        const outDx1 = Math.min(3.0, p4W * 0.08);
+        const outDy1 = dustH * (2.2748 / 41.7091);
+        const outDx2 = Math.min(3.5, p4W * 0.08);
+        const inRiserY = dustH * (2.6539 / 41.7091);
+        const inChamfX = Math.min(2.0, p4W * 0.05);
+        const inChamfY = dustH * (1.5165 / 41.7091);
+        const inSlantX = Math.min(9.3782, p4W * (9.3782 / 89.5));
+
+        outer.push(`L ${f(x2 + outDx1)} ${f(yTopSide - outDy1)}`);
+        outer.push(`L ${f(x2 + outDx1 + outDx2)} ${f(yDustTop)}`);
+        outer.push(`L ${f(x3 - dustInnerOffset - inChamfX - inSlantX)} ${f(yDustTop)}`);
+        outer.push(`L ${f(x3 - dustInnerOffset - inChamfX)} ${f(yTopSide - inRiserY - inChamfY)}`);
+        outer.push(`L ${f(x3 - dustInnerOffset)} ${f(yTopSide - inRiserY)}`);
+        outer.push(`L ${f(x3 - dustInnerOffset)} ${f(yTopSide)}`);
+
+        outer.push(`L ${f(x4 + dustInnerOffset)} ${f(yTopSide)}`);
+
+        outer.push(`L ${f(x4 + dustInnerOffset)} ${f(yTopSide - inRiserY)}`);
+        outer.push(`L ${f(x4 + dustInnerOffset + inChamfX)} ${f(yTopSide - inRiserY - inChamfY)}`);
+        outer.push(`L ${f(x4 + dustInnerOffset + inChamfX + inSlantX)} ${f(yDustTop)}`);
+        outer.push(`L ${f(x5 - outDx1 - outDx2)} ${f(yDustTop)}`);
+        outer.push(`L ${f(x5 - outDx1)} ${f(yTopSide - outDy1)}`);
+        outer.push(`L ${f(x5)} ${f(yTopSide)}`);
+      } else {
+        outer.push(`L ${f(x2 + 3.5)} ${f(yTopSide - 2.8)}`);
+        outer.push(`L ${f(x2 + 3.5 + (dustH - 2.8) * 0.08)} ${f(yDustTop)}`);
+        outer.push(`L ${f(x3 - 3.0 - (dustH - 5.0) * 0.25)} ${f(yDustTop)}`);
+        outer.push(`L ${f(x3 - 3.0)} ${f(yTopSide - 5.0)}`);
+        outer.push(`L ${f(x3 - dustInnerOffset)} ${f(yTopSide - 2.5)}`);
+        outer.push(`L ${f(x3 - dustInnerOffset)} ${f(yTopSide)}`);
+
+        outer.push(`L ${f(x4 + dustInnerOffset)} ${f(yTopSide)}`);
+
+        outer.push(`L ${f(x4 + dustInnerOffset)} ${f(yTopSide - 2.5)}`);
+        outer.push(`L ${f(x4 + 3.0)} ${f(yTopSide - 5.0)}`);
+        outer.push(`L ${f(x4 + 3.0 + (dustH - 5.0) * 0.25)} ${f(yDustTop)}`);
+        outer.push(`L ${f(x5 - 3.5 - (dustH - 2.8) * 0.08)} ${f(yDustTop)}`);
+        outer.push(`L ${f(x5 - 3.5)} ${f(yTopSide - 2.8)}`);
+        outer.push(`L ${f(x5)} ${f(yTopSide)}`);
+      }
+
+      outer.push(`L ${f(x5)} ${f(yBot)}`);
+
+      const innerCuts = [];
+      const extraCreases = [];
+      let vCrease3End = yBot;
+      let vCrease4End = yBot;
+      let maxBottomDepth = 0;
+      let bottomInfoHtml = '';
+      let heightSummaryHtml = `Высота: P1 = <span class="text-cyan-300">${f(H + d)} мм</span>, P2–P4 = <span class="text-slate-200">${f(H)} мм</span><br/>`;
+      let meta3d = {};
+
+      if (isEcma020) {
+        const yBot3 = yBot + d;
+        const yBotLidCrease = yBot3 + L;
+        const yBotEar = yBotLidCrease + earUp;
+        const yBotTuck = yBotLidCrease + tuckH;
+        const yDustBot = yBot + dustH;
+
+        vCrease3End = yBot3;
+        vCrease4End = yBot3;
+
+        outer.push(`L ${f(x5 - 3.5)} ${f(yBot + 2.8)}`);
+        outer.push(`L ${f(x5 - 3.5 - (dustH - 2.8) * 0.08)} ${f(yDustBot)}`);
+        outer.push(`L ${f(x4 + 3.0 + (dustH - 5.0) * 0.25)} ${f(yDustBot)}`);
+        outer.push(`L ${f(x4 + 3.0)} ${f(yBot + 5.0)}`);
+        outer.push(`L ${f(x4 + dustInnerOffset)} ${f(yBot + 2.5)}`);
+        outer.push(`L ${f(x4 + dustInnerOffset)} ${f(yBot)}`);
+        outer.push(`L ${f(x4)} ${f(yBot)}`);
+
+        outer.push(`L ${f(x4)} ${f(yBotEar)}`);
+        outer.push(`L ${f(x4 - tuckOffset)} ${f(yBotEar)}`);
+        outer.push(`Q ${f(x4 - tuckOffset)} ${f(yBotTuck)} ${f(x4 - tuckOffset - tuckInset)} ${f(yBotTuck)}`);
+        outer.push(`L ${f(x3 + tuckOffset + tuckInset)} ${f(yBotTuck)}`);
+        outer.push(`Q ${f(x3 + tuckOffset)} ${f(yBotTuck)} ${f(x3 + tuckOffset)} ${f(yBotEar)}`);
+        outer.push(`L ${f(x3)} ${f(yBotEar)}`);
+        outer.push(`L ${f(x3)} ${f(yBot)}`);
+
+        outer.push(`L ${f(x3 - dustInnerOffset)} ${f(yBot)}`);
+        outer.push(`L ${f(x3 - dustInnerOffset)} ${f(yBot + 2.5)}`);
+        outer.push(`L ${f(x3 - 3.0)} ${f(yBot + 5.0)}`);
+        outer.push(`L ${f(x3 - 3.0 - (dustH - 5.0) * 0.25)} ${f(yDustBot)}`);
+        outer.push(`L ${f(x2 + 3.5 + (dustH - 2.8) * 0.08)} ${f(yDustBot)}`);
+        outer.push(`L ${f(x2 + 3.5)} ${f(yBot + 2.8)}`);
+        outer.push(`L ${f(x2)} ${f(yBot)}`);
+
+        outer.push(`L ${f(x1)} ${f(yBot)}`);
+
+        innerCuts.push(
+          `M ${f(x3 + tuckOffset)} ${f(yBotEar)} ` +
+          `L ${f(x3 + earW)} ${f(yBotEar)} ` +
+          `L ${f(x3 + earW)} ${f(yBotLidCrease - 1.0)}`
+        );
+        innerCuts.push(
+          `M ${f(x4 - tuckOffset)} ${f(yBotEar)} ` +
+          `L ${f(x4 - earW)} ${f(yBotEar)} ` +
+          `L ${f(x4 - earW)} ${f(yBotLidCrease - 1.0)}`
+        );
+
+        extraCreases.push(
+          { x1: x2, y1: yBot, x2: x3 - dustInnerOffset, y2: yBot },
+          { x1: x3, y1: yBot3, x2: x4, y2: yBot3 },
+          { x1: x3 + earW, y1: yBotLidCrease, x2: x4 - earW, y2: yBotLidCrease },
+          { x1: x4 + dustInnerOffset, y1: yBot, x2: x5, y2: yBot }
+        );
+
+        maxBottomDepth = d + L + tuckH;
+        heightSummaryHtml = `Высота: P1, P3 = <span class="text-cyan-300">${f(H + d)} мм</span>, P2, P4 = <span class="text-slate-200">${f(H)} мм</span><br/>`;
+        bottomInfoHtml = `A20.20.03.01: крышки P1/P3 <span class="text-slate-200">${f(L)} мм</span> / пыльники <span class="text-emerald-300">${f(dustH)} мм</span>`;
+        meta3d = { dustH };
+
+      } else if (isEcma055) {
+        const step = Math.min(3.0, W * 0.08, L * 0.08);
+        const clearance = Math.max(0.5, 2 * d);
+        const hooksOnP2P4 = !state.boxBottomSwapped;
+
+        const lockSpan = hooksOnP2P4 ? L : W;
+        const hookSpan = hooksOnP2P4 ? W : L;
+        const slotPanelW = hooksOnP2P4 ? p1W : p2W;
+        const hookPanelW = hooksOnP2P4 ? p4W : p1W;
+
+        const slotTopDepth = lockSpan / 2;
+        const lockTabH = Math.min(17.0, Math.min(W, L) * 0.28);
+        const hSlotFlap = slotTopDepth + lockTabH;
+        const rSlot = Math.min(4.0, lockTabH * 0.35);
+        const slotTopY = yBot + slotTopDepth;
+        const tongueShoulderY = yBot + Math.max(10.0, slotTopDepth - clearance);
+        const yBotDeep = yBot + hSlotFlap;
+
+        const outerSpanSlot = Math.max(14.0, slotPanelW - 2 * step);
+        const slotW = Math.max(8.0, Math.min(outerSpanSlot - 2 * (rSlot + 2.0), outerSpanSlot * (34.0 / 59.0)));
+        const tongueW = Math.max(6.0, slotW - 1.0);
+
+        const hHookDeep = Math.max(14.0, hookSpan / 2);
+        const hHookShallow = Math.max(13.0, hHookDeep - clearance);
+        const throatX = Math.min(hookPanelW - step - 6.0, (hooksOnP2P4 ? L : W) / 2 + clearance);
+        const throatY = hHookShallow * (15.5 / 31.5);
+        const rHook = Math.min(6.5, (hHookShallow - throatY) * 0.40625);
+        const hookAlpha = 40.0 * Math.PI / 180;
+        const arcH = rHook * (1 + Math.cos(hookAlpha));
+        const arcDx = rHook * Math.sin(hookAlpha);
+        const diagDyShallow = Math.max(0.5, (hHookShallow - throatY) - arcH);
+        const diagDxShallow = diagDyShallow / Math.tan(hookAlpha);
+        const diagDyDeep = Math.max(0.5, (hHookDeep - throatY) - arcH);
+        const diagDxDeep = diagDyDeep / Math.tan(hookAlpha);
+
+        const appendTongue = (xL, xR) => {
+          const cx = (xL + xR) / 2;
+          const tR = cx + tongueW / 2;
+          const tL = cx - tongueW / 2;
+          outer.push(`L ${f(tR)} ${f(tongueShoulderY)}`);
+          outer.push(`L ${f(tR)} ${f(yBotDeep - rSlot)}`);
+          outer.push(`A ${f(rSlot)} ${f(rSlot)} 0 0 1 ${f(tR - rSlot)} ${f(yBotDeep)}`);
+          outer.push(`L ${f(tL + rSlot)} ${f(yBotDeep)}`);
+          outer.push(`A ${f(rSlot)} ${f(rSlot)} 0 0 1 ${f(tL)} ${f(yBotDeep - rSlot)}`);
+          outer.push(`L ${f(tL)} ${f(tongueShoulderY)}`);
+          outer.push(`L ${f(xL)} ${f(yBot)}`);
+        };
+
+        const appendSlot = (xL, xR) => {
+          const cx = (xL + xR) / 2;
+          const sR = cx + slotW / 2;
+          const sL = cx - slotW / 2;
+          outer.push(`L ${f(xR - step)} ${f(yBot + step)}`);
+          outer.push(`L ${f(xR - step)} ${f(yBotDeep)}`);
+          outer.push(`L ${f(sR + rSlot)} ${f(yBotDeep)}`);
+          outer.push(`A ${f(rSlot)} ${f(rSlot)} 0 0 1 ${f(sR)} ${f(yBotDeep - rSlot)}`);
+          outer.push(`L ${f(sR)} ${f(slotTopY)}`);
+          outer.push(`L ${f(sL)} ${f(slotTopY)}`);
+          outer.push(`L ${f(sL)} ${f(yBotDeep - rSlot)}`);
+          outer.push(`A ${f(rSlot)} ${f(rSlot)} 0 0 1 ${f(sL - rSlot)} ${f(yBotDeep)}`);
+          outer.push(`L ${f(xL + step)} ${f(yBotDeep)}`);
+          outer.push(`L ${f(xL + step)} ${f(yBot + step)}`);
+          outer.push(`L ${f(xL)} ${f(yBot)}`);
+        };
+
+        const appendHookRight = (xL, xR) => {
+          const tX = xL + throatX;
+          const tY = yBot + throatY;
+          const arcEndX = tX - diagDxDeep;
+          const arcEndY = tY + diagDyDeep;
+          const arcStartX = arcEndX + arcDx;
+          const botY = yBot + hHookDeep;
+          outer.push(`L ${f(xR - step)} ${f(yBot + step)}`);
+          outer.push(`L ${f(xR - step)} ${f(botY)}`);
+          outer.push(`L ${f(arcStartX)} ${f(botY)}`);
+          outer.push(`A ${f(rHook)} ${f(rHook)} 0 0 1 ${f(arcEndX)} ${f(arcEndY)}`);
+          outer.push(`L ${f(tX)} ${f(tY)}`);
+          outer.push(`L ${f(xL)} ${f(yBot)}`);
+        };
+
+        const appendHookLeft = (xL, xR) => {
+          const tX = xR - throatX;
+          const tY = yBot + throatY;
+          const arcEndX = tX + diagDxShallow;
+          const arcEndY = tY + diagDyShallow;
+          const arcStartX = arcEndX - arcDx;
+          const botY = yBot + hHookShallow;
+          outer.push(`L ${f(tX)} ${f(tY)}`);
+          outer.push(`L ${f(arcEndX)} ${f(arcEndY)}`);
+          outer.push(`A ${f(rHook)} ${f(rHook)} 0 0 1 ${f(arcStartX)} ${f(botY)}`);
+          outer.push(`L ${f(xL + step)} ${f(botY)}`);
+          outer.push(`L ${f(xL + step)} ${f(yBot + step)}`);
+          outer.push(`L ${f(xL)} ${f(yBot)}`);
+        };
+
+        if (hooksOnP2P4) {
+          appendHookRight(x4, x5);
+          appendTongue(x3, x4);
+          appendHookLeft(x2, x3);
+          appendSlot(x1, x2);
+          bottomInfoHtml = `A55.20.01.01: язычок P3 <span class="text-slate-200">${f(tongueW)} мм</span> / паз P1 <span class="text-emerald-300">${f(slotW)} мм</span>`;
+        } else {
+          appendTongue(x4, x5);
+          appendHookRight(x3, x4);
+          appendSlot(x2, x3);
+          appendHookLeft(x1, x2);
+          bottomInfoHtml = `A55.20 (сдвиг): язычок P4 <span class="text-slate-200">${f(tongueW)} мм</span> / паз P2 <span class="text-emerald-300">${f(slotW)} мм</span>`;
+        }
+
+        extraCreases.push({ x1: x1, y1: yBot, x2: x5, y2: yBot });
+        maxBottomDepth = Math.max(hHookDeep, hSlotFlap);
+        meta3d = {
+          hooksOnP2P4, step, slotTopDepth, hSlotFlap, slotW, tongueW,
+          tongueShoulderRel: tongueShoulderY - yBot, hHookDeep, hHookShallow, throatX, throatY
+        };
+
+      } else {
+        const innerGap = Math.min(3.39, L * 0.05, W * 0.05);
+
+        const chamfer1X = Math.min(2.0382, W * 0.035);
+        const chamfer1Y = Math.min(3.0382, L * 0.045);
+        const taperDepth1 = L * (44.8115 / 90);
+        const bot1H = Math.max(24, L * (74.2508 / 90));
+        const taperIn1 = Math.min(5.50, W * 0.08);
+        const taperY = yBot + taperDepth1;
+
+        const tongueW = Math.max(12, W * (43.0902 / 90));
+        const cx3 = (x3 + x4) / 2;
+        const tLeft = cx3 - tongueW / 2;
+        const tRight = cx3 + tongueW / 2;
+        const shoulderY = yBot + L * (43.3938 / 90);
+        const tongueStraightH = Math.max(5.0, L * (14.50 / 90));
+        const r3 = Math.min(4.0, tongueW * 0.2, tongueStraightH * 0.45);
+        const tBotY = shoulderY + tongueStraightH + r3;
+        const bot3H = tBotY - yBot;
+
+        const cx1 = (x1 + x2) / 2;
+        const winTopY = taperY;
+        const winH = Math.max(6.0, L * (17.8746 / 90));
+        const winBotY = winTopY + winH;
+        const winTopW = tongueW + 0.7677;
+        const winSideTaper = Math.min(2.50, winTopW * 0.08);
+        const winBotW = Math.max(8, winTopW - 2 * winSideTaper);
+
+        const bot2H = Math.max(16, W * (41.2240 / 90));
+        const wingDiagX = Math.min(10.0, L * (10.0 / 90));
+        const wingDiagY = Math.min(9.8054, W * (9.8054 / 90));
+        const notchFromInner = L * (44.7855 / 90);
+        const notchDepthY = W * (23.9883 / 90);
+        const rWing = Math.min(5.0, (bot2H - notchDepthY) * 0.29);
+        const hookSlope = 4.6626 / 10.1482;
+        const cornerDx = (bot2H - notchDepthY) * hookSlope;
+
+        const notchP4 = { x: x4 + notchFromInner, y: yBot + notchDepthY };
+        const cornerP4 = { x: notchP4.x + cornerDx, y: yBot + bot2H };
+        const endBotP4 = { x: x4 + innerGap, y: yBot + bot2H };
+        const f4 = filletBoxCorner(notchP4, cornerP4, endBotP4, rWing);
+
+        outer.push(`L ${f(x5 - wingDiagX)} ${f(yBot + wingDiagY)}`);
+        outer.push(`L ${f(notchP4.x)} ${f(notchP4.y)}`);
+        outer.push(f4.svg);
+        outer.push(`L ${f(endBotP4.x)} ${f(endBotP4.y)}`);
+        outer.push(`L ${f(x4 + innerGap)} ${f(yBot + innerGap)}`);
+        outer.push(`L ${f(x4)} ${f(yBot)}`);
+
+        outer.push(`L ${f(tRight)} ${f(shoulderY)}`);
+        outer.push(`L ${f(tRight)} ${f(tBotY - r3)}`);
+        outer.push(`A ${f(r3)} ${f(r3)} 0 0 1 ${f(tRight - r3)} ${f(tBotY)}`);
+        outer.push(`L ${f(tLeft + r3)} ${f(tBotY)}`);
+        outer.push(`A ${f(r3)} ${f(r3)} 0 0 1 ${f(tLeft)} ${f(tBotY - r3)}`);
+        outer.push(`L ${f(tLeft)} ${f(shoulderY)}`);
+        outer.push(`L ${f(x3)} ${f(yBot)}`);
+
+        const startBotP2 = { x: x3 - innerGap, y: yBot + bot2H };
+        const notchP2 = { x: x3 - notchFromInner, y: yBot + notchDepthY };
+        const cornerP2 = { x: notchP2.x - cornerDx, y: yBot + bot2H };
+        const f2 = filletBoxCorner(startBotP2, cornerP2, notchP2, rWing);
+
+        outer.push(`L ${f(x3 - innerGap)} ${f(yBot + innerGap)}`);
+        outer.push(`L ${f(startBotP2.x)} ${f(startBotP2.y)}`);
+        outer.push(f2.svg);
+        outer.push(`L ${f(notchP2.x)} ${f(notchP2.y)}`);
+        outer.push(`L ${f(x2 + wingDiagX)} ${f(yBot + wingDiagY)}`);
+        outer.push(`L ${f(x2)} ${f(yBot)}`);
+
+        outer.push(`L ${f(x2 - chamfer1X)} ${f(yBot + chamfer1Y)}`);
+        outer.push(`L ${f(x2 - chamfer1X)} ${f(taperY)}`);
+        outer.push(`L ${f(x2 - chamfer1X - taperIn1)} ${f(yBot + bot1H)}`);
+        outer.push(`L ${f(x1 + chamfer1X + taperIn1)} ${f(yBot + bot1H)}`);
+        outer.push(`L ${f(x1 + chamfer1X)} ${f(taperY)}`);
+        outer.push(`L ${f(x1 + chamfer1X)} ${f(yBot + chamfer1Y)}`);
+        outer.push(`L ${f(x1)} ${f(yBot)}`);
+
+        innerCuts.push(
+          `M ${f(cx1 - winTopW / 2)} ${f(winTopY)} ` +
+          `L ${f(cx1 + winTopW / 2)} ${f(winTopY)} ` +
+          `L ${f(cx1 + winBotW / 2)} ${f(winBotY)} ` +
+          `L ${f(cx1 - winBotW / 2)} ${f(winBotY)} Z`
+        );
+
+        extraCreases.push({ x1: x1, y1: yBot, x2: x5, y2: yBot });
+        maxBottomDepth = Math.max(bot1H, bot2H, bot3H);
+        bottomInfoHtml = `A60.20.01.01: язычок <span class="text-slate-200">${f(tongueW)} мм</span> / окошко <span class="text-emerald-300">${f(winTopW)} мм</span>`;
+        meta3d = {
+          innerGap, chamfer1X, chamfer1Y, taperDepth1, bot1H, taperIn1,
+          tongueW, shoulderRel: shoulderY - yBot, bot3H,
+          winTopRel: winTopY - yBot, winBotRel: winBotY - yBot, winTopW, winBotW,
+          bot2H, wingDiagX, wingDiagY, notchFromInner, notchDepthY, cornerDx
+        };
+      }
+
+      outer.push(`L ${f(x0)} ${f(yBot - glueChamfer)}`);
+      outer.push(`L ${f(x0)} ${f(yTopSide + glueChamfer)}`);
+      outer.push(`Z`);
+
+      innerCuts.push(
+        `M ${f(x1 + tuckOffset)} ${f(yEarTop)} ` +
+        `L ${f(x1 + earW)} ${f(yEarTop)} ` +
+        `L ${f(x1 + earW)} ${f(yLidCrease + 1.0)}`
+      );
+      innerCuts.push(
+        `M ${f(x2 - tuckOffset)} ${f(yEarTop)} ` +
+        `L ${f(x2 - earW)} ${f(yEarTop)} ` +
+        `L ${f(x2 - earW)} ${f(yLidCrease + 1.0)}`
+      );
+
+      const glueNotchLines = [];
+      if (state.boxGlueNotches) {
+        if (isAutolock) {
+          const notchStep = 7.1823;
+          const nStart = yTopSide + glueChamfer + 2.065;
+          const nEnd = yBot - glueChamfer - 3.9;
+          const nx1 = x1 - Math.min(glueW * 0.2204, 4.0);
+          const nx2 = x1 - Math.min(glueW * 0.50, 9.0);
+          const nDy = (nx1 - nx2) * Math.tan(20.0 * Math.PI / 180);
+          for (let ny = nStart; ny <= nEnd + 0.05; ny += notchStep) {
+            glueNotchLines.push({ x1: nx1, y1: ny, x2: nx2, y2: ny + nDy });
+          }
+        } else {
+          const notchStep = 8.0;
+          const nStart = yTopSide + glueChamfer + 5;
+          const nEnd = yBot - glueChamfer - 5;
+          const nx1 = x1 - Math.min(glueW * 0.25, 4.0);
+          const nx2 = x1 - Math.min(glueW * 0.65, 9.5);
+          for (let ny = nStart; ny <= nEnd; ny += notchStep) {
+            glueNotchLines.push({ x1: nx1, y1: ny, x2: nx2, y2: ny + 2.2 });
+          }
+        }
+      }
+
+      const creases = [
+        { x1: x1, y1: isAutolock ? yTop1 : yTopSide, x2: x1, y2: yBot },
+        { x1: x2, y1: yTop1, x2: x2, y2: yBot },
+        { x1: x3, y1: yTopSide, x2: x3, y2: vCrease3End },
+        { x1: x4, y1: yTopSide, x2: x4, y2: vCrease4End },
+        { x1: x1 + earW, y1: yLidCrease, x2: x2 - earW, y2: yLidCrease },
+        { x1: x1, y1: yTop1, x2: x2, y2: yTop1 },
+        { x1: x2, y1: yTopSide, x2: isAutolock ? x3 : (x3 - dustInnerOffset), y2: yTopSide },
+        { x1: isAutolock ? x4 : (x4 + dustInnerOffset), y1: yTopSide, x2: x5, y2: yTopSide },
+        ...extraCreases
+      ];
+
+      const totalW = x5;
+      const totalH = yBot + maxBottomDepth;
+
+      return {
+        boxType: state.boxType,
+        isAutolock, isEcma055, isEcma020,
+        L, W, H, d, glueW, tuckH, lidDepth, glueChamfer,
+        p1W, p2W, p3W, p4W,
+        x0, x1, x2, x3, x4, x5,
+        yTuckTop, yLidCrease, yTop1, yTopSide, yBot, yDustTop,
+        dustH, maxBottomDepth,
+        totalW, totalH,
+        outerPath: outer.join(' '),
+        innerCuts,
+        glueNotchLines,
+        creases,
+        heightSummaryHtml,
+        bottomInfoHtml,
+        meta3d
+      };
+    }
+
+    // ============================================================================
+    // БИТОВЫЙ НЕСТИНГ КОРОБОК ECMA НА ОФСЕТНЫЙ ЛИСТ (0° / 90° / 180° / 270°)
+    // ============================================================================
+    function buildBoxDieBitmask(g, angle, gapMm, res) {
+      const rotW = (angle === 90 || angle === 270) ? g.totalH : g.totalW;
+      const rotH = (angle === 90 || angle === 270) ? g.totalW : g.totalH;
+      const halfGap = gapMm * 0.5;
+
+      const maskW = Math.ceil((rotW + gapMm) * res);
+      const maskH = Math.ceil((rotH + gapMm) * res);
+
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.max(1, maskW);
+      canvas.height = Math.max(1, maskH);
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+      const path2d = new Path2D(g.outerPath);
+
+      let realAreaMm2 = 0;
+      if (angle === 0) {
+        ctx.save();
+        ctx.scale(res, res);
+        ctx.fillStyle = '#ffffff';
+        ctx.fill(path2d);
+        ctx.restore();
+        const rawData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+        let pxCount = 0;
+        for (let i = 3; i < rawData.length; i += 4) {
+          if (rawData[i] > 127) pxCount++;
+        }
+        realAreaMm2 = pxCount / (res * res);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+
+      ctx.save();
+      ctx.scale(res, res);
+      ctx.translate(halfGap, halfGap);
+      if (angle === 180) {
+        ctx.translate(g.totalW, g.totalH);
+        ctx.rotate(Math.PI);
+      } else if (angle === 90) {
+        ctx.translate(g.totalH, 0);
+        ctx.rotate(Math.PI / 2);
+      } else if (angle === 270) {
+        ctx.translate(0, g.totalW);
+        ctx.rotate(-Math.PI / 2);
+      }
+
+      ctx.fillStyle = '#ffffff';
+      ctx.fill(path2d);
+
+      if (gapMm > 0.01) {
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = gapMm;
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        ctx.stroke(path2d);
+      }
+      ctx.restore();
+
+      const imgData = ctx.getImageData(0, 0, maskW, maskH).data;
+      const wordsPerRow = Math.ceil(maskW / 32);
+      const rows = new Array(maskH);
+      const nonEmptyRows = [];
+
+      for (let y = 0; y < maskH; y++) {
+        const rowArr = new Uint32Array(wordsPerRow);
+        let hasBits = false;
+        const rowOff = y * maskW * 4;
+        for (let x = 0; x < maskW; x++) {
+          if (imgData[rowOff + x * 4 + 3] > 64) {
+            rowArr[x >>> 5] |= (1 << (x & 31));
+            hasBits = true;
+          }
+        }
+        rows[y] = rowArr;
+        if (hasBits) nonEmptyRows.push(y);
+      }
+
+      const checkOrder = [];
+      if (nonEmptyRows.length > 0) {
+        const mid = nonEmptyRows[Math.floor(nonEmptyRows.length / 2)];
+        const q1 = nonEmptyRows[Math.floor(nonEmptyRows.length / 4)];
+        const q3 = nonEmptyRows[Math.floor((nonEmptyRows.length * 3) / 4)];
+        const first = nonEmptyRows[0];
+        const last = nonEmptyRows[nonEmptyRows.length - 1];
+        const priority = new Set([mid, q1, q3, first, last]);
+        priority.forEach(r => checkOrder.push(r));
+        for (let i = 0; i < nonEmptyRows.length; i++) {
+          if (!priority.has(nonEmptyRows[i])) checkOrder.push(nonEmptyRows[i]);
+        }
+      }
+
+      return { angle, rotW, rotH, maskW, maskH, wordsPerRow, rows, nonEmptyRows, checkOrder, realAreaMm2 };
+    }
+
+    function collidesBoxBitmask(board, boardWords, m, gx, gy) {
+      const wordOffset = gx >>> 5;
+      const bitShift = gx & 31;
+      const invShift = 32 - bitShift;
+      const mWords = m.wordsPerRow;
+      const checkOrder = m.checkOrder;
+      const rows = m.rows;
+
+      if (bitShift === 0) {
+        for (let k = 0; k < checkOrder.length; k++) {
+          const my = checkOrder[k];
+          const bRowOff = (gy + my) * boardWords + wordOffset;
+          const mRow = rows[my];
+          for (let w = 0; w < mWords; w++) {
+            if ((board[bRowOff + w] & mRow[w]) !== 0) return true;
+          }
+        }
+      } else {
+        for (let k = 0; k < checkOrder.length; k++) {
+          const my = checkOrder[k];
+          const bRowOff = (gy + my) * boardWords + wordOffset;
+          const mRow = rows[my];
+          for (let w = 0; w < mWords; w++) {
+            const bits = mRow[w];
+            if (bits === 0) continue;
+            if ((board[bRowOff + w] & (bits << bitShift)) !== 0) return true;
+            if ((board[bRowOff + w + 1] & (bits >>> invShift)) !== 0) return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    function stampBoxBitmask(board, boardWords, m, gx, gy) {
+      const wordOffset = gx >>> 5;
+      const bitShift = gx & 31;
+      const invShift = 32 - bitShift;
+      const mWords = m.wordsPerRow;
+      const nonEmpty = m.nonEmptyRows;
+      const rows = m.rows;
+
+      if (bitShift === 0) {
+        for (let k = 0; k < nonEmpty.length; k++) {
+          const my = nonEmpty[k];
+          const bRowOff = (gy + my) * boardWords + wordOffset;
+          const mRow = rows[my];
+          for (let w = 0; w < mWords; w++) {
+            board[bRowOff + w] |= mRow[w];
+          }
+        }
+      } else {
+        for (let k = 0; k < nonEmpty.length; k++) {
+          const my = nonEmpty[k];
+          const bRowOff = (gy + my) * boardWords + wordOffset;
+          const mRow = rows[my];
+          for (let w = 0; w < mWords; w++) {
+            const bits = mRow[w];
+            if (bits === 0) continue;
+            board[bRowOff + w] |= (bits << bitShift);
+            board[bRowOff + w + 1] |= (bits >>> invShift);
+          }
+        }
+      }
+    }
+
+    function runGreedyBoxNestPass(workW, workH, gapMm, res, masks, scanMode, alternatePref) {
+      const boardW = Math.ceil((workW + gapMm) * res) + 2;
+      const boardH = Math.ceil((workH + gapMm) * res) + 2;
+      const boardWords = Math.ceil(boardW / 32) + 1;
+      const board = new Uint32Array(boardH * boardWords);
+
+      const maskBounds = masks.map(m => ({
+        m,
+        maxGx: Math.floor((workW - m.rotW) * res + 1e-6),
+        maxGy: Math.floor((workH - m.rotH) * res + 1e-6)
+      })).filter(b => b.maxGx >= 0 && b.maxGy >= 0);
+
+      if (maskBounds.length === 0) return { items: [], usedAreaBox: Infinity };
+
+      const placed = [];
+      const coarseStep = Math.max(2, Math.round(2 * res));
+      const maxItems = 120;
+
+      for (let stepIdx = 0; stepIdx < maxItems; stepIdx++) {
+        let ordered = maskBounds;
+        if (alternatePref && maskBounds.length >= 2) {
+          const shift = stepIdx % maskBounds.length;
+          ordered = maskBounds.slice(shift).concat(maskBounds.slice(0, shift));
+        }
+
+        let bestPlacement = null;
+
+        for (let bIdx = 0; bIdx < ordered.length; bIdx++) {
+          const { m, maxGx, maxGy } = ordered[bIdx];
+          let foundGx = -1;
+          let foundGy = -1;
+
+          if (scanMode === 'row') {
+            outerRow:
+            for (let gy = 0; gy <= maxGy; gy += coarseStep) {
+              if (bestPlacement && gy > bestPlacement.gy + coarseStep) break;
+              for (let gx = 0; gx <= maxGx; gx += coarseStep) {
+                if (!collidesBoxBitmask(board, boardWords, m, gx, gy)) {
+                  foundGx = gx;
+                  foundGy = gy;
+                  break outerRow;
+                }
+              }
+            }
+          } else {
+            outerCol:
+            for (let gx = 0; gx <= maxGx; gx += coarseStep) {
+              if (bestPlacement && gx > bestPlacement.gx + coarseStep) break;
+              for (let gy = 0; gy <= maxGy; gy += coarseStep) {
+                if (!collidesBoxBitmask(board, boardWords, m, gx, gy)) {
+                  foundGx = gx;
+                  foundGy = gy;
+                  break outerCol;
+                }
+              }
+            }
+          }
+
+          if (foundGx >= 0) {
+            if (scanMode === 'row') {
+              while (foundGy > 0 && !collidesBoxBitmask(board, boardWords, m, foundGx, foundGy - 1)) foundGy--;
+              while (foundGx > 0 && !collidesBoxBitmask(board, boardWords, m, foundGx - 1, foundGy)) foundGx--;
+            } else {
+              while (foundGx > 0 && !collidesBoxBitmask(board, boardWords, m, foundGx - 1, foundGy)) foundGx--;
+              while (foundGy > 0 && !collidesBoxBitmask(board, boardWords, m, foundGx, foundGy - 1)) foundGy--;
+            }
+
+            const score = scanMode === 'row'
+              ? (foundGy * 10000 + foundGx)
+              : (foundGx * 10000 + foundGy);
+
+            if (!bestPlacement || score < bestPlacement.score) {
+              bestPlacement = { m, gx: foundGx, gy: foundGy, score };
+              if (alternatePref && bIdx === 0) break;
+            }
+          }
+        }
+
+        if (!bestPlacement) break;
+
+        stampBoxBitmask(board, boardWords, bestPlacement.m, bestPlacement.gx, bestPlacement.gy);
+        placed.push({
+          x: bestPlacement.gx / res,
+          y: bestPlacement.gy / res,
+          w: bestPlacement.m.rotW,
+          h: bestPlacement.m.rotH,
+          angle: bestPlacement.m.angle,
+          isNestedVariant: bestPlacement.m.angle === 180 || bestPlacement.m.angle === 270
+        });
+      }
+
+      let maxX = 0, maxY = 0;
+      placed.forEach(p => {
+        if (p.x + p.w > maxX) maxX = p.x + p.w;
+        if (p.y + p.h > maxY) maxY = p.y + p.h;
+      });
+
+      return { items: placed, usedW: maxX, usedH: maxY, usedAreaBox: maxX * maxY };
+    }
+
+    function calculateBoxLayoutForFormat(formatObj) {
+      const g = calculateBoxGeometry();
+      const zoneW = formatObj.workW;
+      const zoneH = formatObj.workH;
+      const gap = state.gap;
+      const strategy = state.boxNestStrategy;
+      const res = 1.0;
+
+      const grid0Cols = g.totalW <= zoneW + 1e-6 ? Math.floor((zoneW + gap) / (g.totalW + gap)) : 0;
+      const grid0Rows = g.totalH <= zoneH + 1e-6 ? Math.floor((zoneH + gap) / (g.totalH + gap)) : 0;
+      const grid90Cols = g.totalH <= zoneW + 1e-6 ? Math.floor((zoneW + gap) / (g.totalH + gap)) : 0;
+      const grid90Rows = g.totalW <= zoneH + 1e-6 ? Math.floor((zoneH + gap) / (g.totalW + gap)) : 0;
+      const baselineGridCount = Math.max(grid0Cols * grid0Rows, grid90Cols * grid90Rows);
+
+      const m0 = buildBoxDieBitmask(g, 0, gap, res);
+      const m180 = buildBoxDieBitmask(g, 180, gap, res);
+      const m90 = buildBoxDieBitmask(g, 90, gap, res);
+      const m270 = buildBoxDieBitmask(g, 270, gap, res);
+      const realBoxAreaMm2 = m0.realAreaMm2 || (g.totalW * g.totalH * 0.72);
+
+      const candidates = [];
+
+      if (strategy === 'no_flip') {
+        candidates.push({ ...runGreedyBoxNestPass(zoneW, zoneH, gap, res, [m0], 'row', false), label: 'Прямая укладка (0°)' });
+        candidates.push({ ...runGreedyBoxNestPass(zoneW, zoneH, gap, res, [m90], 'row', false), label: 'Поворот 90°' });
+        candidates.push({ ...runGreedyBoxNestPass(zoneW, zoneH, gap, res, [m0, m90], 'row', false), label: 'Комбинированная (0° + 90°)' });
+      } else if (strategy === 'valet_axis') {
+        candidates.push({ ...runGreedyBoxNestPass(zoneW, zoneH, gap, res, [m0, m180], 'row', false), label: 'Валетом по горизонтали (0°/180°)' });
+        candidates.push({ ...runGreedyBoxNestPass(zoneW, zoneH, gap, res, [m0, m180], 'row', true), label: 'Чередование валетом (0°/180°)' });
+        candidates.push({ ...runGreedyBoxNestPass(zoneW, zoneH, gap, res, [m0, m180], 'col', false), label: 'Валетом колонками (0°/180°)' });
+        candidates.push({ ...runGreedyBoxNestPass(zoneW, zoneH, gap, res, [m0, m180], 'col', true), label: 'Чередование колонками (0°/180°)' });
+        candidates.push({ ...runGreedyBoxNestPass(zoneW, zoneH, gap, res, [m90, m270], 'row', false), label: 'Валетом с поворотом (90°/270°)' });
+        candidates.push({ ...runGreedyBoxNestPass(zoneW, zoneH, gap, res, [m90, m270], 'row', true), label: 'Чередование валетом (90°/270°)' });
+        candidates.push({ ...runGreedyBoxNestPass(zoneW, zoneH, gap, res, [m90, m270], 'col', false), label: 'Валетом колонками (90°/270°)' });
+        candidates.push({ ...runGreedyBoxNestPass(zoneW, zoneH, gap, res, [m90, m270], 'col', true), label: 'Чередование колонками (90°/270°)' });
+      } else {
+        candidates.push({ ...runGreedyBoxNestPass(zoneW, zoneH, gap, res, [m0, m180], 'row', true), label: 'Валетом (0°/180°)' });
+        candidates.push({ ...runGreedyBoxNestPass(zoneW, zoneH, gap, res, [m0, m180], 'col', true), label: 'Валетом колонками (0°/180°)' });
+        candidates.push({ ...runGreedyBoxNestPass(zoneW, zoneH, gap, res, [m90, m270], 'row', true), label: 'Валетом (90°/270°)' });
+        candidates.push({ ...runGreedyBoxNestPass(zoneW, zoneH, gap, res, [m90, m270], 'col', true), label: 'Валетом колонками (90°/270°)' });
+        candidates.push({ ...runGreedyBoxNestPass(zoneW, zoneH, gap, res, [m0, m180, m90, m270], 'row', false), label: 'Смешанный нестинг (0°/180° + добивка 90°)' });
+        candidates.push({ ...runGreedyBoxNestPass(zoneW, zoneH, gap, res, [m0, m180, m90, m270], 'col', false), label: 'Смешанный нестинг колонками' });
+        candidates.push({ ...runGreedyBoxNestPass(zoneW, zoneH, gap, res, [m90, m270, m0, m180], 'row', false), label: 'Смешанный нестинг (90°/270° + добивка 0°)' });
+        candidates.push({ ...runGreedyBoxNestPass(zoneW, zoneH, gap, res, [m90, m270, m0, m180], 'col', false), label: 'Смешанный нестинг (90°/270° колонками)' });
+      }
+
+      let best = candidates[0];
+      for (let i = 1; i < candidates.length; i++) {
+        const c = candidates[i];
+        if (c.items.length > best.items.length) {
+          best = c;
+        } else if (c.items.length === best.items.length && c.items.length > 0 && c.usedAreaBox < best.usedAreaBox) {
+          best = c;
+        }
+      }
+
+      let centeredItems = best.items;
+      if (best.items.length > 0) {
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        best.items.forEach(it => {
+          if (it.x < minX) minX = it.x;
+          if (it.y < minY) minY = it.y;
+          if (it.x + it.w > maxX) maxX = it.x + it.w;
+          if (it.y + it.h > maxY) maxY = it.y + it.h;
+        });
+        const shiftX = (zoneW - (maxX - minX)) / 2 - minX;
+        const shiftY = (zoneH - (maxY - minY)) / 2 - minY;
+        centeredItems = best.items.map(it => ({
+          ...it,
+          x: fmtBoxNum(it.x + shiftX),
+          y: fmtBoxNum(it.y + shiftY)
+        }));
+      }
+
+      const count = centeredItems.length;
+      const gainOverGrid = Math.max(0, count - baselineGridCount);
+      const totalBoxArea = count * realBoxAreaMm2;
+      const zoneUtilPct = (totalBoxArea / (zoneW * zoneH)) * 100;
+      const sheetUtilPct = (totalBoxArea / (formatObj.sheetW * formatObj.sheetH)) * 100;
+      const netSheets = count > 0 ? Math.ceil(state.quantity / count) : 0;
+      const grossSheets = count > 0 ? netSheets + state.makeready : 0;
+
+      return {
+        format: formatObj,
+        isBoxMode: true,
+        boxGeom: g,
+        items: centeredItems,
+        count,
+        baselineGridCount,
+        gainOverGrid,
+        label: count > 0 ? best.label : 'Коробка не помещается в зону листа',
+        singlePieceArea: realBoxAreaMm2,
+        zoneUtilPct,
+        sheetUtilPct,
+        netSheets,
+        grossSheets
+      };
+    }
+
+    function getBoxDieSvgTransform(g, ox, oy, item) {
+      const f = fmtBoxNum;
+      const x = ox + item.x;
+      const y = oy + item.y;
+      if (item.angle === 0) return `translate(${f(x)}, ${f(y)})`;
+      if (item.angle === 180) return `translate(${f(x + g.totalW)}, ${f(y + g.totalH)}) rotate(180)`;
+      if (item.angle === 90) return `translate(${f(x + g.totalH)}, ${f(y)}) rotate(90)`;
+      return `translate(${f(x)}, ${f(y + g.totalW)}) rotate(270)`;
+    }
+
+    // ============================================================================
+    // 3D-ВИЗУАЛИЗАЦИЯ И КИНЕМАТИКА СБОРКИ КОРОБОК ECMA (A60.20 / A55.20 / A20.20)
+    // ============================================================================
+    const box3d = {
+      inited: false,
+      scene: null,
+      camera: null,
+      renderer: null,
+      rootGroup: null,
+      pivots: null,
+      rafId: null,
+      lastTime: 0,
+      theta: 0.62,
+      phi: 1.12,
+      radius: 420,
+      targetY: 0
+    };
+
+    function smoothStep3d(t) {
+      const x = Math.max(0, Math.min(1, t));
+      return x * x * (3 - 2 * x);
+    }
+
+    function subProgress3d(t, start, end) {
+      if (t <= start) return 0;
+      if (t >= end) return 1;
+      return smoothStep3d((t - start) / (end - start));
+    }
+
+    function create3dMaterialPair() {
+      const mode = state.material3d;
+      if (mode === 'kraft') {
+        return {
+          front: new THREE.MeshStandardMaterial({ color: 0xc89b6e, roughness: 0.85, metalness: 0.02, side: THREE.FrontSide }),
+          back: new THREE.MeshStandardMaterial({ color: 0xb08256, roughness: 0.9, metalness: 0.02, side: THREE.BackSide }),
+          edgeColor: 0x5c3c21
+        };
+      }
+      if (mode === 'xray') {
+        return {
+          front: new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.3, metalness: 0.1, transparent: true, opacity: 0.42, side: THREE.DoubleSide, depthWrite: false }),
+          back: null,
+          edgeColor: 0x7dd3fc
+        };
+      }
+      return {
+        front: new THREE.MeshStandardMaterial({ color: 0xf4f6f8, roughness: 0.68, metalness: 0.02, side: THREE.FrontSide }),
+        back: new THREE.MeshStandardMaterial({ color: 0xdbe2ea, roughness: 0.82, metalness: 0.02, side: THREE.BackSide }),
+        edgeColor: 0x64748b
+      };
+    }
+
+    function makeBox3dPanelMesh(pts, mats, holePts = null) {
+      const shape = new THREE.Shape();
+      pts.forEach((p, i) => {
+        if (i === 0) shape.moveTo(p[0], p[1]);
+        else shape.lineTo(p[0], p[1]);
+      });
+      shape.closePath();
+
+      if (holePts && holePts.length >= 3) {
+        const hole = new THREE.Path();
+        holePts.forEach((p, i) => {
+          if (i === 0) hole.moveTo(p[0], p[1]);
+          else hole.lineTo(p[0], p[1]);
+        });
+        hole.closePath();
+        shape.holes.push(hole);
+      }
+
+      const geo = new THREE.ShapeGeometry(shape, 12);
+      const grp = new THREE.Group();
+
+      if (mats.back) {
+        const mIn = new THREE.Mesh(geo, mats.back.clone());
+        mIn.material.side = THREE.FrontSide;
+        const mOut = new THREE.Mesh(geo, mats.front.clone());
+        mOut.material.side = THREE.BackSide;
+        grp.add(mIn);
+        grp.add(mOut);
+      } else {
+        grp.add(new THREE.Mesh(geo, mats.front));
+      }
+
+      const edges = new THREE.EdgesGeometry(geo, 15);
+      const lineMat = new THREE.LineBasicMaterial({ color: mats.edgeColor, transparent: true, opacity: state.material3d === 'xray' ? 0.9 : 0.45 });
+      grp.add(new THREE.LineSegments(edges, lineMat));
+
+      return grp;
+    }
+
+    function init3dScene() {
+      if (box3d.inited || typeof THREE === 'undefined') return;
+      const vp = document.getElementById('viewport3d');
+      const canvas = document.getElementById('canvas3d');
+
+      box3d.scene = new THREE.Scene();
+
+      const w = Math.max(300, vp.clientWidth);
+      const h = Math.max(300, vp.clientHeight);
+      box3d.camera = new THREE.PerspectiveCamera(40, w / h, 1, 5000);
+
+      box3d.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+      box3d.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      box3d.renderer.setSize(w, h, false);
+
+      const hemi = new THREE.HemisphereLight(0xffffff, 0x334155, 0.95);
+      box3d.scene.add(hemi);
+
+      const dir1 = new THREE.DirectionalLight(0xffffff, 0.75);
+      dir1.position.set(250, 420, 320);
+      box3d.scene.add(dir1);
+
+      const dir2 = new THREE.DirectionalLight(0x93c5fd, 0.45);
+      dir2.position.set(-280, 160, -260);
+      box3d.scene.add(dir2);
+
+      const dir3 = new THREE.DirectionalLight(0xfef3c7, 0.28);
+      dir3.position.set(0, -300, 150);
+      box3d.scene.add(dir3);
+
+      const grid = new THREE.GridHelper(600, 24, 0x1e3a5f, 0x132238);
+      grid.position.y = -2;
+      box3d.grid = grid;
+      box3d.scene.add(grid);
+
+      box3d.rootGroup = new THREE.Group();
+      box3d.scene.add(box3d.rootGroup);
+
+      bind3dPointerControls(vp);
+      box3d.inited = true;
+    }
+
+    function bind3dPointerControls(vp) {
+      let pointers = new Map();
+      let prevPinchDist = null;
+      let prevX = 0, prevY = 0;
+
+      vp.addEventListener('pointerdown', (e) => {
+        vp.setPointerCapture(e.pointerId);
+        pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        if (pointers.size === 1) {
+          prevX = e.clientX;
+          prevY = e.clientY;
+        } else if (pointers.size === 2) {
+          const pts = Array.from(pointers.values());
+          prevPinchDist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+        }
+      });
+
+      vp.addEventListener('pointermove', (e) => {
+        if (!pointers.has(e.pointerId)) return;
+        pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+        if (pointers.size === 1) {
+          const dx = e.clientX - prevX;
+          const dy = e.clientY - prevY;
+          prevX = e.clientX;
+          prevY = e.clientY;
+          box3d.theta -= dx * 0.0085;
+          box3d.phi = Math.max(0.12, Math.min(Math.PI - 0.12, box3d.phi - dy * 0.0085));
+          update3dCamera();
+        } else if (pointers.size === 2) {
+          const pts = Array.from(pointers.values());
+          const dist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+          if (prevPinchDist && dist > 5) {
+            box3d.radius = Math.max(80, Math.min(2200, box3d.radius * (prevPinchDist / dist)));
+            update3dCamera();
+          }
+          prevPinchDist = dist;
+        }
+      });
+
+      const releasePtr = (e) => {
+        pointers.delete(e.pointerId);
+        prevPinchDist = null;
+        if (pointers.size === 1) {
+          const pt = Array.from(pointers.values())[0];
+          prevX = pt.x;
+          prevY = pt.y;
+        }
+        try { vp.releasePointerCapture(e.pointerId); } catch (_) {}
+      };
+      vp.addEventListener('pointerup', releasePtr);
+      vp.addEventListener('pointercancel', releasePtr);
+
+      vp.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const factor = e.deltaY > 0 ? 1.1 : 0.91;
+        box3d.radius = Math.max(80, Math.min(2200, box3d.radius * factor));
+        update3dCamera();
+      }, { passive: false });
+    }
+
+    function update3dCamera() {
+      if (!box3d.camera) return;
+      const r = box3d.radius;
+      const sinP = Math.sin(box3d.phi);
+      box3d.camera.position.set(
+        r * sinP * Math.sin(box3d.theta),
+        box3d.targetY + r * Math.cos(box3d.phi),
+        r * sinP * Math.cos(box3d.theta)
+      );
+      box3d.camera.lookAt(0, box3d.targetY, 0);
+    }
+
+    function reset3dCamera(g) {
+      const diag = Math.hypot(g.W, g.L, g.H);
+      box3d.theta = 0.62;
+      box3d.phi = 1.12;
+      box3d.radius = Math.max(220, diag * 1.95);
+      box3d.targetY = g.H * 0.5;
+      if (box3d.grid) {
+        box3d.grid.position.y = -Math.max(12, g.maxBottomDepth * 0.18);
+      }
+      update3dCamera();
+    }
+
+    function buildDustFlap2Pts(w, dustH) {
+      return [
+        [0, 0],
+        [3.5, 2.8],
+        [3.5 + (dustH - 2.8) * 0.08, dustH],
+        [w - 3.0 - (dustH - 5.0) * 0.25, dustH],
+        [w - 3.0, 5.0],
+        [w - 0.5, 2.5],
+        [w - 0.5, 0]
+      ];
+    }
+
+    function buildDustFlap4Pts(w, dustH) {
+      return [
+        [0.5, 0],
+        [0.5, 2.5],
+        [3.0, 5.0],
+        [3.0 + (dustH - 5.0) * 0.25, dustH],
+        [w - 3.5 - (dustH - 2.8) * 0.08, dustH],
+        [w - 3.5, 2.8],
+        [w, 0]
+      ];
+    }
+
+    function buildEcma055SlotPts(panelW, m) {
+      const cx = panelW / 2;
+      const sR = cx + m.slotW / 2;
+      const sL = cx - m.slotW / 2;
+      return [
+        [0, 0],
+        [m.step, -m.step],
+        [m.step, -m.hSlotFlap],
+        [sL, -m.hSlotFlap],
+        [sL, -m.slotTopDepth],
+        [sR, -m.slotTopDepth],
+        [sR, -m.hSlotFlap],
+        [panelW - m.step, -m.hSlotFlap],
+        [panelW - m.step, -m.step],
+        [panelW, 0]
+      ];
+    }
+
+    function buildEcma055TonguePts(panelW, m) {
+      const cx = panelW / 2;
+      const tR = cx + m.tongueW / 2;
+      const tL = cx - m.tongueW / 2;
+      return [
+        [0, 0],
+        [tL, -m.tongueShoulderRel],
+        [tL, -m.hSlotFlap],
+        [tR, -m.hSlotFlap],
+        [tR, -m.tongueShoulderRel],
+        [panelW, 0]
+      ];
+    }
+
+    function buildEcma055HookLeftPts(panelW, m) {
+      const tX = panelW - m.throatX;
+      return [
+        [0, 0],
+        [m.step, -m.step],
+        [m.step, -m.hHookShallow],
+        [tX, -m.hHookShallow],
+        [tX, -m.throatY],
+        [panelW, 0]
+      ];
+    }
+
+    function buildEcma055HookRightPts(panelW, m) {
+      const tX = m.throatX;
+      return [
+        [0, 0],
+        [tX, -m.throatY],
+        [tX, -m.hHookDeep],
+        [panelW - m.step, -m.hHookDeep],
+        [panelW - m.step, -m.step],
+        [panelW, 0]
+      ];
+    }
+
+    function rebuild3dBox(g) {
+      init3dScene();
+      if (!box3d.inited) return;
+
+      while (box3d.rootGroup.children.length > 0) {
+        box3d.rootGroup.remove(box3d.rootGroup.children[0]);
+      }
+
+      const mats = create3dMaterialPair();
+      const { L, W, H, d, glueW, tuckH, lidDepth, glueChamfer, p1W, p2W, p3W, p4W, dustH, meta3d } = g;
+      const tuckOffset = 0.5;
+      const tuckInset = Math.min(tuckH * 0.65, W * 0.14);
+
+      const assembly = new THREE.Group();
+      box3d.rootGroup.add(assembly);
+
+      // ПАНЕЛЬ 1
+      const p1Group = new THREE.Group();
+      assembly.add(p1Group);
+      p1Group.add(makeBox3dPanelMesh([[0, 0], [p1W, 0], [p1W, H + d], [0, H + d]], mats));
+
+      // Клеевой клапан
+      const gluePivot = new THREE.Group();
+      p1Group.add(gluePivot);
+      gluePivot.add(makeBox3dPanelMesh([[0, 0], [-glueW, glueChamfer], [-glueW, H - glueChamfer], [0, H]], mats));
+
+      // Верхняя крышка P1 + язычок
+      const lidPivot = new THREE.Group();
+      lidPivot.position.set(0, H + d, 0);
+      p1Group.add(lidPivot);
+      lidPivot.add(makeBox3dPanelMesh([[0, 0], [p1W, 0], [p1W, lidDepth], [0, lidDepth]], mats));
+
+      const tuckPivot = new THREE.Group();
+      tuckPivot.position.set(0, lidDepth, 0);
+      lidPivot.add(tuckPivot);
+      const topTuckPts = [
+        [tuckOffset, 0],
+        [p1W - tuckOffset, 0],
+        [p1W - tuckOffset, tuckH * 0.45],
+        [p1W - tuckOffset - tuckInset * 0.35, tuckH * 0.85],
+        [p1W - tuckOffset - tuckInset, tuckH],
+        [tuckOffset + tuckInset, tuckH],
+        [tuckOffset + tuckInset * 0.35, tuckH * 0.85],
+        [tuckOffset, tuckH * 0.45]
+      ];
+      tuckPivot.add(makeBox3dPanelMesh(topTuckPts, mats));
+
+      // ПАНЕЛЬ 2
+      const p2Pivot = new THREE.Group();
+      p2Pivot.position.set(p1W, 0, 0);
+      p1Group.add(p2Pivot);
+      p2Pivot.add(makeBox3dPanelMesh([[0, 0], [p2W, 0], [p2W, H], [0, H]], mats));
+
+      const dust2Pivot = new THREE.Group();
+      dust2Pivot.position.set(0, H, 0);
+      p2Pivot.add(dust2Pivot);
+      dust2Pivot.add(makeBox3dPanelMesh(buildDustFlap2Pts(p2W, dustH), mats));
+
+      // ПАНЕЛЬ 3
+      const p3Pivot = new THREE.Group();
+      p3Pivot.position.set(p2W, 0, 0);
+      p2Pivot.add(p3Pivot);
+      const p3TopY = g.isEcma020 ? (H + d) : H;
+      p3Pivot.add(makeBox3dPanelMesh([[0, 0], [p3W, 0], [p3W, p3TopY], [0, p3TopY]], mats));
+
+      // ПАНЕЛЬ 4
+      const p4Pivot = new THREE.Group();
+      p4Pivot.position.set(p3W, 0, 0);
+      p3Pivot.add(p4Pivot);
+      p4Pivot.add(makeBox3dPanelMesh([[0, 0], [p4W, 0], [p4W, H], [0, H]], mats));
+
+      const dust4Pivot = new THREE.Group();
+      dust4Pivot.position.set(0, H, 0);
+      p4Pivot.add(dust4Pivot);
+      dust4Pivot.add(makeBox3dPanelMesh(buildDustFlap4Pts(p4W, dustH), mats));
+
+      // НИЖНИЕ КЛАПАНЫ (в зависимости от типа конструкции ECMA)
+      const bot1Pivot = new THREE.Group();
+      p1Group.add(bot1Pivot);
+      const bot2Pivot = new THREE.Group();
+      p2Pivot.add(bot2Pivot);
+      const bot3Pivot = new THREE.Group();
+      if (g.isEcma020) bot3Pivot.position.set(0, -d, 0);
+      p3Pivot.add(bot3Pivot);
+      const bot4Pivot = new THREE.Group();
+      p4Pivot.add(bot4Pivot);
+
+      let bot3TuckPivot = null;
+
+      if (g.isEcma020) {
+        // Встречный клапан ECMA A20.20.03.01: пыльники на P2/P4, нижняя крышка с язычком на P3
+        const dustBot2 = buildDustFlap2Pts(p2W, dustH).map(([px, py]) => [px, -py]);
+        const dustBot4 = buildDustFlap4Pts(p4W, dustH).map(([px, py]) => [px, -py]);
+        bot2Pivot.add(makeBox3dPanelMesh(dustBot2, mats));
+        bot4Pivot.add(makeBox3dPanelMesh(dustBot4, mats));
+
+        bot3Pivot.add(makeBox3dPanelMesh([[0, 0], [p3W, 0], [p3W, -L], [0, -L]], mats));
+        bot3TuckPivot = new THREE.Group();
+        bot3TuckPivot.position.set(0, -L, 0);
+        bot3Pivot.add(bot3TuckPivot);
+        const botTuckPts = topTuckPts.map(([px, py]) => [px, -py]);
+        bot3TuckPivot.add(makeBox3dPanelMesh(botTuckPts, mats));
+
+      } else if (g.isEcma055) {
+        // Замковое дно ECMA A55.20.01.01
+        if (meta3d.hooksOnP2P4) {
+          bot1Pivot.add(makeBox3dPanelMesh(buildEcma055SlotPts(p1W, meta3d), mats));
+          bot2Pivot.add(makeBox3dPanelMesh(buildEcma055HookLeftPts(p2W, meta3d), mats));
+          bot3Pivot.add(makeBox3dPanelMesh(buildEcma055TonguePts(p3W, meta3d), mats));
+          bot4Pivot.add(makeBox3dPanelMesh(buildEcma055HookRightPts(p4W, meta3d), mats));
+        } else {
+          bot1Pivot.add(makeBox3dPanelMesh(buildEcma055HookLeftPts(p1W, meta3d), mats));
+          bot2Pivot.add(makeBox3dPanelMesh(buildEcma055SlotPts(p2W, meta3d), mats));
+          bot3Pivot.add(makeBox3dPanelMesh(buildEcma055HookRightPts(p3W, meta3d), mats));
+          bot4Pivot.add(makeBox3dPanelMesh(buildEcma055TonguePts(p4W, meta3d), mats));
+        }
+
+      } else {
+        // Автодно ECMA A60.20.01.01 (с вырезом-окошком в P1)
+        const m = meta3d;
+        const bot1Pts = [
+          [0, 0],
+          [m.chamfer1X, -m.chamfer1Y],
+          [m.chamfer1X, -m.taperDepth1],
+          [m.chamfer1X + m.taperIn1, -m.bot1H],
+          [p1W - m.chamfer1X - m.taperIn1, -m.bot1H],
+          [p1W - m.chamfer1X, -m.taperDepth1],
+          [p1W - m.chamfer1X, -m.chamfer1Y],
+          [p1W, 0]
+        ];
+        const cx1 = p1W / 2;
+        const bot1Hole = [
+          [cx1 - m.winTopW / 2, -m.winTopRel],
+          [cx1 + m.winTopW / 2, -m.winTopRel],
+          [cx1 + m.winBotW / 2, -m.winBotRel],
+          [cx1 - m.winBotW / 2, -m.winBotRel]
+        ];
+        bot1Pivot.add(makeBox3dPanelMesh(bot1Pts, mats, bot1Hole));
+
+        bot2Pivot.add(makeBox3dPanelMesh([
+          [0, 0],
+          [m.wingDiagX, -m.wingDiagY],
+          [p2W - m.notchFromInner, -m.notchDepthY],
+          [p2W - m.notchFromInner - m.cornerDx, -m.bot2H],
+          [p2W - m.innerGap, -m.bot2H],
+          [p2W - m.innerGap, -m.innerGap],
+          [p2W, 0]
+        ], mats));
+
+        const cx3 = p3W / 2;
+        bot3Pivot.add(makeBox3dPanelMesh([
+          [0, 0],
+          [cx3 - m.tongueW / 2, -m.shoulderRel],
+          [cx3 - m.tongueW / 2, -m.bot3H],
+          [cx3 + m.tongueW / 2, -m.bot3H],
+          [cx3 + m.tongueW / 2, -m.shoulderRel],
+          [p3W, 0]
+        ], mats));
+
+        bot4Pivot.add(makeBox3dPanelMesh([
+          [0, 0],
+          [m.innerGap, -m.innerGap],
+          [m.innerGap, -m.bot2H],
+          [m.notchFromInner + m.cornerDx, -m.bot2H],
+          [m.notchFromInner, -m.notchDepthY],
+          [p4W - m.wingDiagX, -m.wingDiagY],
+          [p4W, 0]
+        ], mats));
+      }
+
+      box3d.pivots = {
+        boxType: g.boxType,
+        hooksOnP2P4: !!meta3d.hooksOnP2P4,
+        assembly, p1Group, gluePivot, lidPivot, tuckPivot, bot1Pivot,
+        p2Pivot, dust2Pivot, bot2Pivot,
+        p3Pivot, bot3Pivot, bot3TuckPivot,
+        p4Pivot, dust4Pivot, bot4Pivot,
+        W, L, H
+      };
+
+      apply3dFold(state.foldPct);
+    }
+
+    function apply3dFold(pct) {
+      if (!box3d.pivots) return;
+      const p = box3d.pivots;
+      const t = Math.max(0, Math.min(1, pct / 100));
+      const HALF_PI = Math.PI / 2;
+
+      const kGlue = subProgress3d(t, 0.00, 0.25);
+      const kWalls = subProgress3d(t, 0.05, 0.40);
+
+      const kBot1 = subProgress3d(t, 0.40, 0.56);
+      const kBot2 = subProgress3d(t, 0.46, 0.63);
+      const kBot3 = subProgress3d(t, 0.52, 0.70);
+
+      const kDust = subProgress3d(t, 0.70, 0.84);
+      const kLid = subProgress3d(t, 0.78, 0.94);
+      const kTuck = subProgress3d(t, 0.86, 1.00);
+
+      p.gluePivot.rotation.y = kGlue * HALF_PI;
+      p.gluePivot.position.x = kGlue * 0.4;
+      p.p2Pivot.rotation.y = -kWalls * HALF_PI;
+      p.p3Pivot.rotation.y = -kWalls * HALF_PI;
+      p.p4Pivot.rotation.y = -kWalls * HALF_PI;
+
+      if (p.boxType === 'ecma020') {
+        p.bot2Pivot.rotation.x = -kBot1 * (HALF_PI + 0.01);
+        p.bot4Pivot.rotation.x = -kBot1 * (HALF_PI + 0.01);
+        p.bot3Pivot.rotation.x = -kBot2 * HALF_PI;
+        if (p.bot3TuckPivot) p.bot3TuckPivot.rotation.x = -kBot3 * (HALF_PI + 0.03);
+      } else if (p.boxType === 'ecma055') {
+        if (p.hooksOnP2P4) {
+          p.bot1Pivot.rotation.x = -kBot1 * (HALF_PI - 0.012);
+          p.bot2Pivot.rotation.x = -kBot2 * (HALF_PI - 0.004);
+          p.bot4Pivot.rotation.x = -kBot2 * (HALF_PI - 0.004);
+          p.bot3Pivot.rotation.x = -kBot3 * (HALF_PI + 0.008);
+        } else {
+          p.bot2Pivot.rotation.x = -kBot1 * (HALF_PI - 0.012);
+          p.bot1Pivot.rotation.x = -kBot2 * (HALF_PI - 0.004);
+          p.bot3Pivot.rotation.x = -kBot2 * (HALF_PI - 0.004);
+          p.bot4Pivot.rotation.x = -kBot3 * (HALF_PI + 0.008);
+        }
+      } else {
+        p.bot2Pivot.rotation.x = -kBot1 * (HALF_PI - 0.008);
+        p.bot4Pivot.rotation.x = -kBot1 * (HALF_PI - 0.008);
+        p.bot3Pivot.rotation.x = -kBot2 * (HALF_PI - 0.016);
+        p.bot1Pivot.rotation.x = -kBot3 * (HALF_PI + 0.004);
+      }
+
+      p.dust2Pivot.rotation.x = kDust * (HALF_PI + 0.012);
+      p.dust4Pivot.rotation.x = kDust * (HALF_PI + 0.012);
+      p.lidPivot.rotation.x = kLid * HALF_PI;
+      p.tuckPivot.rotation.x = kTuck * (HALF_PI + 0.03);
+
+      const flatCenterX = -(p.W + p.L);
+      const closedCenterX = -p.W / 2;
+      const closedCenterZ = -p.L / 2;
+      p.assembly.position.x = flatCenterX + (closedCenterX - flatCenterX) * kWalls;
+      p.assembly.position.z = closedCenterZ * kWalls;
+
+      let stage = 'Развёртка (плоский лист)';
+      if (pct >= 99) stage = 'Коробка собрана';
+      else if (pct >= 70) stage = 'Закрытие крышки и клапанов';
+      else if (pct >= 40) stage = 'Сборка дна коробки';
+      else if (pct > 1) stage = 'Сборка корпуса';
+
+      const stageEl = document.getElementById('foldStageLabel');
+      const pctEl = document.getElementById('foldPctLabel');
+      if (stageEl) stageEl.textContent = stage;
+      if (pctEl) pctEl.textContent = `${Math.round(pct)}%`;
+    }
+
+    function resize3dViewport() {
+      if (!box3d.inited || !box3d.renderer) return;
+      const vp = document.getElementById('viewport3d');
+      if (!vp || vp.classList.contains('hidden')) return;
+      const w = Math.max(240, vp.clientWidth);
+      const h = Math.max(240, vp.clientHeight);
+      box3d.camera.aspect = w / h;
+      box3d.camera.updateProjectionMatrix();
+      box3d.renderer.setSize(w, h, false);
+    }
+
+    function start3dLoop() {
+      if (box3d.rafId) return;
+      box3d.lastTime = performance.now();
+      const tick = (now) => {
+        if (state.shapeType !== 'box' || state.boxSubView !== '3d') {
+          box3d.rafId = null;
+          return;
+        }
+        const dt = Math.min(0.05, (now - box3d.lastTime) / 1000);
+        box3d.lastTime = now;
+
+        if (state.playing3d) {
+          state.foldPct += state.playDir3d * dt * 26;
+          if (state.foldPct >= 100) {
+            state.foldPct = 100;
+            state.playDir3d = -1;
+          } else if (state.foldPct <= 0) {
+            state.foldPct = 0;
+            state.playDir3d = 1;
+          }
+          const sl = document.getElementById('foldSlider');
+          if (sl) sl.value = state.foldPct;
+          apply3dFold(state.foldPct);
+        }
+
+        if (box3d.renderer && box3d.scene && box3d.camera) {
+          box3d.renderer.render(box3d.scene, box3d.camera);
+        }
+        box3d.rafId = requestAnimationFrame(tick);
+      };
+      box3d.rafId = requestAnimationFrame(tick);
+    }
+
+    function stop3dLoop() {
+      if (box3d.rafId) {
+        cancelAnimationFrame(box3d.rafId);
+        box3d.rafId = null;
+      }
+      state.playing3d = false;
+      update3dPlayBtnUi();
+    }
+
+    function update3dPlayBtnUi() {
+      const lbl = document.getElementById('lbl3dPlay');
+      const ico = document.getElementById('icon3dPlay');
+      if (!lbl || !ico) return;
+      if (state.playing3d) {
+        lbl.textContent = 'Пауза';
+        ico.innerHTML = '<rect x="6" y="4" width="4" height="16" /><rect x="14" y="4" width="4" height="16" />';
+      } else {
+        lbl.textContent = 'Анимация';
+        ico.innerHTML = '<polygon points="5 3 19 12 5 21 5 3" />';
+      }
+    }
+
+    function renderSingleBoxDieSvg(g) {
+      const f = fmtBoxNum;
+      const svg = document.getElementById('sheetSvg');
+      const showDims = document.getElementById('chkShowDims').checked;
+
+      const padLeft = showDims ? 36 : 16;
+      const padTop = showDims ? 30 : 16;
+      const padRight = showDims ? 44 : 16;
+      const padBottom = showDims ? 34 : 16;
+
+      const vbW = g.totalW + padLeft + padRight;
+      const vbH = g.totalH + padTop + padBottom;
+      const strokeW = Math.max(0.55, Math.min(1.4, Math.max(g.totalW, g.totalH) / 520));
+      const fontSize = Math.max(7, Math.min(13, Math.max(g.totalW, g.totalH) / 48));
+
+      const viewport = document.getElementById('canvasViewport');
+      const availW = Math.max(280, viewport.clientWidth - 48);
+      const availH = Math.max(260, viewport.clientHeight - 48);
+      const scale = Math.min(availW / vbW, availH / vbH);
+
+      svg.setAttribute('width', `${Math.round(vbW * scale)}`);
+      svg.setAttribute('height', `${Math.round(vbH * scale)}`);
+      svg.setAttribute('viewBox', `0 0 ${f(vbW)} ${f(vbH)}`);
+
+      let html = `
+        <g transform="translate(${f(padLeft)}, ${f(padTop)})">
+          <path d="${g.outerPath}" fill="rgba(56, 189, 248, 0.06)" stroke="none" />
+          <g id="CREASE" stroke="#3b82f6" stroke-width="${f(strokeW)}" stroke-dasharray="${f(strokeW * 4)} ${f(strokeW * 3)}" fill="none" stroke-linecap="round">
+            ${g.creases.map(c => `<line x1="${f(c.x1)}" y1="${f(c.y1)}" x2="${f(c.x2)}" y2="${f(c.y2)}" />`).join('')}
+          </g>
+          <g id="CUT" stroke="#ef4444" stroke-width="${f(strokeW * 1.15)}" fill="none" stroke-linejoin="round" stroke-linecap="round">
+            <path d="${g.outerPath}" />
+            ${g.innerCuts.map(p => `<path d="${p}" />`).join('')}
+            ${g.glueNotchLines.map(n => `<line x1="${f(n.x1)}" y1="${f(n.y1)}" x2="${f(n.x2)}" y2="${f(n.y2)}" />`).join('')}
+          </g>
+      `;
+
+      if (showDims) {
+        const dimColor = '#38bdf8';
+        const labelColor = '#94a3b8';
+        const dimY = -12;
+        const dimX = g.totalW + 18;
+        const panelLabelY = g.yTopSide + g.H * 0.5;
+
+        html += `
+          <g id="DIMENSIONS" font-family="JetBrains Mono, monospace" font-size="${f(fontSize)}" text-anchor="middle">
+            <text x="${f((g.x1 + g.x2) / 2)}" y="${f(panelLabelY - fontSize * 0.4)}" fill="#e2e8f0" font-weight="600">P1</text>
+            <text x="${f((g.x1 + g.x2) / 2)}" y="${f(panelLabelY + fontSize * 0.9)}" fill="${labelColor}" font-size="${f(fontSize * 0.85)}">${f(g.p1W)} мм</text>
+
+            <text x="${f((g.x2 + g.x3) / 2)}" y="${f(panelLabelY - fontSize * 0.4)}" fill="#e2e8f0" font-weight="600">P2</text>
+            <text x="${f((g.x2 + g.x3) / 2)}" y="${f(panelLabelY + fontSize * 0.9)}" fill="${labelColor}" font-size="${f(fontSize * 0.85)}">${f(g.p2W)} мм</text>
+
+            <text x="${f((g.x3 + g.x4) / 2)}" y="${f(panelLabelY - fontSize * 0.4)}" fill="#e2e8f0" font-weight="600">P3</text>
+            <text x="${f((g.x3 + g.x4) / 2)}" y="${f(panelLabelY + fontSize * 0.9)}" fill="${labelColor}" font-size="${f(fontSize * 0.85)}">${f(g.p3W)} мм</text>
+
+            <text x="${f((g.x4 + g.x5) / 2)}" y="${f(panelLabelY - fontSize * 0.4)}" fill="#fbbf24" font-weight="600">P4</text>
+            <text x="${f((g.x4 + g.x5) / 2)}" y="${f(panelLabelY + fontSize * 0.9)}" fill="#fbbf24" font-size="${f(fontSize * 0.85)}">${f(g.p4W)} мм</text>
+
+            <line x1="0" y1="${f(dimY)}" x2="${f(g.totalW)}" y2="${f(dimY)}" stroke="${dimColor}" stroke-width="${f(strokeW * 0.7)}" />
+            <line x1="0" y1="${f(dimY - 3)}" x2="0" y2="${f(dimY + 3)}" stroke="${dimColor}" stroke-width="${f(strokeW * 0.7)}" />
+            <line x1="${f(g.totalW)}" y1="${f(dimY - 3)}" x2="${f(g.totalW)}" y2="${f(dimY + 3)}" stroke="${dimColor}" stroke-width="${f(strokeW * 0.7)}" />
+            <text x="${f(g.totalW / 2)}" y="${f(dimY - 4)}" fill="${dimColor}">Общая ширина: ${f(g.totalW)} мм</text>
+
+            <line x1="${f(dimX)}" y1="0" x2="${f(dimX)}" y2="${f(g.totalH)}" stroke="${dimColor}" stroke-width="${f(strokeW * 0.7)}" />
+            <line x1="${f(dimX - 3)}" y1="0" x2="${f(dimX + 3)}" y2="0" stroke="${dimColor}" stroke-width="${f(strokeW * 0.7)}" />
+            <line x1="${f(dimX - 3)}" y1="${f(g.totalH)}" x2="${f(dimX + 3)}" y2="${f(g.totalH)}" stroke="${dimColor}" stroke-width="${f(strokeW * 0.7)}" />
+            <text x="${f(dimX + fontSize * 1.1)}" y="${f(g.totalH / 2)}" fill="${dimColor}" transform="rotate(90, ${f(dimX + fontSize * 1.1)}, ${f(g.totalH / 2)})">Общая высота: ${f(g.totalH)} мм</text>
+
+            <line x1="-14" y1="${f(g.yTopSide)}" x2="-14" y2="${f(g.yBot)}" stroke="#34d399" stroke-width="${f(strokeW * 0.7)}" />
+            <line x1="-17" y1="${f(g.yTopSide)}" x2="-11" y2="${f(g.yTopSide)}" stroke="#34d399" stroke-width="${f(strokeW * 0.7)}" />
+            <line x1="-17" y1="${f(g.yBot)}" x2="-11" y2="${f(g.yBot)}" stroke="#34d399" stroke-width="${f(strokeW * 0.7)}" />
+            <text x="${f(-18)}" y="${f(g.yTopSide + g.H / 2)}" fill="#34d399" transform="rotate(-90, -18, ${f(g.yTopSide + g.H / 2)})">H = ${f(g.H)} мм</text>
+          </g>
+        `;
+      }
+
+      html += `</g>`;
+      svg.innerHTML = html;
+      applyTransform();
+    }
+
+    function exportSingleBoxDieSvg() {
+      const f = fmtBoxNum;
+      const g = calculateBoxGeometry();
+      const w = f(g.totalW);
+      const h = f(g.totalH);
+      const typeLabel = g.isEcma020
+        ? 'ECMA-A20.20.03.01'
+        : (g.isEcma055
+            ? (state.boxBottomSwapped ? 'ECMA-A55.20.01.01-SWAP' : 'ECMA-A55.20.01.01')
+            : 'ECMA-A60.20.01.01');
+
+      const creaseLines = g.creases
+        .map(c => `    <line x1="${f(c.x1)}" y1="${f(c.y1)}" x2="${f(c.x2)}" y2="${f(c.y2)}" />`)
+        .join('\n');
+      const innerPaths = g.innerCuts
+        .map(p => `    <path d="${p}" />`)
+        .join('\n');
+      const notchLines = g.glueNotchLines
+        .map(n => `    <line x1="${f(n.x1)}" y1="${f(n.y1)}" x2="${f(n.x2)}" y2="${f(n.y2)}" />`)
+        .join('\n');
+
+      const svgText = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${w}mm" height="${h}mm" viewBox="0 0 ${w} ${h}">
+  <!-- ${typeLabel} Parametric Box Die-Line | L=${f(g.L)}mm W=${f(g.W)}mm H=${f(g.H)}mm d=${f(g.d)}mm -->
+  <g id="CREASE" stroke="#0000FF" stroke-width="0.2" fill="none">
+${creaseLines}
+  </g>
+  <g id="CUT" stroke="#FF0000" stroke-width="0.2" fill="none" stroke-linejoin="miter">
+    <path d="${g.outerPath}" />
+${innerPaths}${notchLines ? '\n' + notchLines : ''}
+  </g>
+</svg>
+`;
+      const fname = `BOX_${typeLabel}_${f(g.W)}x${f(g.L)}x${f(g.H)}mm.svg`;
+      const blob = new Blob([svgText], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fname;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast(`Сохранён 1:1 крой коробки: ${fname}`, 'success');
+    }
+
+    function syncBoxPanelSummaryUI() {
+      const f = fmtBoxNum;
+      const g = calculateBoxGeometry();
+      const sizeEl = document.getElementById('boxBlankSizeSummary');
+      const brkEl = document.getElementById('boxPanelBreakdown');
+      if (sizeEl) sizeEl.textContent = `${f(g.totalW)} × ${f(g.totalH)} мм`;
+      if (brkEl) {
+        brkEl.innerHTML =
+          `Панели: Клей <span class="text-slate-200">${f(g.glueW)}</span> + ` +
+          `P1(<span class="text-cyan-300">${f(g.p1W)}</span>) + ` +
+          `P2(<span class="text-cyan-300">${f(g.p2W)}</span>) + ` +
+          `P3(<span class="text-cyan-300">${f(g.p3W)}</span>) + ` +
+          `P4(<span class="text-amber-300">${f(g.p4W)}</span>)<br/>` +
+          g.heightSummaryHtml +
+          g.bottomInfoHtml;
+      }
+    }
+
+    function syncBoxTypeUI() {
+      const t = state.boxType;
+      const badge = document.getElementById('boxTypeCodeBadge');
+      if (badge) {
+        if (t === 'ecma020') {
+          badge.textContent = 'ECMA A20.20';
+          badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/35';
+        } else if (t === 'ecma055') {
+          badge.textContent = 'ECMA A55.20';
+          badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-purple-500/15 text-purple-300 border border-purple-500/35';
+        } else {
+          badge.textContent = 'ECMA A60.20';
+          badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-500/15 text-cyan-300 border border-cyan-500/30';
+        }
+      }
+
+      const cards = [
+        {
+          id: 'btnBoxTypeAutolock', dot: 'dotBoxTypeAutolock', active: t === 'autolock',
+          activeCls: 'text-left p-2 rounded-xl border-2 border-cyan-500 bg-cyan-500/10 transition cursor-pointer',
+          dotCls: 'w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.8)] shrink-0'
+        },
+        {
+          id: 'btnBoxTypeEcma055', dot: 'dotBoxTypeEcma055', active: t === 'ecma055',
+          activeCls: 'text-left p-2 rounded-xl border-2 border-purple-500 bg-purple-500/10 transition cursor-pointer',
+          dotCls: 'w-1.5 h-1.5 rounded-full bg-purple-400 shadow-[0_0_8px_rgba(192,132,252,0.8)] shrink-0'
+        },
+        {
+          id: 'btnBoxTypeEcma020', dot: 'dotBoxTypeEcma020', active: t === 'ecma020',
+          activeCls: 'text-left p-2 rounded-xl border-2 border-amber-500 bg-amber-500/10 transition cursor-pointer',
+          dotCls: 'w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)] shrink-0'
+        }
+      ];
+      const inactiveBtn = 'text-left p-2 rounded-xl border-2 border-slate-700/80 bg-slate-900/70 hover:border-slate-600 transition cursor-pointer';
+      const inactiveDot = 'w-1.5 h-1.5 rounded-full bg-slate-700 shrink-0';
+
+      cards.forEach(c => {
+        const bEl = document.getElementById(c.id);
+        const dEl = document.getElementById(c.dot);
+        if (bEl) bEl.className = c.active ? c.activeCls : inactiveBtn;
+        if (dEl) dEl.className = c.active ? c.dotCls : inactiveDot;
+      });
+
+      const swapWrap = document.getElementById('boxBottomSwapWrap');
+      const swapBtn = document.getElementById('btnBoxSwapBottom');
+      const swapBadge = document.getElementById('boxSwapBottomBadge');
+      if (swapWrap) {
+        if (t !== 'ecma055') {
+          swapWrap.classList.add('hidden');
+        } else {
+          swapWrap.classList.remove('hidden');
+          if (state.boxBottomSwapped) {
+            swapBtn.className = 'w-full px-2.5 py-1.5 rounded-lg bg-purple-500/15 hover:bg-purple-500/20 border border-purple-500/60 text-[11px] font-medium text-purple-100 flex items-center justify-between gap-2 transition cursor-pointer';
+            swapBadge.textContent = 'P1/P3 крючки';
+            swapBadge.className = 'px-1.5 py-0.5 rounded bg-purple-500/25 border border-purple-400/40 text-[10px] font-mono text-purple-200 font-semibold';
+          } else {
+            swapBtn.className = 'w-full px-2.5 py-1.5 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-700 text-[11px] font-medium text-slate-200 flex items-center justify-between gap-2 transition cursor-pointer';
+            swapBadge.textContent = 'P2/P4 крючки';
+            swapBadge.className = 'px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-[10px] font-mono text-slate-300';
+          }
+        }
+      }
+
+      const presets = BOX_PRESETS_BY_TYPE[t] || BOX_PRESETS_BY_TYPE.autolock;
+      const primaryCls = t === 'ecma020'
+        ? 'box-preset-btn px-2 py-0.5 rounded-md bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-[10px] font-mono text-amber-200 font-semibold transition cursor-pointer'
+        : (t === 'ecma055'
+            ? 'box-preset-btn px-2 py-0.5 rounded-md bg-purple-500/15 hover:bg-purple-500/25 border border-purple-500/40 text-[10px] font-mono text-purple-200 font-semibold transition cursor-pointer'
+            : 'box-preset-btn px-2 py-0.5 rounded-md bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/40 text-[10px] font-mono text-cyan-200 font-semibold transition cursor-pointer');
+
+      const container = document.getElementById('boxPresetsContainer');
+      if (container) {
+        container.innerHTML = presets.map(p => {
+          const cls = p.primary
+            ? primaryCls
+            : 'box-preset-btn px-2 py-0.5 rounded-md bg-slate-950 hover:bg-slate-800 border border-slate-700 text-[10px] font-mono text-slate-300 transition cursor-pointer';
+          return `<button type="button" data-l="${p.l}" data-w="${p.w}" data-h="${p.h}" class="${cls}">${p.label}</button>`;
+        }).join('');
+
+        container.querySelectorAll('.box-preset-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            state.boxL = parseFloat(btn.dataset.l);
+            state.boxW = parseFloat(btn.dataset.w);
+            state.boxH = parseFloat(btn.dataset.h);
+            document.getElementById('inputBoxL').value = state.boxL;
+            document.getElementById('inputBoxW').value = state.boxW;
+            document.getElementById('inputBoxH').value = state.boxH;
+            invalidateBoxAndRefresh();
+          });
+        });
+      }
+      syncBoxPanelSummaryUI();
+    }
+
+    function invalidateBoxAndRefresh() {
+      state.cachedBoxResults = { '35x50': null, '50x70': null };
+      syncBoxPanelSummaryUI();
+      if (state.shapeType === 'box') {
+        recalculateAndRender();
+      }
+    }
+
+
+    // ============================================================================
     // 3. ЕДИНЫЙ ДИСПЕТЧЕР РАСЧЁТА
     // ============================================================================
     function markSimpleNestingDirty() {
@@ -1774,8 +3854,8 @@
       if (btn) btn.classList.add('ring-2', 'ring-amber-400/70');
       // Обновляем бейдж формы и тираж на закэшированном расчёте без запуска тяжёлой раскладки
       updateShapeSubTypeBadge();
-      const res35 = calculateLayoutForFormat(SHEET_FORMATS['35x50'], false);
-      const res50 = calculateLayoutForFormat(SHEET_FORMATS['50x70'], false);
+      const res35 = calculateLayoutForFormat(getActiveSheetSpec('35x50'), false);
+      const res50 = calculateLayoutForFormat(getActiveSheetSpec('50x70'), false);
       const activeRes = state.format === '35x50' ? res35 : res50;
       state.activeResult = activeRes;
       applyResultToUi(res35, res50, activeRes);
@@ -1792,8 +3872,8 @@
         setTimeout(() => {
           try {
             readInputs();
-            state.cachedSimpleResults['35x50'] = computeSimpleLayoutCore(SHEET_FORMATS['35x50']);
-            state.cachedSimpleResults['50x70'] = computeSimpleLayoutCore(SHEET_FORMATS['50x70']);
+            state.cachedSimpleResults['35x50'] = computeSimpleLayoutCore(getActiveSheetSpec('35x50'));
+            state.cachedSimpleResults['50x70'] = computeSimpleLayoutCore(getActiveSheetSpec('50x70'));
             state.simpleNestingDirty = false;
             if (hint) hint.classList.add('hidden');
             if (btn) btn.classList.remove('ring-2', 'ring-amber-400/70');
@@ -1897,6 +3977,18 @@
     }
 
     function calculateLayoutForFormat(formatObj, allowComputeIfMissing = true) {
+      if (state.shapeType === 'box') {
+        const cached = state.cachedBoxResults[formatObj.id];
+        if (cached) {
+          const netSheets = cached.count > 0 ? Math.ceil(state.quantity / cached.count) : 0;
+          const grossSheets = cached.count > 0 ? netSheets + state.makeready : 0;
+          return { ...cached, netSheets, grossSheets };
+        }
+        const computed = calculateBoxLayoutForFormat(formatObj);
+        state.cachedBoxResults[formatObj.id] = computed;
+        return computed;
+      }
+
       if (state.shapeType === 'photo') {
         const cached = state.cachedPhotoResults[formatObj.id];
         if (cached) {
@@ -2005,8 +4097,8 @@
       readInputs();
       updateShapeSubTypeBadge();
 
-      const res35 = calculateLayoutForFormat(SHEET_FORMATS['35x50']);
-      const res50 = calculateLayoutForFormat(SHEET_FORMATS['50x70']);
+      const res35 = calculateLayoutForFormat(getActiveSheetSpec('35x50'));
+      const res50 = calculateLayoutForFormat(getActiveSheetSpec('50x70'));
       const activeRes = state.format === '35x50' ? res35 : res50;
       state.activeResult = activeRes;
 
@@ -2061,11 +4153,25 @@
       updateLiveComparisonCard(res35, res50, unitPerSheet, unitShort);
 
       const fmt = activeRes.format;
-      document.getElementById('footerSummary').textContent = isSet
-        ? `Лист: ${fmt.sheetW}×${fmt.sheetH} мм | Зона: ${fmt.workW}×${fmt.workH} мм | 1 набор (${activeRes.piecesPerSet} дет.): ${(activeRes.singlePieceArea / 100).toFixed(2)} см²`
-        : `Лист: ${fmt.sheetW}×${fmt.sheetH} мм | Допустимая зона: ${fmt.workW}×${fmt.workH} мм | 1 шт: ${(activeRes.singlePieceArea / 100).toFixed(2)} см²`;
+      if (activeRes.isBoxMode && activeRes.boxGeom) {
+        const g = activeRes.boxGeom;
+        document.getElementById('footerSummary').textContent =
+          `Лист: ${fmt.sheetW}×${fmt.sheetH} мм | Зона: ${fmt.workW}×${fmt.workH} мм | Развёртка: ${fmtBoxNum(g.totalW)}×${fmtBoxNum(g.totalH)} мм (${(activeRes.singlePieceArea / 100).toFixed(2)} см²)`;
 
-      renderBlueprintSvg(activeRes);
+        if (state.boxSubView === '3d') {
+          rebuild3dBox(g);
+        } else if (state.boxSubView === 'die') {
+          renderSingleBoxDieSvg(g);
+        } else {
+          renderBlueprintSvg(activeRes);
+        }
+      } else {
+        document.getElementById('footerSummary').textContent = isSet
+          ? `Лист: ${fmt.sheetW}×${fmt.sheetH} мм | Зона: ${fmt.workW}×${fmt.workH} мм | 1 набор (${activeRes.piecesPerSet} дет.): ${(activeRes.singlePieceArea / 100).toFixed(2)} см²`
+          : `Лист: ${fmt.sheetW}×${fmt.sheetH} мм | Допустимая зона: ${fmt.workW}×${fmt.workH} мм | 1 шт: ${(activeRes.singlePieceArea / 100).toFixed(2)} см²`;
+
+        renderBlueprintSvg(activeRes);
+      }
     }
 
     function renderSeparateSheetsBar(activeRes) {
@@ -2184,7 +4290,7 @@
 
         <rect x="${M}" y="${M}" width="${fmt.workW}" height="${fmt.workH}" fill="#0b1220" stroke="#f59e0b" stroke-width="1.15" stroke-dasharray="5,3" />
         <text x="${M + 5}" y="${M + 9.5}" fill="#fbbf24" font-size="8" font-weight="600" font-family="JetBrains Mono, monospace" opacity="0.9">
-          Допустимая зона ${fmt.workW}×${fmt.workH} мм (техполя 10 мм)
+          Допустимая зона ${fmt.workW}×${fmt.workH} мм (поля ${M} мм)
         </text>
       `;
 
@@ -2202,11 +4308,44 @@
         `;
       }
 
+      const boxCreaseInner = (res.isBoxMode && res.boxGeom)
+        ? res.boxGeom.creases.map(c => `<line x1="${fmtBoxNum(c.x1)}" y1="${fmtBoxNum(c.y1)}" x2="${fmtBoxNum(c.x2)}" y2="${fmtBoxNum(c.y2)}" />`).join('')
+        : '';
+      const boxCutInner = (res.isBoxMode && res.boxGeom)
+        ? (`<path d="${res.boxGeom.outerPath}" />` +
+           res.boxGeom.innerCuts.map(p => `<path d="${p}" />`).join('') +
+           res.boxGeom.glueNotchLines.map(n => `<line x1="${fmtBoxNum(n.x1)}" y1="${fmtBoxNum(n.y1)}" x2="${fmtBoxNum(n.x2)}" y2="${fmtBoxNum(n.y2)}" />`).join(''))
+        : '';
+
       res.items.forEach((item, idx) => {
         const px = M + item.x;
         const py = M + item.y;
 
-        if (res.isPhotoSetMode) {
+        if (res.isBoxMode && res.boxGeom) {
+          const g = res.boxGeom;
+          const tf = getBoxDieSvgTransform(g, M, M, item);
+          const isFlipped = (item.angle === 180 || item.angle === 270);
+          const fillCol = isFlipped ? 'rgba(16, 185, 129, 0.14)' : 'rgba(56, 189, 248, 0.11)';
+          const cx = px + item.w / 2;
+          const cy = py + item.h / 2;
+
+          html += `<g class="label-item cursor-pointer hover:opacity-85 transition-opacity" data-idx="${idx}" data-x="${item.x.toFixed(1)}" data-y="${item.y.toFixed(1)}" data-w="${item.w.toFixed(1)}" data-h="${item.h.toFixed(1)}" data-angle="${item.angle}">`;
+          html += `<g transform="${tf}">`;
+          html += `<path d="${g.outerPath}" fill="${fillCol}" stroke="none" />`;
+          html += `<g stroke="#3b82f6" stroke-width="0.65" stroke-dasharray="3.2 2.2" fill="none">${boxCreaseInner}</g>`;
+          html += `<g stroke="#ef4444" stroke-width="0.85" fill="none" stroke-linejoin="round">${boxCutInner}</g>`;
+          html += `</g>`;
+
+          if (showNumbers) {
+            const fontSize = Math.max(5.5, Math.min(11, Math.min(item.w, item.h) * 0.14));
+            html += `
+              <text x="${cx.toFixed(1)}" y="${(cy + fontSize * 0.35).toFixed(1)}" text-anchor="middle" fill="${isFlipped ? '#6ee7b7' : '#bae6fd'}" font-size="${fontSize.toFixed(1)}" font-weight="700" font-family="JetBrains Mono, monospace">
+                #${idx + 1} (${item.angle}°)
+              </text>
+            `;
+          }
+          html += `</g>`;
+        } else if (res.isPhotoSetMode) {
           const palette = SHAPE_COLORS[item.shapeIndex % SHAPE_COLORS.length];
           const ptsStr = buildPlacedPolygonPoints(item, px, py);
           const titleEscaped = (item.shapeName || `Этикетка #${item.shapeId}`).replace(/"/g, '&quot;');
@@ -2283,6 +4422,12 @@
               <div>Поворот на листе: <span class="text-emerald-300 font-bold">${el.dataset.angle}°</span></div>
               <div>Позиция в зоне: <span class="text-slate-300">X=${el.dataset.x} мм, Y=${el.dataset.y} мм</span></div>
             `;
+          } else if (state.shapeType === 'box') {
+            tooltip.innerHTML = `
+              <div class="text-cyan-400 font-bold mb-0.5">Коробка #${num} (${getExactShapeRussianName()})</div>
+              <div>Габарит на листе: <span class="text-white">${el.dataset.w} × ${el.dataset.h} мм</span> (${el.dataset.angle}°)</div>
+              <div>В зоне: <span class="text-slate-300">X=${el.dataset.x} мм, Y=${el.dataset.y} мм</span></div>
+            `;
           } else {
             const typeName = getExactShapeRussianName();
             tooltip.innerHTML = `
@@ -2345,6 +4490,45 @@
         });
         svgOut += `  </g>
 </svg>`;
+      } else if (res.isBoxMode && res.boxGeom) {
+        const f = fmtBoxNum;
+        const g = res.boxGeom;
+        const typeLabel = g.isEcma020
+          ? 'ECMA-A20.20'
+          : (g.isEcma055 ? (state.boxBottomSwapped ? 'ECMA-A55.20-SWAP' : 'ECMA-A55.20') : 'ECMA-A60.20');
+
+        const creaseInner = g.creases
+          .map(c => `      <line x1="${f(c.x1)}" y1="${f(c.y1)}" x2="${f(c.x2)}" y2="${f(c.y2)}" />`)
+          .join('\n');
+        const cutInner =
+          `      <path d="${g.outerPath}" />\n` +
+          g.innerCuts.map(p => `      <path d="${p}" />`).join('\n') +
+          (g.glueNotchLines.length ? '\n' + g.glueNotchLines.map(n => `      <line x1="${f(n.x1)}" y1="${f(n.y1)}" x2="${f(n.x2)}" y2="${f(n.y2)}" />`).join('\n') : '');
+
+        const allCreases = res.items.map((item, idx) => {
+          const tf = getBoxDieSvgTransform(g, M, M, item);
+          return `    <g id="CREASE_BOX_${idx + 1}" transform="${tf}">\n${creaseInner}\n    </g>`;
+        }).join('\n');
+
+        const allCuts = res.items.map((item, idx) => {
+          const tf = getBoxDieSvgTransform(g, M, M, item);
+          return `    <g id="CUT_BOX_${idx + 1}" transform="${tf}">\n${cutInner}\n    </g>`;
+        }).join('\n');
+
+        svgOut += `  <g id="CREASE" stroke="#0000FF" stroke-width="0.2" fill="none">\n${allCreases}\n  </g>\n`;
+        svgOut += `  <g id="CUT" stroke="#FF0000" stroke-width="0.2" fill="none" stroke-linejoin="miter">\n${allCuts}\n  </g>\n</svg>`;
+
+        const blob = new Blob([svgOut], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `OffsetNest_${fmt.id}_${typeLabel}_${f(g.W)}x${f(g.L)}x${f(g.H)}mm_${res.count}sht.svg`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast(`Раскладка коробок (${res.count} шт.) сохранена в SVG 1:1`, 'success');
+        return;
       } else {
         const shapeName = getExactShapeRussianName();
         svgOut += `  <g id="Этикетки_${shapeName}_${res.count}_шт_зазор_${state.gap}мм">
@@ -3028,9 +5212,15 @@
       state.mode = document.getElementById('selectMode').value;
       state.quantity = Math.max(1, parseInt(document.getElementById('inputQuantity').value, 10) || 10000);
       state.makeready = Math.max(0, parseInt(document.getElementById('inputMakeready').value, 10) || 0);
+      state.boxNestStrategy = document.getElementById('selectBoxNestStrategy').value;
     }
 
     function getExactShapeRussianName() {
+      if (state.shapeType === 'box') {
+        if (state.boxType === 'ecma020') return 'Коробка ECMA A20.20';
+        if (state.boxType === 'ecma055') return 'Коробка ECMA A55.20';
+        return 'Коробка ECMA A60.20';
+      }
       if (state.shapeType === 'photo') return 'Контур по фото';
       const isEqual = Math.abs(state.width - state.height) < 0.01;
       if (state.shapeType === 'rect') return isEqual ? 'Квадрат' : 'Прямоугольник';
@@ -3051,18 +5241,73 @@
       recalculateAndRender();
     }
 
+    function setBoxSubView(subView) {
+      const prev = state.boxSubView;
+      state.boxSubView = subView;
+      const is3d = (state.shapeType === 'box' && subView === '3d');
+
+      document.getElementById('toolbar2d').classList.toggle('hidden', is3d);
+      document.getElementById('canvasViewport').classList.toggle('hidden', is3d);
+      document.getElementById('viewport3d').classList.toggle('hidden', !is3d);
+      document.getElementById('box3dControlsBar').classList.toggle('hidden', !is3d);
+
+      const bSheet = document.getElementById('btnBoxSubSheet');
+      const bDie = document.getElementById('btnBoxSubDie');
+      const b3d = document.getElementById('btnBoxSub3d');
+
+      const actCls = 'px-2.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer bg-cyan-500/20 text-cyan-300 border border-cyan-500/40';
+      const act3dCls = 'px-2.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer bg-violet-500/25 text-violet-200 border border-violet-500/50 flex items-center gap-1.5';
+      const inactCls = 'px-2.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer text-slate-400 hover:text-white border border-transparent';
+
+      bSheet.className = subView === 'sheet' ? actCls : inactCls;
+      bDie.className = subView === 'die' ? actCls : inactCls;
+      b3d.className = subView === '3d' ? act3dCls : (inactCls + ' flex items-center gap-1.5');
+
+      if (is3d) {
+        const g = calculateBoxGeometry();
+        rebuild3dBox(g);
+        requestAnimationFrame(() => {
+          resize3dViewport();
+          if (prev !== '3d') reset3dCamera(g);
+          start3dLoop();
+        });
+      } else {
+        stop3dLoop();
+        state.zoom = 1;
+        state.panX = 0;
+        state.panY = 0;
+        if (state.shapeType === 'box') {
+          recalculateAndRender();
+        }
+      }
+    }
+
     function setShapeType(type) {
       state.shapeType = type;
       const isPhoto = type === 'photo';
+      const isBox = type === 'box';
+      const isSimple = !isPhoto && !isBox;
+
+      if (!isBox) {
+        stop3dLoop();
+        document.getElementById('toolbar2d').classList.remove('hidden');
+        document.getElementById('canvasViewport').classList.remove('hidden');
+        document.getElementById('viewport3d').classList.add('hidden');
+        document.getElementById('box3dControlsBar').classList.add('hidden');
+      }
 
       const bTabSimple = document.getElementById('btnTabSimple');
       const bTabPhoto = document.getElementById('btnTabPhoto');
-      const tabActiveSimple = 'flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border-2 border-emerald-500 bg-emerald-500/10 text-white text-xs font-semibold transition cursor-pointer';
-      const tabActivePhoto = 'flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border-2 border-pink-500 bg-pink-500/10 text-white text-xs font-semibold transition cursor-pointer';
-      const tabInactive = 'flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border-2 border-slate-700/80 bg-slate-900/70 hover:border-slate-600 text-slate-300 text-xs font-semibold transition cursor-pointer';
+      const bTabBox = document.getElementById('btnTabBox');
 
-      bTabSimple.className = !isPhoto ? tabActiveSimple : tabInactive;
+      const tabActiveSimple = 'flex flex-col sm:flex-row items-center justify-center gap-1.5 py-2 px-2 rounded-xl border-2 border-emerald-500 bg-emerald-500/10 text-white text-[11px] sm:text-xs font-semibold transition cursor-pointer text-center';
+      const tabActivePhoto = 'flex flex-col sm:flex-row items-center justify-center gap-1.5 py-2 px-2 rounded-xl border-2 border-pink-500 bg-pink-500/10 text-white text-[11px] sm:text-xs font-semibold transition cursor-pointer text-center';
+      const tabActiveBox = 'flex flex-col sm:flex-row items-center justify-center gap-1.5 py-2 px-2 rounded-xl border-2 border-cyan-500 bg-cyan-500/10 text-white text-[11px] sm:text-xs font-semibold transition cursor-pointer text-center';
+      const tabInactive = 'flex flex-col sm:flex-row items-center justify-center gap-1.5 py-2 px-2 rounded-xl border-2 border-slate-700/80 bg-slate-900/70 hover:border-slate-600 text-slate-300 text-[11px] sm:text-xs font-semibold transition cursor-pointer text-center';
+
+      bTabSimple.className = isSimple ? tabActiveSimple : tabInactive;
       bTabPhoto.className = isPhoto ? tabActivePhoto : tabInactive;
+      bTabBox.className = isBox ? tabActiveBox : tabInactive;
 
       const bRect = document.getElementById('btnSubRect');
       const bOval = document.getElementById('btnSubOval');
@@ -3075,13 +5320,25 @@
       bPoly.className = type === 'poly' ? subActive : subInactive;
 
       document.getElementById('polySidesPanel').classList.toggle('hidden', type !== 'poly');
-      document.getElementById('standardShapePanel').classList.toggle('hidden', isPhoto);
+      document.getElementById('standardShapePanel').classList.toggle('hidden', !isSimple);
       document.getElementById('photoContourPanel').classList.toggle('hidden', !isPhoto);
-      document.getElementById('standardModeWrapper').classList.toggle('hidden', isPhoto);
-      document.getElementById('photoNestingOptions').classList.toggle('hidden', !isPhoto);
-      document.getElementById('labelQuantity').textContent = isPhoto ? 'Тираж наборов (компл.)' : 'Тираж этикеток (шт.)';
+      document.getElementById('boxGeneratorPanel').classList.toggle('hidden', !isBox);
 
-      recalculateAndRender();
+      document.getElementById('standardModeWrapper').classList.toggle('hidden', !isSimple);
+      document.getElementById('photoNestingOptions').classList.toggle('hidden', !isPhoto);
+      document.getElementById('boxNestingOptions').classList.toggle('hidden', !isBox);
+      document.getElementById('boxSubViewBar').classList.toggle('hidden', !isBox);
+
+      document.getElementById('labelQuantity').textContent = isPhoto
+        ? 'Тираж наборов (компл.)'
+        : (isBox ? 'Тираж коробок (шт.)' : 'Тираж этикеток (шт.)');
+
+      if (isBox) {
+        syncBoxTypeUI();
+        setBoxSubView(state.boxSubView);
+      } else {
+        recalculateAndRender();
+      }
     }
 
     function setPhotoLayoutMode(mode) {
@@ -3137,9 +5394,132 @@
       document.getElementById('liveCard50').addEventListener('click', () => setFormat('50x70'));
 
       document.getElementById('btnTabSimple').addEventListener('click', () => {
-        if (state.shapeType === 'photo') setShapeType('rect');
+        if (state.shapeType === 'photo' || state.shapeType === 'box') setShapeType('rect');
       });
       document.getElementById('btnTabPhoto').addEventListener('click', () => setShapeType('photo'));
+      document.getElementById('btnTabBox').addEventListener('click', () => setShapeType('box'));
+
+      // События генератора коробок ECMA
+      const setBoxType = (newType) => {
+        if (state.boxType === newType) return;
+        const prev = state.boxType;
+        state.boxType = newType;
+        const isDef = (t, l, w, h) =>
+          (t === 'autolock' && l === 90 && w === 90 && h === 297) ||
+          (t === 'ecma055' && l === 65 && w === 70 && h === 290) ||
+          (t === 'ecma020' && l === 60 && w === 80 && h === 180);
+        if (isDef(prev, state.boxL, state.boxW, state.boxH)) {
+          const p = (BOX_PRESETS_BY_TYPE[newType] || BOX_PRESETS_BY_TYPE.autolock)[0];
+          state.boxL = p.l;
+          state.boxW = p.w;
+          state.boxH = p.h;
+          document.getElementById('inputBoxL').value = p.l;
+          document.getElementById('inputBoxW').value = p.w;
+          document.getElementById('inputBoxH').value = p.h;
+        }
+        syncBoxTypeUI();
+        invalidateBoxAndRefresh();
+      };
+
+      document.getElementById('btnBoxTypeAutolock').addEventListener('click', () => setBoxType('autolock'));
+      document.getElementById('btnBoxTypeEcma055').addEventListener('click', () => setBoxType('ecma055'));
+      document.getElementById('btnBoxTypeEcma020').addEventListener('click', () => setBoxType('ecma020'));
+
+      document.getElementById('btnBoxSwapBottom').addEventListener('click', () => {
+        state.boxBottomSwapped = !state.boxBottomSwapped;
+        syncBoxTypeUI();
+        invalidateBoxAndRefresh();
+      });
+
+      const bindBoxParam = (id, key) => {
+        document.getElementById(id).addEventListener('input', (e) => {
+          state[key] = parseFloat(e.target.value);
+          invalidateBoxAndRefresh();
+        });
+      };
+      bindBoxParam('inputBoxL', 'boxL');
+      bindBoxParam('inputBoxW', 'boxW');
+      bindBoxParam('inputBoxH', 'boxH');
+      bindBoxParam('inputBoxD', 'boxD');
+      bindBoxParam('inputBoxGlueW', 'boxGlueW');
+      bindBoxParam('inputBoxTuckH', 'boxTuckH');
+
+      document.getElementById('btnBoxSwapLW').addEventListener('click', () => {
+        const tmp = state.boxL;
+        state.boxL = state.boxW;
+        state.boxW = tmp;
+        document.getElementById('inputBoxL').value = state.boxL;
+        document.getElementById('inputBoxW').value = state.boxW;
+        invalidateBoxAndRefresh();
+      });
+
+      document.querySelectorAll('.box-d-preset').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.boxD = parseFloat(btn.dataset.d);
+          document.getElementById('inputBoxD').value = state.boxD;
+          invalidateBoxAndRefresh();
+        });
+      });
+
+      document.getElementById('chkBoxGlueNotches').addEventListener('change', (e) => {
+        state.boxGlueNotches = e.target.checked;
+        invalidateBoxAndRefresh();
+      });
+
+      document.getElementById('selectBoxNestStrategy').addEventListener('change', () => {
+        invalidateBoxAndRefresh();
+      });
+
+      document.getElementById('runBoxNestingBtn').addEventListener('click', () => {
+        setBoxSubView('sheet');
+        invalidateBoxAndRefresh();
+        const res = state.activeResult;
+        if (res && res.count > 0) {
+          showToast(`Готово: ${res.count} коробок на листе ${res.format.title}`, 'success');
+        }
+      });
+
+      // Подвиды коробок (Лист / Крой 1 шт / 3D)
+      document.getElementById('btnBoxSubSheet').addEventListener('click', () => setBoxSubView('sheet'));
+      document.getElementById('btnBoxSubDie').addEventListener('click', () => setBoxSubView('die'));
+      document.getElementById('btnBoxSub3d').addEventListener('click', () => setBoxSubView('3d'));
+      document.getElementById('exportSingleBoxSvgBtn').addEventListener('click', exportSingleBoxDieSvg);
+
+      // Управление 3D-сборкой коробки
+      document.getElementById('foldSlider').addEventListener('input', (e) => {
+        state.playing3d = false;
+        update3dPlayBtnUi();
+        state.foldPct = parseFloat(e.target.value) || 0;
+        apply3dFold(state.foldPct);
+      });
+
+      document.getElementById('btn3dPlay').addEventListener('click', () => {
+        state.playing3d = !state.playing3d;
+        if (state.playing3d && state.foldPct >= 99) state.playDir3d = -1;
+        if (state.playing3d && state.foldPct <= 1) state.playDir3d = 1;
+        update3dPlayBtnUi();
+      });
+
+      document.querySelectorAll('.fold-preset').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.playing3d = false;
+          update3dPlayBtnUi();
+          state.foldPct = parseFloat(btn.dataset.fold) || 0;
+          document.getElementById('foldSlider').value = state.foldPct;
+          apply3dFold(state.foldPct);
+        });
+      });
+
+      document.getElementById('select3dMaterial').addEventListener('change', (e) => {
+        state.material3d = e.target.value;
+        if (state.shapeType === 'box' && state.boxSubView === '3d') {
+          rebuild3dBox(calculateBoxGeometry());
+        }
+      });
+
+      document.getElementById('btn3dResetCam').addEventListener('click', () => {
+        reset3dCamera(calculateBoxGeometry());
+      });
 
       document.getElementById('btnSubRect').addEventListener('click', () => setShapeType('rect'));
       document.getElementById('btnSubOval').addEventListener('click', () => setShapeType('oval'));
@@ -3210,6 +5590,7 @@
           });
           btn.className = 'preset-gap-btn py-1.5 rounded-lg bg-purple-500/20 border border-purple-500/50 text-[11px] font-mono text-purple-200 font-semibold transition cursor-pointer';
           if (state.shapeType === 'photo') markPhotoNestingDirty();
+          else if (state.shapeType === 'box') invalidateBoxAndRefresh();
           else markSimpleNestingDirty();
         });
       });
@@ -3228,6 +5609,8 @@
         const handler = () => {
           if (state.shapeType === 'photo') {
             markPhotoNestingDirty();
+          } else if (state.shapeType === 'box') {
+            invalidateBoxAndRefresh();
           } else {
             markSimpleNestingDirty();
           }
@@ -3391,7 +5774,7 @@
       viewport.addEventListener('touchend', () => { state.isDragging = false; });
 
       sheetSvg.addEventListener('mousemove', (e) => {
-        const fmt = SHEET_FORMATS[state.format];
+        const fmt = getActiveSheetSpec(state.format);
         const rect = sheetSvg.getBoundingClientRect();
         const pad = 36;
         const viewW = fmt.sheetW + pad * 2;
@@ -3406,13 +5789,83 @@
         }
       });
 
+      const syncMarginUI = () => {
+        const spec = getActiveSheetSpec(state.format);
+        const inp = document.getElementById('inputSheetMargin');
+        const lbl = document.getElementById('labelSheetMargin');
+        const sumEl = document.getElementById('activeZoneSummaryText');
+        if (inp && document.activeElement !== inp) {
+          inp.value = spec.margin;
+        }
+        if (lbl) {
+          lbl.textContent = `Поля листа ${spec.title} (мм):`;
+        }
+        if (sumEl) {
+          sumEl.textContent = `Рабочая зона ${spec.title}: ${spec.workW} × ${spec.workH} мм (поля по ${spec.margin} мм с каждой стороны)`;
+        }
+        document.querySelectorAll('.preset-margin-btn').forEach(btn => {
+          const active = Math.abs(parseFloat(btn.dataset.margin) - spec.margin) < 1e-6;
+          btn.className = active
+            ? 'preset-margin-btn px-2 py-1 rounded bg-amber-500/20 border border-amber-500/50 text-[10px] font-mono text-amber-200 font-semibold cursor-pointer'
+            : 'preset-margin-btn px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[10px] font-mono text-slate-300 cursor-pointer';
+        });
+      };
+
+      const applyMarginChange = (newMarginVal) => {
+        const base = SHEET_FORMATS[state.format] || SHEET_FORMATS['35x50'];
+        const maxM = Math.floor(Math.min(base.sheetW, base.sheetH) * 0.25);
+        const parsed = parseFloat(newMarginVal);
+        const clamped = Number.isFinite(parsed) ? Math.max(0, Math.min(maxM, parsed)) : 10;
+        state.sheetMargins[state.format] = clamped;
+        state.cachedSimpleResults[state.format] = null;
+        state.cachedPhotoResults[state.format] = null;
+        state.cachedBoxResults[state.format] = null;
+        syncMarginUI();
+        recalculateAndRender();
+      };
+
+      document.getElementById('inputSheetMargin').addEventListener('input', (e) => {
+        if (e.target.value === '') return;
+        applyMarginChange(e.target.value);
+      });
+      document.getElementById('inputSheetMargin').addEventListener('change', (e) => {
+        applyMarginChange(e.target.value);
+      });
+
+      document.querySelectorAll('.preset-margin-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const mVal = parseFloat(btn.dataset.margin);
+          const inp = document.getElementById('inputSheetMargin');
+          if (inp) inp.value = mVal;
+          applyMarginChange(mVal);
+        });
+      });
+
+      // Синхронизируем поле отступов при переключении формата листа
+      const origLive35Click = document.getElementById('liveCard35').onclick;
+      document.getElementById('liveCard35').addEventListener('click', syncMarginUI);
+      document.getElementById('liveCard50').addEventListener('click', syncMarginUI);
+      document.getElementById('btnTabSimple').addEventListener('click', syncMarginUI);
+      document.getElementById('btnTabPhoto').addEventListener('click', syncMarginUI);
+      document.getElementById('btnTabBox').addEventListener('click', syncMarginUI);
+
+      window._syncMarginUI = syncMarginUI;
+
       window.addEventListener('resize', () => {
-        if (state.activeResult) renderBlueprintSvg(state.activeResult);
+        if (state.shapeType === 'box' && state.boxSubView === '3d') {
+          resize3dViewport();
+        } else if (state.shapeType === 'box' && state.boxSubView === 'die') {
+          renderSingleBoxDieSvg(calculateBoxGeometry());
+        } else if (state.activeResult) {
+          renderBlueprintSvg(state.activeResult);
+        }
       });
     }
 
     window.addEventListener('DOMContentLoaded', () => {
+      syncBoxTypeUI();
       initEvents();
+      if (window._syncMarginUI) window._syncMarginUI();
       recalculateAndRender();
     });
   </script>
