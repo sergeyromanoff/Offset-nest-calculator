@@ -412,7 +412,7 @@
               <div class="flex items-end gap-1.5">
                 <div class="flex-1 min-w-0">
                   <label for="inputBoxL" class="block text-[10px] text-slate-400 mb-1 truncate" title="Глубина крышки и боковые панели P2, P4">Длина L</label>
-                  <input id="inputBoxL" type="number" min="25" max="600" step="0.5" value="90" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-cyan-500 transition" />
+                  <input id="inputBoxL" type="number" min="25" max="600" step="0.5" value="60" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-cyan-500 transition" />
                 </div>
 
                 <button id="btnBoxSwapLW" type="button" title="Поменять длину L и ширину W местами" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 active:bg-slate-600 text-cyan-400 border border-slate-700 transition cursor-pointer shrink-0 mb-[1px]">
@@ -426,12 +426,12 @@
 
                 <div class="flex-1 min-w-0">
                   <label for="inputBoxW" class="block text-[10px] text-slate-400 mb-1 truncate" title="Фасад P1 (с крышкой) и P3">Ширина W</label>
-                  <input id="inputBoxW" type="number" min="25" max="600" step="0.5" value="90" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-cyan-500 transition" />
+                  <input id="inputBoxW" type="number" min="25" max="600" step="0.5" value="60" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-cyan-500 transition" />
                 </div>
 
                 <div class="flex-1 min-w-0">
                   <label for="inputBoxH" class="block text-[10px] text-slate-400 mb-1 truncate">Высота H</label>
-                  <input id="inputBoxH" type="number" min="30" max="900" step="0.5" value="297" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-cyan-500 transition" />
+                  <input id="inputBoxH" type="number" min="30" max="900" step="0.5" value="250" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-cyan-500 transition" />
                 </div>
               </div>
 
@@ -743,11 +743,11 @@
       <!-- ПАНЕЛЬ ПЕРЕКЛЮЧЕНИЯ ВИДОВ КОРОБКИ (Раскладка на листе / Крой 1 шт / 3D-сборка) -->
       <div id="boxSubViewBar" class="hidden px-4 py-2 bg-slate-950/95 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs shrink-0">
         <div class="flex items-center bg-slate-900 border border-slate-800 rounded-xl p-1 gap-1">
-          <button id="btnBoxSubSheet" type="button" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
-            1. Раскладка на листе
+          <button id="btnBoxSubDie" type="button" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
+            1. Крой 1 шт. (1:1)
           </button>
-          <button id="btnBoxSubDie" type="button" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer text-slate-400 hover:text-white border border-transparent">
-            2. Крой 1 шт. (1:1)
+          <button id="btnBoxSubSheet" type="button" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer text-slate-400 hover:text-white border border-transparent">
+            2. Раскладка на листе
           </button>
           <button id="btnBoxSub3d" type="button" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer text-slate-400 hover:text-white border border-transparent flex items-center gap-1.5">
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -956,7 +956,7 @@
       boxTuckH: 15.5,           // Высота язычка крышки (мм)
       boxGlueNotches: true,     // Насечки под клей
       boxNestStrategy: 'max_auto', // 'max_auto' | 'valet_axis' | 'no_flip'
-      boxSubView: 'sheet',      // 'sheet' (раскладка на листе) | 'die' (крой 1 шт.) | '3d' (3D-сборка)
+      boxSubView: 'die',        // 'die' (крой 1 шт. по умолчанию) | 'sheet' (раскладка на листе) | '3d' (3D-сборка)
       cachedBoxResults: { '35x50': null, '50x70': null },
 
       // Параметры 3D-вида коробки
@@ -4452,6 +4452,10 @@ ${innerPaths}${notchLines ? '\n' + notchLines : ''}
     // 5. ЭКСПОРТ SVG В МАСШТАБЕ 1:1 ММ ДЛЯ CORELDRAW / ILLUSTRATOR
     // ============================================================================
     function exportLayoutToSvg() {
+      if (state.shapeType === 'box' && state.boxSubView === 'die') {
+        exportSingleBoxDieSvg();
+        return;
+      }
       const res = state.activeResult;
       if (!res || res.count === 0) {
         showToast('Нет разложенных этикеток для экспорта', 'error');
@@ -5335,7 +5339,8 @@ ${innerPaths}${notchLines ? '\n' + notchLines : ''}
 
       if (isBox) {
         syncBoxTypeUI();
-        setBoxSubView(state.boxSubView);
+        const initialSubView = (state.boxSubView === 'sheet') ? 'die' : state.boxSubView;
+        setBoxSubView(initialSubView);
       } else {
         recalculateAndRender();
       }
