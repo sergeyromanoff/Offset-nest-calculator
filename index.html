@@ -647,6 +647,146 @@
           </p>
         </section>
 
+        <!-- 4. РАСЧЁТ СТОИМОСТИ (ОФСЕТ) -->
+        <section class="bg-slate-850 border border-emerald-500/30 rounded-xl p-3.5 space-y-3">
+          <div class="flex items-center justify-between">
+            <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+              <span class="w-1.5 h-4 rounded-full bg-emerald-400"></span>
+              4. Расчёт стоимости (Офсет)
+            </h2>
+            <span id="costFormatTag" class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+              35×50 см
+            </span>
+          </div>
+
+          <!-- Выбор материала -->
+          <div>
+            <label for="selectMaterial" class="block text-xs text-slate-400 mb-1">Материал (из прайса)</label>
+            <select id="selectMaterial" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 cursor-pointer">
+              <optgroup label="Мелованный глянец (Mel glans)">
+                <option value="mel_115" selected>Mel glans 115 г (70×100, 250 л. — 28.5$)</option>
+                <option value="mel_130">Mel glans 130 г (70×112, 250 л. — 32$)</option>
+                <option value="mel_150">Mel glans 150 г (70×100, 250 л. — 34$)</option>
+                <option value="mel_250">Mel glans 250 г (70×100, 125 л. — 36$)</option>
+              </optgroup>
+              <optgroup label="Картон Бристоль (Bristol)">
+                <option value="bristol_250">Bristol 250 г (70×100, 100 л. — 23$)</option>
+                <option value="bristol_300">Bristol 300 г (70×100, 100 л. — 28$)</option>
+                <option value="bristol_350">Bristol 350 г (70×100, 100 л. — 31.5$)</option>
+              </optgroup>
+              <optgroup label="Самоклейка / Другое">
+                <option value="samokleyka">Samokleyka (100 л. — 500 man)</option>
+                <option value="custom">Свой материал (цена за 1 печ. лист)</option>
+              </optgroup>
+            </select>
+          </div>
+
+          <!-- Поле для своего материала -->
+          <div id="customMaterialWrap" class="hidden">
+            <label for="inputCustomSheetPrice" class="block text-[11px] text-slate-400 mb-1">Цена 1 печатного листа (man)</label>
+            <input id="inputCustomSheetPrice" type="number" min="0" step="0.01" value="1.00" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-emerald-500" />
+          </div>
+
+          <!-- Курс и Наценка (%) -->
+          <div class="grid grid-cols-2 gap-2.5">
+            <div>
+              <label for="inputUsdRate" class="block text-[11px] text-slate-400 mb-1">Курс ($ → man)</label>
+              <input id="inputUsdRate" type="number" min="1" step="0.05" value="19.7" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-emerald-500" />
+            </div>
+            <div>
+              <label for="inputMarkupPct" class="block text-[11px] text-slate-400 mb-1">Наценка (%)</label>
+              <div class="flex items-center gap-1">
+                <input id="inputMarkupPct" type="number" min="0" max="500" step="1" value="50" class="w-full bg-slate-900 border border-emerald-500/50 rounded-lg px-2.5 py-1.5 text-xs font-mono font-bold text-emerald-300 focus:outline-none focus:border-emerald-400" />
+              </div>
+              <div class="flex gap-1 mt-1">
+                <button type="button" data-markup="44" class="preset-markup-btn flex-1 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[10px] font-mono text-slate-300 cursor-pointer">44%</button>
+                <button type="button" data-markup="50" class="preset-markup-btn flex-1 py-0.5 rounded bg-emerald-500/20 border border-emerald-500/50 text-[10px] font-mono text-emerald-200 font-semibold cursor-pointer">50%</button>
+                <button type="button" data-markup="60" class="preset-markup-btn flex-1 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[10px] font-mono text-slate-300 cursor-pointer">60%</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Мин. количество листов для расчёта минимального тиража -->
+          <div class="bg-slate-900/80 border border-slate-800 rounded-lg p-2 space-y-1">
+            <div class="flex items-center justify-between gap-2">
+              <label for="inputMinSheets" class="text-[11px] text-slate-400">Мин. листов для печати:</label>
+              <input id="inputMinSheets" type="number" min="0" step="50" value="500" class="w-20 bg-slate-950 border border-slate-700 rounded px-2 py-0.5 text-xs font-mono text-white text-right focus:outline-none focus:border-amber-400" />
+            </div>
+            <div id="minRunInfoText" class="text-[10px] font-mono text-slate-400">Мин. тираж: — шт.</div>
+          </div>
+
+          <!-- Постпечатка (тумблеры/галочки) -->
+          <div class="space-y-1.5 pt-2 border-t border-slate-800">
+            <span class="block text-[11px] font-semibold text-slate-300">Постпечатка и опции:</span>
+
+            <div class="grid grid-cols-2 gap-1.5 text-xs">
+              <label class="flex items-center gap-2 bg-slate-900/90 border border-slate-800 rounded-lg px-2.5 py-1.5 cursor-pointer select-none hover:border-slate-700">
+                <input id="chkPostVysechka" type="checkbox" checked class="rounded bg-slate-800 border-slate-600 text-emerald-500 focus:ring-0" />
+                <span class="text-slate-200">Высечка</span>
+              </label>
+
+              <label class="flex items-center gap-2 bg-slate-900/90 border border-slate-800 rounded-lg px-2.5 py-1.5 cursor-pointer select-none hover:border-slate-700">
+                <input id="chkPostLaminasiya" type="checkbox" class="rounded bg-slate-800 border-slate-600 text-emerald-500 focus:ring-0" />
+                <span class="text-slate-200">Ламинация</span>
+              </label>
+
+              <label class="flex items-center gap-2 bg-slate-900/90 border border-slate-800 rounded-lg px-2.5 py-1.5 cursor-pointer select-none hover:border-slate-700">
+                <input id="chkPostSkleyka" type="checkbox" class="rounded bg-slate-800 border-slate-600 text-emerald-500 focus:ring-0" />
+                <span class="text-slate-200">Склейка</span>
+              </label>
+
+              <label class="flex items-center gap-2 bg-slate-900/90 border border-slate-800 rounded-lg px-2.5 py-1.5 cursor-pointer select-none hover:border-slate-700">
+                <input id="chkPostKongrev" type="checkbox" class="rounded bg-slate-800 border-slate-600 text-emerald-500 focus:ring-0" />
+                <span class="text-slate-200">Конгрев</span>
+              </label>
+
+              <label class="flex items-center gap-2 bg-slate-900/90 border border-slate-800 rounded-lg px-2.5 py-1.5 cursor-pointer select-none hover:border-slate-700">
+                <input id="chkPostCtp" type="checkbox" class="rounded bg-slate-800 border-slate-600 text-emerald-500 focus:ring-0" />
+                <span class="text-slate-200">CTP / клише</span>
+              </label>
+
+              <label class="flex items-center gap-2 bg-slate-900/90 border border-amber-500/30 rounded-lg px-2.5 py-1.5 cursor-pointer select-none hover:border-amber-500/60">
+                <input id="chkPostTisneniya" type="checkbox" class="rounded bg-slate-800 border-slate-600 text-amber-400 focus:ring-0" />
+                <span class="text-amber-200 font-medium">Тиснение</span>
+              </label>
+            </div>
+
+            <!-- Раскрываемый блок горячего тиснения (виден только при включении) -->
+            <div id="tisneniyaOptionsBox" class="hidden bg-slate-950/90 border border-amber-500/35 rounded-lg p-2.5 space-y-2 mt-1.5">
+              <div class="flex items-center justify-between gap-2 text-[11px]">
+                <span class="text-amber-300 font-semibold">Горячее тиснение:</span>
+                <select id="selectTisneniyaMode" class="bg-slate-900 border border-slate-700 rounded px-2 py-0.5 text-[11px] text-white focus:outline-none">
+                  <option value="sheet" selected>За лист (0.40 / 0.80)</option>
+                  <option value="piece">За штуку</option>
+                </select>
+              </div>
+              <div id="tisneniyaPieceRateWrap" class="hidden flex items-center justify-between gap-2 text-[11px]">
+                <span class="text-slate-400">Ставка за 1 шт. (man):</span>
+                <input id="inputTisneniyaPieceRate" type="number" min="0" step="0.01" value="0.10" class="w-20 bg-slate-900 border border-slate-700 rounded px-2 py-0.5 text-xs font-mono text-white text-right" />
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-[10px] text-slate-400 mb-0.5">Ширина оттиска (см)</label>
+                  <input id="inputFoilW" type="number" min="0.5" step="0.5" value="10" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs font-mono text-white" />
+                </div>
+                <div>
+                  <label class="block text-[10px] text-slate-400 mb-0.5">Высота оттиска (см)</label>
+                  <input id="inputFoilH" type="number" min="0.5" step="0.5" value="10" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs font-mono text-white" />
+                </div>
+              </div>
+              <div id="foilCalcHint" class="text-[10px] font-mono text-slate-400">С припуском +1 см/сторона: 12×12 см</div>
+            </div>
+          </div>
+
+          <!-- Детализация расчёта -->
+          <div id="costBreakdownBox" class="bg-slate-950/80 border border-slate-800 rounded-lg p-2.5 text-[11px] font-mono space-y-1 text-slate-300">
+            <div class="flex justify-between"><span>Бумага:</span><span id="bdPaper">0.00 man</span></div>
+            <div class="flex justify-between"><span>Прогон (4 цв.):</span><span id="bdPrint">0.00 man</span></div>
+            <div class="flex justify-between"><span>Постпечатка / CTP:</span><span id="bdPost">0.00 man</span></div>
+            <div class="flex justify-between pt-1 border-t border-slate-800 text-slate-400"><span>Себестоимость:</span><span id="bdBase">0.00 man</span></div>
+          </div>
+        </section>
+
       </div>
     </aside>
 
@@ -701,6 +841,29 @@
             <span class="text-xs text-slate-400">листов</span>
           </div>
           <div id="kpiMakereadyInfo" class="mt-1 text-[11px] text-slate-500 truncate">Приладка: 150 л.</div>
+        </div>
+      </div>
+
+      <!-- ПАНЕЛЬ ИТОГОВОЙ СТОИМОСТИ -->
+      <div class="px-4 py-2.5 bg-emerald-950/35 border-b border-emerald-500/25 flex flex-wrap items-center justify-between gap-3 shrink-0">
+        <div class="flex flex-wrap items-center gap-4 sm:gap-6">
+          <div>
+            <div class="text-[10px] uppercase tracking-wider text-emerald-300/80 font-semibold">Цена за 1 шт.</div>
+            <div id="kpiUnitPrice" class="text-xl sm:text-2xl font-bold font-mono text-emerald-300">0.0000 man</div>
+          </div>
+          <div class="h-8 w-px bg-slate-800 hidden sm:block"></div>
+          <div>
+            <div class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Итого за тираж (<span id="kpiMarkupLabel">+50%</span>)</div>
+            <div id="kpiTotalPrice" class="text-base sm:text-lg font-bold font-mono text-white">0.00 man</div>
+          </div>
+          <div class="h-8 w-px bg-slate-800 hidden md:block"></div>
+          <div class="hidden md:block">
+            <div class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Себестоимость</div>
+            <div id="kpiBaseCost" class="text-sm font-mono text-slate-300">0.00 man</div>
+          </div>
+        </div>
+        <div id="kpiMinRunBadge" class="hidden text-[11px] font-mono px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-200 border border-amber-500/40">
+          Ниже мин. тиража
         </div>
       </div>
 
@@ -5874,6 +6037,183 @@ ${innerPaths}${notchLines ? '\n' + notchLines : ''}
       if (window._syncMarginUI) window._syncMarginUI();
       recalculateAndRender();
     });
+  </script>
+  <script>
+    /**
+     * ============================================================================
+     * МОДУЛЬ РАСЧЁТА СТОИМОСТИ ОФСЕТНОЙ ПЕЧАТИ (ПО ПРАЙСУ)
+     * ============================================================================
+     */
+    const OFFSET_MATERIALS = {
+      mel_115:     { name: 'Mel glans 115 г', packPrice: 28.5, packSheets: 250, currency: 'USD', div35: 4, div50: 2 },
+      mel_130:     { name: 'Mel glans 130 г', packPrice: 32.0, packSheets: 250, currency: 'USD', div35: 4, div50: 2 },
+      mel_150:     { name: 'Mel glans 150 г', packPrice: 34.0, packSheets: 250, currency: 'USD', div35: 4, div50: 2 },
+      mel_250:     { name: 'Mel glans 250 г', packPrice: 36.0, packSheets: 125, currency: 'USD', div35: 4, div50: 2 },
+      bristol_250: { name: 'Bristol 250 г',   packPrice: 23.0, packSheets: 100, currency: 'USD', div35: 4, div50: 2 },
+      bristol_300: { name: 'Bristol 300 г',   packPrice: 28.0, packSheets: 100, currency: 'USD', div35: 4, div50: 2 },
+      bristol_350: { name: 'Bristol 350 г',   packPrice: 31.5, packSheets: 100, currency: 'USD', div35: 4, div50: 2 },
+      samokleyka:  { name: 'Samokleyka',      packPrice: 500,  packSheets: 100, currency: 'MAN', div35: 4, div50: 2 }
+    };
+
+    const OFFSET_RATES = {
+      '35x50': { print: 0.32, ctp: 280, vysechka: 0.15, laminasiya: 0.70, skleyka: 0.25, kongrev: 0.40, tisneniyaSheet: 0.40, foilM2: 4.70 },
+      '50x70': { print: 0.65, ctp: 420, vysechka: 0.20, laminasiya: 1.40, skleyka: 0.25, kongrev: 0.80, tisneniyaSheet: 0.80, foilM2: 4.70 }
+    };
+
+    function calculateAndRenderOffsetCost() {
+      const res = state.activeResult;
+      const fmtId = state.format || '35x50';
+      const rates = OFFSET_RATES[fmtId] || OFFSET_RATES['35x50'];
+
+      const tagEl = document.getElementById('costFormatTag');
+      if (tagEl) tagEl.textContent = fmtId === '35x50' ? '35×50 см' : '50×70 см';
+
+      const matKey = document.getElementById('selectMaterial')?.value || 'mel_115';
+      const usdRate = Math.max(0.1, parseFloat(document.getElementById('inputUsdRate')?.value) || 19.7);
+      const markupPct = Math.max(0, parseFloat(document.getElementById('inputMarkupPct')?.value) || 0);
+      const minSheets = Math.max(0, parseInt(document.getElementById('inputMinSheets')?.value, 10) || 0);
+
+      // 1. Цена 1 печатного листа (35x50 или 50x70)
+      let sheetPriceMan = 0;
+      if (matKey === 'custom') {
+        sheetPriceMan = Math.max(0, parseFloat(document.getElementById('inputCustomSheetPrice')?.value) || 0);
+      } else {
+        const m = OFFSET_MATERIALS[matKey] || OFFSET_MATERIALS.mel_115;
+        const parentSheetMan = m.currency === 'USD'
+          ? (m.packPrice * usdRate) / m.packSheets
+          : m.packPrice / m.packSheets;
+        const divisor = fmtId === '35x50' ? m.div35 : m.div50;
+        sheetPriceMan = parentSheetMan / divisor;
+      }
+
+      // 2. Листы и тираж
+      const countPerSheet = res ? (res.count || 0) : 0;
+      const grossSheets = res ? ((res.isSeparateMode && res.sumGrossAllSheets) ? res.sumGrossAllSheets : (res.grossSheets || 0)) : 0;
+      const netSheets = res ? ((res.isSeparateMode && res.sumNetAllSheets) ? res.sumNetAllSheets : (res.netSheets || 0)) : 0;
+      const qty = Math.max(1, state.quantity || 1);
+
+      // Проверка минимального тиража
+      const minRunQty = countPerSheet * minSheets;
+      const minRunInfoEl = document.getElementById('minRunInfoText');
+      const minRunBadge = document.getElementById('kpiMinRunBadge');
+      if (minRunInfoEl) {
+        minRunInfoEl.textContent = countPerSheet > 0
+          ? `Мин. тираж (${minSheets} л. × ${countPerSheet} шт/л): ${minRunQty.toLocaleString('ru-RU')} шт.`
+          : 'Мин. тираж: —';
+      }
+      if (minRunBadge) {
+        if (countPerSheet > 0 && minSheets > 0 && netSheets < minSheets) {
+          minRunBadge.textContent = `Внимание: нужно ${netSheets} л. (мин. ${minSheets} л. / ${minRunQty.toLocaleString('ru-RU')} шт.)`;
+          minRunBadge.classList.remove('hidden');
+        } else {
+          minRunBadge.classList.add('hidden');
+        }
+      }
+
+      // 3. Базовые статьи себестоимости
+      const paperCost = grossSheets * sheetPriceMan;
+      const printCost = grossSheets * rates.print;
+
+      // 4. Постпечатка и опции
+      let postCost = 0;
+      if (document.getElementById('chkPostVysechka')?.checked) postCost += grossSheets * rates.vysechka;
+      if (document.getElementById('chkPostLaminasiya')?.checked) postCost += grossSheets * rates.laminasiya;
+      if (document.getElementById('chkPostSkleyka')?.checked) postCost += qty * rates.skleyka;
+      if (document.getElementById('chkPostKongrev')?.checked) postCost += grossSheets * rates.kongrev;
+      if (document.getElementById('chkPostCtp')?.checked) postCost += rates.ctp;
+
+      if (document.getElementById('chkPostTisneniya')?.checked) {
+        const tMode = document.getElementById('selectTisneniyaMode')?.value || 'sheet';
+        const foilW = Math.max(0.5, parseFloat(document.getElementById('inputFoilW')?.value) || 10);
+        const foilH = Math.max(0.5, parseFloat(document.getElementById('inputFoilH')?.value) || 10);
+        const effW = foilW + 2; // +1 см с каждой стороны
+        const effH = foilH + 2; // +1 см с каждой стороны
+        const foilAreaM2 = (effW / 100) * (effH / 100);
+        const foilCostPerHit = foilAreaM2 * rates.foilM2;
+
+        const hintEl = document.getElementById('foilCalcHint');
+        if (hintEl) hintEl.textContent = `С припуском +1 см/сторона: ${effW}×${effH} см (${foilAreaM2.toFixed(4)} м² ≈ ${foilCostPerHit.toFixed(3)} man)`;
+
+        if (tMode === 'piece') {
+          const pieceRate = Math.max(0, parseFloat(document.getElementById('inputTisneniyaPieceRate')?.value) || 0);
+          postCost += qty * (pieceRate + foilCostPerHit);
+        } else {
+          postCost += grossSheets * (rates.tisneniyaSheet + foilCostPerHit);
+        }
+      }
+
+      const baseCost = paperCost + printCost + postCost;
+      const totalPrice = baseCost * (1 + markupPct / 100);
+      const unitPrice = countPerSheet > 0 ? totalPrice / qty : 0;
+
+      // 5. Вывод в интерфейс
+      document.getElementById('bdPaper').textContent = `${paperCost.toFixed(2)} man`;
+      document.getElementById('bdPrint').textContent = `${printCost.toFixed(2)} man`;
+      document.getElementById('bdPost').textContent = `${postCost.toFixed(2)} man`;
+      document.getElementById('bdBase').textContent = `${baseCost.toFixed(2)} man`;
+
+      document.getElementById('kpiMarkupLabel').textContent = `+${markupPct}%`;
+      document.getElementById('kpiBaseCost').textContent = `${baseCost.toFixed(2)} man`;
+      document.getElementById('kpiTotalPrice').textContent = `${totalPrice.toFixed(2)} man`;
+      document.getElementById('kpiUnitPrice').textContent = `${unitPrice.toFixed(4)} man`;
+    }
+
+    // Привязываем автоматический пересчёт стоимости к обновлению раскладки
+    (function hookCostModule() {
+      const origApply = window.applyResultToUi;
+      if (typeof origApply === 'function') {
+        window.applyResultToUi = function(res35, res50, activeRes) {
+          origApply(res35, res50, activeRes);
+          calculateAndRenderOffsetCost();
+        };
+      }
+
+      window.addEventListener('DOMContentLoaded', () => {
+        // По умолчанию ставим приладку 80 листов (20 листов × 4 цвета)
+        const mrEl = document.getElementById('inputMakeready');
+        if (mrEl && mrEl.value === '150') {
+          mrEl.value = '80';
+          state.makeready = 80;
+        }
+
+        const ids = [
+          'selectMaterial', 'inputCustomSheetPrice', 'inputUsdRate', 'inputMarkupPct', 'inputMinSheets',
+          'chkPostVysechka', 'chkPostLaminasiya', 'chkPostSkleyka', 'chkPostKongrev', 'chkPostCtp',
+          'chkPostTisneniya', 'selectTisneniyaMode', 'inputTisneniyaPieceRate', 'inputFoilW', 'inputFoilH'
+        ];
+        ids.forEach(id => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          el.addEventListener('input', calculateAndRenderOffsetCost);
+          el.addEventListener('change', () => {
+            if (id === 'selectMaterial') {
+              document.getElementById('customMaterialWrap')?.classList.toggle('hidden', el.value !== 'custom');
+            }
+            if (id === 'chkPostTisneniya') {
+              document.getElementById('tisneniyaOptionsBox')?.classList.toggle('hidden', !el.checked);
+            }
+            if (id === 'selectTisneniyaMode') {
+              document.getElementById('tisneniyaPieceRateWrap')?.classList.toggle('hidden', el.value !== 'piece');
+            }
+            calculateAndRenderOffsetCost();
+          });
+        });
+
+        document.querySelectorAll('.preset-markup-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const val = btn.dataset.markup;
+            document.getElementById('inputMarkupPct').value = val;
+            document.querySelectorAll('.preset-markup-btn').forEach(b => {
+              b.className = 'preset-markup-btn flex-1 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[10px] font-mono text-slate-300 cursor-pointer';
+            });
+            btn.className = 'preset-markup-btn flex-1 py-0.5 rounded bg-emerald-500/20 border border-emerald-500/50 text-[10px] font-mono text-emerald-200 font-semibold cursor-pointer';
+            calculateAndRenderOffsetCost();
+          });
+        });
+
+        calculateAndRenderOffsetCost();
+      });
+    })();
   </script>
   <script async src="https://docs.opencv.org/4.8.0/opencv.js" onload="onOpenCvReady()"></script>
 </body>
