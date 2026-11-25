@@ -412,7 +412,7 @@
               <div class="flex items-end gap-1.5">
                 <div class="flex-1 min-w-0">
                   <label for="inputBoxL" class="block text-[10px] text-slate-400 mb-1 truncate" title="Глубина крышки и боковые панели P2, P4">Длина L</label>
-                  <input id="inputBoxL" type="number" min="25" max="600" step="0.5" value="60" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-cyan-500 transition" />
+                  <input id="inputBoxL" type="number" min="25" max="600" step="0.5" value="90" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-cyan-500 transition" />
                 </div>
 
                 <button id="btnBoxSwapLW" type="button" title="Поменять длину L и ширину W местами" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 active:bg-slate-600 text-cyan-400 border border-slate-700 transition cursor-pointer shrink-0 mb-[1px]">
@@ -426,12 +426,12 @@
 
                 <div class="flex-1 min-w-0">
                   <label for="inputBoxW" class="block text-[10px] text-slate-400 mb-1 truncate" title="Фасад P1 (с крышкой) и P3">Ширина W</label>
-                  <input id="inputBoxW" type="number" min="25" max="600" step="0.5" value="60" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-cyan-500 transition" />
+                  <input id="inputBoxW" type="number" min="25" max="600" step="0.5" value="90" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-cyan-500 transition" />
                 </div>
 
                 <div class="flex-1 min-w-0">
                   <label for="inputBoxH" class="block text-[10px] text-slate-400 mb-1 truncate">Высота H</label>
-                  <input id="inputBoxH" type="number" min="30" max="900" step="0.5" value="250" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-cyan-500 transition" />
+                  <input id="inputBoxH" type="number" min="30" max="900" step="0.5" value="297" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-cyan-500 transition" />
                 </div>
               </div>
 
@@ -2389,7 +2389,8 @@
           outer.push(`L ${f(xL)} ${f(yBot)}`);
         };
 
-        const appendHookRight = (xL, xR) => {
+        // Развернутые крючки: скос и носок направлены к пазу (P1), прямая грань — к язычку (P3)
+        const appendHookPointingLeft = (xL, xR) => {
           const tX = xL + throatX;
           const tY = yBot + throatY;
           const arcEndX = tX - diagDxDeep;
@@ -2404,7 +2405,7 @@
           outer.push(`L ${f(xL)} ${f(yBot)}`);
         };
 
-        const appendHookLeft = (xL, xR) => {
+        const appendHookPointingRight = (xL, xR) => {
           const tX = xR - throatX;
           const tY = yBot + throatY;
           const arcEndX = tX + diagDxShallow;
@@ -2420,16 +2421,16 @@
         };
 
         if (hooksOnP2P4) {
-          appendHookRight(x4, x5);
+          appendHookPointingRight(x4, x5);
           appendTongue(x3, x4);
-          appendHookLeft(x2, x3);
+          appendHookPointingLeft(x2, x3);
           appendSlot(x1, x2);
           bottomInfoHtml = `A55.20.01.01: язычок P3 <span class="text-slate-200">${f(tongueW)} мм</span> / паз P1 <span class="text-emerald-300">${f(slotW)} мм</span>`;
         } else {
           appendTongue(x4, x5);
-          appendHookRight(x3, x4);
+          appendHookPointingLeft(x3, x4);
           appendSlot(x2, x3);
-          appendHookLeft(x1, x2);
+          appendHookPointingRight(x1, x2);
           bottomInfoHtml = `A55.20 (сдвиг): язычок P4 <span class="text-slate-200">${f(tongueW)} мм</span> / паз P2 <span class="text-emerald-300">${f(slotW)} мм</span>`;
         }
 
@@ -3383,13 +3384,13 @@
         // Замковое дно ECMA A55.20.01.01
         if (meta3d.hooksOnP2P4) {
           bot1Pivot.add(makeBox3dPanelMesh(buildEcma055SlotPts(p1W, meta3d), mats));
-          bot2Pivot.add(makeBox3dPanelMesh(buildEcma055HookLeftPts(p2W, meta3d), mats));
+          bot2Pivot.add(makeBox3dPanelMesh(buildEcma055HookRightPts(p2W, meta3d), mats));
           bot3Pivot.add(makeBox3dPanelMesh(buildEcma055TonguePts(p3W, meta3d), mats));
-          bot4Pivot.add(makeBox3dPanelMesh(buildEcma055HookRightPts(p4W, meta3d), mats));
+          bot4Pivot.add(makeBox3dPanelMesh(buildEcma055HookLeftPts(p4W, meta3d), mats));
         } else {
-          bot1Pivot.add(makeBox3dPanelMesh(buildEcma055HookLeftPts(p1W, meta3d), mats));
+          bot1Pivot.add(makeBox3dPanelMesh(buildEcma055HookRightPts(p1W, meta3d), mats));
           bot2Pivot.add(makeBox3dPanelMesh(buildEcma055SlotPts(p2W, meta3d), mats));
-          bot3Pivot.add(makeBox3dPanelMesh(buildEcma055HookRightPts(p3W, meta3d), mats));
+          bot3Pivot.add(makeBox3dPanelMesh(buildEcma055HookLeftPts(p3W, meta3d), mats));
           bot4Pivot.add(makeBox3dPanelMesh(buildEcma055TonguePts(p4W, meta3d), mats));
         }
 
