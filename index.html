@@ -482,6 +482,76 @@
                 </button>
               </div>
 
+              <!-- Параметры клапанов ECMA A55.20 (переменные A–K) -->
+              <div id="boxA55ParamsPanel" class="hidden pt-2 border-t border-slate-800/80 space-y-2">
+                <div class="flex items-center justify-between gap-1.5">
+                  <span class="text-[10px] font-semibold uppercase tracking-wider text-purple-300">Клапаны A55 (A–K)</span>
+                  <div class="flex items-center gap-1.5">
+                    <label class="inline-flex items-center gap-1 text-[10px] text-slate-300 cursor-pointer select-none">
+                      <input id="chkA55AutoFormula" type="checkbox" checked class="rounded bg-slate-900 border-slate-600 text-purple-500 focus:ring-0 cursor-pointer" />
+                      <span>Авто</span>
+                    </label>
+                    <button id="btnA55Recalc" type="button" title="Пересчитать формулы E, G, K, D" class="px-1.5 py-0.5 rounded bg-purple-500/15 hover:bg-purple-500/25 border border-purple-500/40 text-[10px] font-mono text-purple-200 cursor-pointer transition">↻</button>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="text-[10px] text-slate-400 mb-1">Верхние пыльники (P2/P4 • 97°/111°):</div>
+                  <div class="grid grid-cols-4 gap-1.5">
+                    <div>
+                      <label for="inA55TopB" class="block text-[9px] text-slate-400 mb-0.5" title="Фаска 45° со стороны крышки">B (45°)</label>
+                      <input id="inA55TopB" type="number" step="0.5" min="0" max="20" value="3" class="w-full bg-slate-950 border border-slate-700 rounded px-1.5 py-1 text-[11px] font-mono text-white focus:outline-none focus:border-purple-400" />
+                    </div>
+                    <div>
+                      <label for="inA55TopC" class="block text-[9px] text-slate-400 mb-0.5" title="Фаска 45° со стороны P3">C (45°)</label>
+                      <input id="inA55TopC" type="number" step="0.5" min="0" max="20" value="2" class="w-full bg-slate-950 border border-slate-700 rounded px-1.5 py-1 text-[11px] font-mono text-white focus:outline-none focus:border-purple-400" />
+                    </div>
+                    <div>
+                      <label for="inA55TopD" class="block text-[9px] text-slate-400 mb-0.5" title="Ступенька отступа A=0.5 мм">D (ступ.)</label>
+                      <input id="inA55TopD" type="number" step="0.5" min="0" max="20" value="3.5" class="w-full bg-slate-950 border border-slate-700 rounded px-1.5 py-1 text-[11px] font-mono text-white focus:outline-none focus:border-purple-400" />
+                    </div>
+                    <div>
+                      <label for="inA55TopE" class="block text-[9px] text-slate-400 mb-0.5" title="W/2 - 5 (потолок 50 мм при W > 100)">E (выс.)</label>
+                      <input id="inA55TopE" type="number" step="0.5" min="5" max="150" value="45" class="w-full bg-slate-950 border border-slate-700 rounded px-1.5 py-1 text-[11px] font-mono text-cyan-300 focus:outline-none focus:border-purple-400" />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="text-[10px] text-slate-400 mb-1">Нижнее замковое дно (B–K, R):</div>
+                  <div class="grid grid-cols-4 gap-1.5">
+                    <div>
+                      <label for="inA55BotB" class="block text-[9px] text-slate-400 mb-0.5" title="Фаска 45° крючка у биговки язычка">B (45°)</label>
+                      <input id="inA55BotB" type="number" step="0.5" min="0" max="20" value="5" class="w-full bg-slate-950 border border-slate-700 rounded px-1.5 py-1 text-[11px] font-mono text-white focus:outline-none focus:border-amber-400" />
+                    </div>
+                    <div>
+                      <label for="inA55BotC" class="block text-[9px] text-slate-400 mb-0.5" title="Фаска 45° крючка у внешней биговки">C (45°)</label>
+                      <input id="inA55BotC" type="number" step="0.5" min="0" max="20" value="3" class="w-full bg-slate-950 border border-slate-700 rounded px-1.5 py-1 text-[11px] font-mono text-white focus:outline-none focus:border-amber-400" />
+                    </div>
+                    <div>
+                      <label for="inA55BotD" class="block text-[9px] text-slate-400 mb-0.5" title="Глубина зацепа носка крючка">D (зацеп)</label>
+                      <input id="inA55BotD" type="number" step="1" min="2" max="100" value="24" class="w-full bg-slate-950 border border-slate-700 rounded px-1.5 py-1 text-[11px] font-mono text-amber-300 focus:outline-none focus:border-amber-400" />
+                    </div>
+                    <div>
+                      <label for="inA55BotF" class="block text-[9px] text-slate-400 mb-0.5" title="Фаска 45° П-образного клапана">F (45°)</label>
+                      <input id="inA55BotF" type="number" step="0.5" min="0" max="20" value="3" class="w-full bg-slate-950 border border-slate-700 rounded px-1.5 py-1 text-[11px] font-mono text-white focus:outline-none focus:border-amber-400" />
+                    </div>
+                    <div>
+                      <label for="inA55BotG" class="block text-[9px] text-slate-400 mb-0.5" title="Ширина ножки П-клапана">G (ножка)</label>
+                      <input id="inA55BotG" type="number" step="0.5" min="2" max="100" value="14.5" class="w-full bg-slate-950 border border-slate-700 rounded px-1.5 py-1 text-[11px] font-mono text-amber-300 focus:outline-none focus:border-amber-400" />
+                    </div>
+                    <div>
+                      <label for="inA55BotK" class="block text-[9px] text-slate-400 mb-0.5" title="Полная глубина П-клапана и язычка">K (глуб.)</label>
+                      <input id="inA55BotK" type="number" step="0.5" min="10" max="300" value="52.5" class="w-full bg-slate-950 border border-slate-700 rounded px-1.5 py-1 text-[11px] font-mono text-amber-300 focus:outline-none focus:border-amber-400" />
+                    </div>
+                    <div class="col-span-2">
+                      <label for="inA55BotR" class="block text-[9px] text-slate-400 mb-0.5" title="Радиус скругления носка крючка">R скругл. крючка (мм)</label>
+                      <input id="inA55BotR" type="number" step="0.5" min="0" max="30" value="6" class="w-full bg-slate-950 border border-slate-700 rounded px-1.5 py-1 text-[11px] font-mono text-white focus:outline-none focus:border-amber-400" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <label class="flex items-center justify-between gap-2 text-[11px] text-slate-300 cursor-pointer select-none pt-1 border-t border-slate-800/80">
                 <span>Насечки под клей на боковом клапане</span>
                 <input id="chkBoxGlueNotches" type="checkbox" checked class="w-4 h-4 rounded bg-slate-900 border-slate-600 text-cyan-500 focus:ring-0 cursor-pointer" />
@@ -1076,10 +1146,11 @@
         { label: '120×80×180', l: 120, w: 80, h: 180 }
       ],
       ecma055: [
-        { label: '70×65×290 (Эталон)', l: 65, w: 70, h: 290, primary: true },
-        { label: '80×80×200', l: 80, w: 80, h: 200 },
-        { label: '100×70×250', l: 100, w: 70, h: 250 },
-        { label: '60×60×150', l: 60, w: 60, h: 150 }
+        { label: '70×100×220 (Эталон)', l: 70, w: 100, h: 220, primary: true },
+        { label: '65×95×290', l: 65, w: 95, h: 290 },
+        { label: '80×110×250', l: 80, w: 110, h: 250 },
+        { label: '90×90×240', l: 90, w: 90, h: 240 },
+        { label: '120×220×300', l: 120, w: 220, h: 300 }
       ],
       ecma020: [
         { label: '80×60×180 (Эталон)', l: 60, w: 80, h: 180, primary: true },
@@ -1118,6 +1189,18 @@
       boxGlueW: 15,             // Ширина бокового клеевого клапана (мм)
       boxTuckH: 15.5,           // Высота язычка крышки (мм)
       boxGlueNotches: true,     // Насечки под клей
+      a55AutoFormula: true,     // Авто-формулы A55 при смене L/W
+      a55TopB: 3,               // A55 верхний пыльник B (45°)
+      a55TopC: 2,               // A55 верхний пыльник C (45°)
+      a55TopD: 3.5,             // A55 верхний пыльник D (ступенька)
+      a55TopE: 45,              // A55 верхний пыльник E (высота)
+      a55BotB: 5,               // A55 дно B (45° крючка)
+      a55BotC: 3,               // A55 дно C (45° крючка)
+      a55BotD: 24,              // A55 дно D (зацеп)
+      a55BotF: 3,               // A55 дно F (45° П-клапана)
+      a55BotG: 14.5,            // A55 дно G (ножка)
+      a55BotK: 52.5,            // A55 дно K (глубина)
+      a55BotR: 6,               // A55 дно R (скругление носка крючка)
       boxNestStrategy: 'max_auto', // 'max_auto' | 'valet_axis' | 'no_flip'
       boxSubView: 'die',        // 'die' (крой 1 шт. по умолчанию) | 'sheet' (раскладка на листе) | '3d' (3D-сборка)
       cachedBoxResults: { '35x50': null, '50x70': null },
@@ -2297,22 +2380,110 @@
       };
     }
 
+    function recomputeA55DerivedParams() {
+      const L = Math.max(20, Number(state.boxL) || 70);
+      const W = Math.max(20, Number(state.boxW) || 100);
+      const F = Math.max(0, Number(state.a55BotF) || 3);
+
+      state.a55TopE = W > 100 ? 50 : Math.max(8, Number((W / 2 - 5).toFixed(2)));
+
+      const slotPanelW = state.boxBottomSwapped ? L : W;
+      const baseSlot = state.boxBottomSwapped ? W : L;
+
+      if (slotPanelW > 200 || baseSlot > 200) {
+        state.a55BotG = 40;
+      } else {
+        state.a55BotG = Math.max(2, Number((baseSlot / 4 - F).toFixed(2)));
+      }
+
+      state.a55BotK = Number(((baseSlot / 4) * 3).toFixed(2));
+
+      const baseHook = state.boxBottomSwapped ? L : W;
+      const hookE = F + state.a55BotG;
+      const rawD = Math.floor(baseHook / 4 - 1);
+      const maxDByK = Math.floor(state.a55BotK - hookE);
+      state.a55BotD = Math.max(2, Math.min(rawD, maxDByK));
+    }
+
+    function syncA55InputsUI() {
+      const map = [
+        ['inA55TopB', 'a55TopB'],
+        ['inA55TopC', 'a55TopC'],
+        ['inA55TopD', 'a55TopD'],
+        ['inA55TopE', 'a55TopE'],
+        ['inA55BotB', 'a55BotB'],
+        ['inA55BotC', 'a55BotC'],
+        ['inA55BotD', 'a55BotD'],
+        ['inA55BotF', 'a55BotF'],
+        ['inA55BotG', 'a55BotG'],
+        ['inA55BotK', 'a55BotK'],
+        ['inA55BotR', 'a55BotR']
+      ];
+      map.forEach(([id, key]) => {
+        const el = document.getElementById(id);
+        if (el && document.activeElement !== el) el.value = state[key];
+      });
+      const chk = document.getElementById('chkA55AutoFormula');
+      if (chk) chk.checked = !!state.a55AutoFormula;
+    }
+
+    function roundBoxCornerA55(pPrev, pCorner, pNext, radius) {
+      const f = fmtBoxNum;
+      if (radius <= 0.01) {
+        return `L ${f(pCorner.x)} ${f(pCorner.y)}`;
+      }
+      const v1x = pPrev.x - pCorner.x;
+      const v1y = pPrev.y - pCorner.y;
+      const len1 = Math.hypot(v1x, v1y);
+      const v2x = pNext.x - pCorner.x;
+      const v2y = pNext.y - pCorner.y;
+      const len2 = Math.hypot(v2x, v2y);
+
+      if (len1 < 0.05 || len2 < 0.05) {
+        return `L ${f(pCorner.x)} ${f(pCorner.y)}`;
+      }
+
+      const u1x = v1x / len1;
+      const u1y = v1y / len1;
+      const u2x = v2x / len2;
+      const u2y = v2y / len2;
+
+      const dot = Math.max(-0.9999, Math.min(0.9999, u1x * u2x + u1y * u2y));
+      const theta = Math.acos(dot);
+      if (theta < 0.03 || Math.abs(Math.PI - theta) < 0.03) {
+        return `L ${f(pCorner.x)} ${f(pCorner.y)}`;
+      }
+
+      const halfTan = Math.tan(theta / 2);
+      const maxDist = Math.min(len1 * 0.48, len2 * 0.48);
+      const dist = Math.min(radius / halfTan, maxDist);
+      const r = dist * halfTan;
+
+      const p1 = { x: pCorner.x + u1x * dist, y: pCorner.y + u1y * dist };
+      const p2 = { x: pCorner.x + u2x * dist, y: pCorner.y + u2y * dist };
+
+      const cross = u1x * u2y - u1y * u2x;
+      const sweep = cross < 0 ? 1 : 0;
+
+      return `L ${f(p1.x)} ${f(p1.y)} A ${f(r)} ${f(r)} 0 0 ${sweep} ${f(p2.x)} ${f(p2.y)}`;
+    }
+
     function calculateBoxGeometry() {
       const f = fmtBoxNum;
       const isAutolock = state.boxType === 'autolock';
       const isEcma055 = state.boxType === 'ecma055';
       const isEcma020 = state.boxType === 'ecma020';
 
-      const defaultL = isEcma055 ? 65 : (isEcma020 ? 60 : 90);
-      const defaultW = isEcma055 ? 70 : (isEcma020 ? 80 : 90);
-      const defaultH = isEcma055 ? 290 : (isEcma020 ? 180 : 297);
+      const defaultL = isEcma055 ? 70 : (isEcma020 ? 60 : 90);
+      const defaultW = isEcma055 ? 100 : (isEcma020 ? 80 : 90);
+      const defaultH = isEcma055 ? 220 : (isEcma020 ? 180 : 297);
 
-      const L = Math.max(25, Math.min(600, Number(state.boxL) || defaultL));
-      const W = Math.max(25, Math.min(600, Number(state.boxW) || defaultW));
-      const H = Math.max(30, Math.min(900, Number(state.boxH) || defaultH));
+      const L = Math.max(20, Math.min(800, Number(state.boxL) || defaultL));
+      const W = Math.max(20, Math.min(800, Number(state.boxW) || defaultW));
+      const H = Math.max(20, Math.min(1200, Number(state.boxH) || defaultH));
       const d = Math.max(0, Math.min(5, Number(state.boxD) || 0));
-      const glueW = Math.max(8, Math.min(40, Number(state.boxGlueW) || 15));
-      const tuckH = Math.max(8, Math.min(40, Number(state.boxTuckH) || 15.5));
+      const glueW = Math.max(8, Math.min(50, Number(state.boxGlueW) || 15));
+      const tuckH = Math.max(6, Math.min(50, Number(state.boxTuckH) || (isEcma055 ? 15 : 15.5)));
 
       const p1W = W;
       const p2W = L;
@@ -2326,7 +2497,7 @@
       const x4 = x3 + p3W;
       const x5 = x4 + p4W;
 
-      const lidDepth = isAutolock ? (L + 0.66) : L;
+      const lidDepth = isAutolock ? (L + 0.66) : (isEcma055 ? Math.max(10, L - 0.5) : L);
       const yTuckTop = 0;
       const yLidCrease = tuckH;
       const earUp = 1.0;
@@ -2348,15 +2519,23 @@
       const tuckArcDx = Math.min(rawTuckDx, maxTuckArcDx);
       const tuckArcR = (tuckArcDx * tuckArcDx + tuckArcDy * tuckArcDy) / (2 * tuckArcDx);
 
+      const DEG2RAD = Math.PI / 180;
       const dustInnerOffset = 0.5;
+      const a55TopB = Math.max(0, Number(state.a55TopB) || 0);
+      const a55TopC = Math.max(0, Number(state.a55TopC) || 0);
+      const a55TopD = Math.max(0, Number(state.a55TopD) || 0);
       const dustH = isAutolock
         ? Math.max(10, W / 2 - d - 2.7909)
-        : Math.max(10, W / 2 - d - 3.0);
+        : (isEcma055
+            ? Math.max(a55TopB + 2, a55TopD + a55TopC + 2, Number(state.a55TopE) || 45)
+            : Math.max(10, W / 2 - d - 3.0));
       const yDustTop = yTopSide - dustH;
 
       const glueChamfer = isAutolock
-        ? Math.min(H * 0.25, glueW * Math.tan(20.0 * Math.PI / 180))
-        : Math.min(glueW * 0.35, 6.0);
+        ? Math.min(H * 0.25, glueW * Math.tan(20.0 * DEG2RAD))
+        : (isEcma055
+            ? Math.min(glueW * Math.tan(15.0 * DEG2RAD), H * 0.15)
+            : Math.min(glueW * 0.35, 6.0));
 
       const outer = [];
       outer.push(`M ${f(x1)} ${f(yTopSide)}`);
@@ -2398,6 +2577,41 @@
         outer.push(`L ${f(x4 + dustInnerOffset + inChamfX + inSlantX)} ${f(yDustTop)}`);
         outer.push(`L ${f(x5 - outDx1 - outDx2)} ${f(yDustTop)}`);
         outer.push(`L ${f(x5 - outDx1)} ${f(yTopSide - outDy1)}`);
+        outer.push(`L ${f(x5)} ${f(yTopSide)}`);
+      } else if (isEcma055) {
+        const tan7 = Math.tan(7 * DEG2RAD);
+        const tan21 = Math.tan(21 * DEG2RAD);
+
+        const p2_bX = x2 + a55TopB;
+        const p2_bY = yTopSide - a55TopB;
+        const p2_topLeftX = p2_bX + (dustH - a55TopB) * tan7;
+
+        const p2_cX = x3 - dustInnerOffset - a55TopC;
+        const p2_cY = yTopSide - a55TopD - a55TopC;
+        const p2_topRightX = p2_cX - (dustH - a55TopD - a55TopC) * tan21;
+
+        outer.push(`L ${f(p2_bX)} ${f(p2_bY)}`);
+        outer.push(`L ${f(p2_topLeftX)} ${f(yDustTop)}`);
+        outer.push(`L ${f(p2_topRightX)} ${f(yDustTop)}`);
+        outer.push(`L ${f(p2_cX)} ${f(p2_cY)}`);
+        outer.push(`L ${f(x3 - dustInnerOffset)} ${f(yTopSide - a55TopD)}`);
+        outer.push(`L ${f(x3 - dustInnerOffset)} ${f(yTopSide)}`);
+
+        outer.push(`L ${f(x4 + dustInnerOffset)} ${f(yTopSide)}`);
+
+        const p4_cX = x4 + dustInnerOffset + a55TopC;
+        const p4_cY = yTopSide - a55TopD - a55TopC;
+        const p4_topLeftX = p4_cX + (dustH - a55TopD - a55TopC) * tan21;
+
+        const p4_bX = x5 - a55TopB;
+        const p4_bY = yTopSide - a55TopB;
+        const p4_topRightX = p4_bX - (dustH - a55TopB) * tan7;
+
+        outer.push(`L ${f(x4 + dustInnerOffset)} ${f(yTopSide - a55TopD)}`);
+        outer.push(`L ${f(p4_cX)} ${f(p4_cY)}`);
+        outer.push(`L ${f(p4_topLeftX)} ${f(yDustTop)}`);
+        outer.push(`L ${f(p4_topRightX)} ${f(yDustTop)}`);
+        outer.push(`L ${f(p4_bX)} ${f(p4_bY)}`);
         outer.push(`L ${f(x5)} ${f(yTopSide)}`);
       } else {
         outer.push(`L ${f(x2 + 3.5)} ${f(yTopSide - 2.8)}`);
@@ -2488,120 +2702,179 @@
         meta3d = { dustH };
 
       } else if (isEcma055) {
-        const step = Math.min(3.0, W * 0.08, L * 0.08);
-        const clearance = Math.max(0.5, 2 * d);
+        const botB = Math.max(0, Number(state.a55BotB) || 5);
+        const botC = Math.max(0, Number(state.a55BotC) || 3);
+        const botF = Math.max(0, Number(state.a55BotF) || 3);
+        const botG = Math.max(2, Number(state.a55BotG) || 14.5);
+        const botK = Math.max(12, Number(state.a55BotK) || 52.5);
+        const botR = Math.max(0, Number(state.a55BotR) ?? 6);
         const hooksOnP2P4 = !state.boxBottomSwapped;
 
-        const lockSpan = hooksOnP2P4 ? L : W;
-        const hookSpan = hooksOnP2P4 ? W : L;
-        const slotPanelW = hooksOnP2P4 ? p1W : p2W;
-        const hookPanelW = hooksOnP2P4 ? p4W : p1W;
+        const baseSlot = state.boxBottomSwapped ? W : L;
+        const baseHook = state.boxBottomSwapped ? L : W;
 
-        const slotTopDepth = lockSpan / 2;
-        const lockTabH = Math.min(17.0, Math.min(W, L) * 0.28);
-        const hSlotFlap = slotTopDepth + lockTabH;
-        const rSlot = Math.min(4.0, lockTabH * 0.35);
-        const slotTopY = yBot + slotTopDepth;
-        const tongueShoulderY = yBot + Math.max(10.0, slotTopDepth - clearance);
-        const yBotDeep = yBot + hSlotFlap;
+        const slotI = baseSlot / 2;
+        const ySlotShelf = yBot + slotI;
+        const ySlotFoot = yBot + botK;
 
-        const outerSpanSlot = Math.max(14.0, slotPanelW - 2 * step);
-        const slotW = Math.max(8.0, Math.min(outerSpanSlot - 2 * (rSlot + 2.0), outerSpanSlot * (34.0 / 59.0)));
-        const tongueW = Math.max(6.0, slotW - 1.0);
+        const drawUFlap = (xa, xb) => {
+          const panelW = xb - xa;
+          const jW = Math.max(8, panelW - (botF + botG) * 2);
+          const sL = xa + botF + botG;
+          const sR = xb - botF - botG;
 
-        const hHookDeep = Math.max(14.0, hookSpan / 2);
-        const hHookShallow = Math.max(13.0, hHookDeep - clearance);
-        const throatX = Math.min(hookPanelW - step - 6.0, (hooksOnP2P4 ? L : W) / 2 + clearance);
-        const throatY = hHookShallow * (15.5 / 31.5);
-        const rHook = Math.min(6.5, (hHookShallow - throatY) * 0.40625);
-        const hookAlpha = 40.0 * Math.PI / 180;
-        const arcH = rHook * (1 + Math.cos(hookAlpha));
-        const arcDx = rHook * Math.sin(hookAlpha);
-        const diagDyShallow = Math.max(0.5, (hHookShallow - throatY) - arcH);
-        const diagDxShallow = diagDyShallow / Math.tan(hookAlpha);
-        const diagDyDeep = Math.max(0.5, (hHookDeep - throatY) - arcH);
-        const diagDxDeep = diagDyDeep / Math.tan(hookAlpha);
+          const pChamR = { x: xb - botF, y: yBot + botF };
+          const pOutBotR = { x: xb - botF, y: ySlotFoot };
+          const pInBotR = { x: sR, y: ySlotFoot };
+          const pInTopR = { x: sR, y: ySlotShelf };
+          const pInTopL = { x: sL, y: ySlotShelf };
+          const pInBotL = { x: sL, y: ySlotFoot };
+          const pOutBotL = { x: xa + botF, y: ySlotFoot };
+          const pChamL = { x: xa + botF, y: yBot + botF };
+          const pEnd = { x: xa, y: yBot };
 
-        const appendTongue = (xL, xR) => {
-          const cx = (xL + xR) / 2;
-          const tR = cx + tongueW / 2;
+          const rLeg = Math.min(4, botG * 0.35);
+
+          outer.push(`L ${f(pChamR.x)} ${f(pChamR.y)}`);
+          outer.push(roundBoxCornerA55(pChamR, pOutBotR, pInBotR, rLeg));
+          outer.push(roundBoxCornerA55(pOutBotR, pInBotR, pInTopR, rLeg));
+          outer.push(`L ${f(pInTopR.x)} ${f(pInTopR.y)}`);
+          outer.push(`L ${f(pInTopL.x)} ${f(pInTopL.y)}`);
+          outer.push(roundBoxCornerA55(pInTopL, pInBotL, pOutBotL, rLeg));
+          outer.push(roundBoxCornerA55(pInBotL, pOutBotL, pChamL, rLeg));
+          outer.push(`L ${f(pChamL.x)} ${f(pChamL.y)}`);
+          outer.push(`L ${f(pEnd.x)} ${f(pEnd.y)}`);
+
+          return { jW, slotI };
+        };
+
+        const drawLockTongue = (xa, xb, jW) => {
+          const cx = (xa + xb) / 2;
+          const tongueW = Math.max(6, jW - 1.0);
           const tL = cx - tongueW / 2;
-          outer.push(`L ${f(tR)} ${f(tongueShoulderY)}`);
-          outer.push(`L ${f(tR)} ${f(yBotDeep - rSlot)}`);
-          outer.push(`A ${f(rSlot)} ${f(rSlot)} 0 0 1 ${f(tR - rSlot)} ${f(yBotDeep)}`);
-          outer.push(`L ${f(tL + rSlot)} ${f(yBotDeep)}`);
-          outer.push(`A ${f(rSlot)} ${f(rSlot)} 0 0 1 ${f(tL)} ${f(yBotDeep - rSlot)}`);
-          outer.push(`L ${f(tL)} ${f(tongueShoulderY)}`);
-          outer.push(`L ${f(xL)} ${f(yBot)}`);
+          const tR = cx + tongueW / 2;
+          const shoulderDepth = Math.max(4, baseSlot / 2 - 1.0);
+          const yShoulder = yBot + shoulderDepth;
+
+          const pShR = { x: tR, y: yShoulder };
+          const pBotR = { x: tR, y: ySlotFoot };
+          const pBotL = { x: tL, y: ySlotFoot };
+          const pShL = { x: tL, y: yShoulder };
+          const pEnd = { x: xa, y: yBot };
+
+          const rTongue = Math.min(4, tongueW * 0.25);
+
+          outer.push(`L ${f(pShR.x)} ${f(pShR.y)}`);
+          outer.push(roundBoxCornerA55(pShR, pBotR, pBotL, rTongue));
+          outer.push(roundBoxCornerA55(pBotR, pBotL, pShL, rTongue));
+          outer.push(`L ${f(pShL.x)} ${f(pShL.y)}`);
+          outer.push(`L ${f(pEnd.x)} ${f(pEnd.y)}`);
+
+          return { tongueW, shoulderDepth };
         };
 
-        const appendSlot = (xL, xR) => {
-          const cx = (xL + xR) / 2;
-          const sR = cx + slotW / 2;
-          const sL = cx - slotW / 2;
-          outer.push(`L ${f(xR - step)} ${f(yBot + step)}`);
-          outer.push(`L ${f(xR - step)} ${f(yBotDeep)}`);
-          outer.push(`L ${f(sR + rSlot)} ${f(yBotDeep)}`);
-          outer.push(`A ${f(rSlot)} ${f(rSlot)} 0 0 1 ${f(sR)} ${f(yBotDeep - rSlot)}`);
-          outer.push(`L ${f(sR)} ${f(slotTopY)}`);
-          outer.push(`L ${f(sL)} ${f(slotTopY)}`);
-          outer.push(`L ${f(sL)} ${f(yBotDeep - rSlot)}`);
-          outer.push(`A ${f(rSlot)} ${f(rSlot)} 0 0 1 ${f(sL - rSlot)} ${f(yBotDeep)}`);
-          outer.push(`L ${f(xL + step)} ${f(yBotDeep)}`);
-          outer.push(`L ${f(xL + step)} ${f(yBot + step)}`);
-          outer.push(`L ${f(xL)} ${f(yBot)}`);
+        const hookE = botF + botG;
+        const hookA = slotI + 1;
+        const hookD = Math.max(2, Number(state.a55BotD) || Math.floor(baseHook / 4 - 1));
+        const yHookShelf = yBot + hookE;
+        const yHookBot = yHookShelf + hookD;
+
+        const pushHookNoseArc = (xStart, dirX) => {
+          const r = Math.min(botR, hookD * 0.55);
+          if (r <= 0.1) {
+            outer.push(`L ${f(xStart + dirX * hookD)} ${f(yHookBot)}`);
+            return;
+          }
+          const sin45 = Math.SQRT1_2;
+          const arcStartDist = hookD - r * (1 + sin45);
+          if (arcStartDist > 0.2) {
+            const xArcStart = xStart + dirX * arcStartDist;
+            const yArcStart = yHookShelf + arcStartDist;
+            const xArcEnd = xArcStart - dirX * (r * sin45);
+            const yArcEnd = yHookBot;
+            const sweep = dirX > 0 ? 1 : 0;
+            outer.push(`L ${f(xArcStart)} ${f(yArcStart)}`);
+            outer.push(`A ${f(r)} ${f(r)} 0 0 ${sweep} ${f(xArcEnd)} ${f(yArcEnd)}`);
+          } else {
+            const rHalf = hookD / 2;
+            const sweep = dirX > 0 ? 1 : 0;
+            outer.push(`A ${f(rHalf)} ${f(rHalf)} 0 0 ${sweep} ${f(xStart)} ${f(yHookBot)}`);
+          }
         };
 
-        // Развернутые крючки: скос и носок направлены к пазу (P1), прямая грань — к язычку (P3)
-        const appendHookPointingLeft = (xL, xR) => {
-          const tX = xL + throatX;
-          const tY = yBot + throatY;
-          const arcEndX = tX - diagDxDeep;
-          const arcEndY = tY + diagDyDeep;
-          const arcStartX = arcEndX + arcDx;
-          const botY = yBot + hHookDeep;
-          outer.push(`L ${f(xR - step)} ${f(yBot + step)}`);
-          outer.push(`L ${f(xR - step)} ${f(botY)}`);
-          outer.push(`L ${f(arcStartX)} ${f(botY)}`);
-          outer.push(`A ${f(rHook)} ${f(rHook)} 0 0 1 ${f(arcEndX)} ${f(arcEndY)}`);
-          outer.push(`L ${f(tX)} ${f(tY)}`);
-          outer.push(`L ${f(xL)} ${f(yBot)}`);
+        const pushHookNoseArcReverse = (xStart, dirX) => {
+          const r = Math.min(botR, hookD * 0.55);
+          const sin45 = Math.SQRT1_2;
+          const arcStartDist = hookD - r * (1 + sin45);
+          if (r > 0.1 && arcStartDist > 0.2) {
+            const xArcStart = xStart + dirX * arcStartDist;
+            const yArcStart = yHookShelf + arcStartDist;
+            const xArcEnd = xArcStart - dirX * (r * sin45);
+            const yArcEnd = yHookBot;
+            const sweep = dirX < 0 ? 1 : 0;
+            outer.push(`L ${f(xArcEnd)} ${f(yArcEnd)}`);
+            outer.push(`A ${f(r)} ${f(r)} 0 0 ${sweep} ${f(xArcStart)} ${f(yArcStart)}`);
+            outer.push(`L ${f(xStart)} ${f(yHookShelf)}`);
+          } else {
+            const rHalf = Math.max(0.5, hookD / 2);
+            const sweep = dirX < 0 ? 1 : 0;
+            outer.push(`L ${f(xStart)} ${f(yHookBot)}`);
+            outer.push(`A ${f(rHalf)} ${f(rHalf)} 0 0 ${sweep} ${f(xStart)} ${f(yHookShelf)}`);
+          }
         };
 
-        const appendHookPointingRight = (xL, xR) => {
-          const tX = xR - throatX;
-          const tY = yBot + throatY;
-          const arcEndX = tX + diagDxShallow;
-          const arcEndY = tY + diagDyShallow;
-          const arcStartX = arcEndX - arcDx;
-          const botY = yBot + hHookShallow;
-          outer.push(`L ${f(tX)} ${f(tY)}`);
-          outer.push(`L ${f(arcEndX)} ${f(arcEndY)}`);
-          outer.push(`A ${f(rHook)} ${f(rHook)} 0 0 1 ${f(arcStartX)} ${f(botY)}`);
-          outer.push(`L ${f(xL + step)} ${f(botY)}`);
-          outer.push(`L ${f(xL + step)} ${f(yBot + step)}`);
-          outer.push(`L ${f(xL)} ${f(yBot)}`);
+        const drawHookLeft = (xa, xb) => {
+          const xThroat = xa + hookA;
+          outer.push(`L ${f(xb - botC)} ${f(yBot + botC)}`);
+          outer.push(`L ${f(xb - botC)} ${f(yHookBot)}`);
+          pushHookNoseArcReverse(xThroat, -1);
+          outer.push(`L ${f(xa + botB)} ${f(yBot + botB)}`);
+          outer.push(`L ${f(xa)} ${f(yBot)}`);
         };
 
+        const drawHookRight = (xa, xb) => {
+          const xThroat = xb - hookA;
+          outer.push(`L ${f(xb - botB)} ${f(yBot + botB)}`);
+          outer.push(`L ${f(xThroat)} ${f(yHookShelf)}`);
+          pushHookNoseArc(xThroat, +1);
+          outer.push(`L ${f(xa + botC)} ${f(yHookBot)}`);
+          outer.push(`L ${f(xa + botC)} ${f(yBot + botC)}`);
+          outer.push(`L ${f(xa)} ${f(yBot)}`);
+        };
+
+        let uInfo, tInfo;
         if (hooksOnP2P4) {
-          appendHookPointingRight(x4, x5);
-          appendTongue(x3, x4);
-          appendHookPointingLeft(x2, x3);
-          appendSlot(x1, x2);
-          bottomInfoHtml = `A55.20.01.01: язычок P3 <span class="text-slate-200">${f(tongueW)} мм</span> / паз P1 <span class="text-emerald-300">${f(slotW)} мм</span>`;
+          drawHookRight(x4, x5);
+          const jW1 = Math.max(8, (x2 - x1) - (botF + botG) * 2);
+          tInfo = drawLockTongue(x3, x4, jW1);
+          drawHookLeft(x2, x3);
+          uInfo = drawUFlap(x1, x2);
+          bottomInfoHtml = `A55.20: G=${f(botG)} I=${f(uInfo.slotI)} J=<span class="text-emerald-300">${f(uInfo.jW)}</span> K=${f(botK)} | Крюч. A=${f(hookA)} X=${f(hookE + hookD)} | Яз. <span class="text-slate-200">${f(tInfo.tongueW)}</span>`;
         } else {
-          appendTongue(x4, x5);
-          appendHookPointingLeft(x3, x4);
-          appendSlot(x2, x3);
-          appendHookPointingRight(x1, x2);
-          bottomInfoHtml = `A55.20 (сдвиг): язычок P4 <span class="text-slate-200">${f(tongueW)} мм</span> / паз P2 <span class="text-emerald-300">${f(slotW)} мм</span>`;
+          const jW2 = Math.max(8, (x3 - x2) - (botF + botG) * 2);
+          tInfo = drawLockTongue(x4, x5, jW2);
+          drawHookLeft(x3, x4);
+          uInfo = drawUFlap(x2, x3);
+          drawHookRight(x1, x2);
+          bottomInfoHtml = `A55.20 (сдвиг): G=${f(botG)} I=${f(uInfo.slotI)} J=<span class="text-emerald-300">${f(uInfo.jW)}</span> K=${f(botK)} | Крюч. A=${f(hookA)} X=${f(hookE + hookD)} | Яз. <span class="text-slate-200">${f(tInfo.tongueW)}</span>`;
         }
 
         extraCreases.push({ x1: x1, y1: yBot, x2: x5, y2: yBot });
-        maxBottomDepth = Math.max(hHookDeep, hSlotFlap);
+        maxBottomDepth = Math.max(botK, hookE + hookD);
         meta3d = {
-          hooksOnP2P4, step, slotTopDepth, hSlotFlap, slotW, tongueW,
-          tongueShoulderRel: tongueShoulderY - yBot, hHookDeep, hHookShallow, throatX, throatY
+          hooksOnP2P4,
+          step: botF,
+          slotTopDepth: slotI,
+          hSlotFlap: botK,
+          slotW: uInfo.jW,
+          tongueW: tInfo.tongueW,
+          tongueShoulderRel: tInfo.shoulderDepth,
+          hHookDeep: hookE + hookD,
+          hHookShallow: hookE + hookD,
+          throatX: hookA,
+          throatY: hookE,
+          hookB: botB,
+          hookC: botC
         };
 
       } else {
@@ -2726,6 +2999,16 @@
           for (let ny = nStart; ny <= nEnd + 0.05; ny += notchStep) {
             glueNotchLines.push({ x1: nx1, y1: ny, x2: nx2, y2: ny + nDy });
           }
+        } else if (isEcma055) {
+          const notchXEnd = x1 - 5.0;
+          const notchXStart = notchXEnd - 5.0;
+          if (notchXStart >= x0 + 0.5) {
+            const yNStart = yTopSide + glueChamfer + 6;
+            const yNEnd = yBot - glueChamfer - 6;
+            for (let ny = yNStart; ny <= yNEnd; ny += 10) {
+              glueNotchLines.push({ x1: notchXStart, y1: ny + 1.2, x2: notchXEnd, y2: ny - 1.2 });
+            }
+          }
         } else {
           const notchStep = 8.0;
           const nStart = yTopSide + glueChamfer + 5;
@@ -2739,7 +3022,7 @@
       }
 
       const creases = [
-        { x1: x1, y1: isAutolock ? yTop1 : yTopSide, x2: x1, y2: yBot },
+        { x1: x1, y1: (isAutolock || isEcma055) ? yTop1 : yTopSide, x2: x1, y2: yBot },
         { x1: x2, y1: yTop1, x2: x2, y2: yBot },
         { x1: x3, y1: yTopSide, x2: x3, y2: vCrease3End },
         { x1: x4, y1: yTopSide, x2: x4, y2: vCrease4End },
@@ -3950,6 +4233,11 @@ ${innerPaths}${notchLines ? '\n' + notchLines : ''}
       const swapWrap = document.getElementById('boxBottomSwapWrap');
       const swapBtn = document.getElementById('btnBoxSwapBottom');
       const swapBadge = document.getElementById('boxSwapBottomBadge');
+      const a55Panel = document.getElementById('boxA55ParamsPanel');
+      if (a55Panel) {
+        a55Panel.classList.toggle('hidden', t !== 'ecma055');
+        if (t === 'ecma055') syncA55InputsUI();
+      }
       if (swapWrap) {
         if (t !== 'ecma055') {
           swapWrap.classList.add('hidden');
@@ -3991,6 +4279,10 @@ ${innerPaths}${notchLines ? '\n' + notchLines : ''}
             document.getElementById('inputBoxL').value = state.boxL;
             document.getElementById('inputBoxW').value = state.boxW;
             document.getElementById('inputBoxH').value = state.boxH;
+            if (state.boxType === 'ecma055' && state.a55AutoFormula) {
+              recomputeA55DerivedParams();
+              syncA55InputsUI();
+            }
             invalidateBoxAndRefresh();
           });
         });
@@ -5575,7 +5867,7 @@ ${innerPaths}${notchLines ? '\n' + notchLines : ''}
         state.boxType = newType;
         const isDef = (t, l, w, h) =>
           (t === 'autolock' && l === 90 && w === 90 && h === 297) ||
-          (t === 'ecma055' && l === 65 && w === 70 && h === 290) ||
+          (t === 'ecma055' && l === 70 && w === 100 && h === 220) ||
           (t === 'ecma020' && l === 60 && w === 80 && h === 180);
         if (isDef(prev, state.boxL, state.boxW, state.boxH)) {
           const p = (BOX_PRESETS_BY_TYPE[newType] || BOX_PRESETS_BY_TYPE.autolock)[0];
@@ -5585,6 +5877,9 @@ ${innerPaths}${notchLines ? '\n' + notchLines : ''}
           document.getElementById('inputBoxL').value = p.l;
           document.getElementById('inputBoxW').value = p.w;
           document.getElementById('inputBoxH').value = p.h;
+        }
+        if (newType === 'ecma055' && state.a55AutoFormula) {
+          recomputeA55DerivedParams();
         }
         syncBoxTypeUI();
         invalidateBoxAndRefresh();
@@ -5596,6 +5891,10 @@ ${innerPaths}${notchLines ? '\n' + notchLines : ''}
 
       document.getElementById('btnBoxSwapBottom').addEventListener('click', () => {
         state.boxBottomSwapped = !state.boxBottomSwapped;
+        if (state.a55AutoFormula) {
+          recomputeA55DerivedParams();
+          syncA55InputsUI();
+        }
         syncBoxTypeUI();
         invalidateBoxAndRefresh();
       });
@@ -5603,6 +5902,10 @@ ${innerPaths}${notchLines ? '\n' + notchLines : ''}
       const bindBoxParam = (id, key) => {
         document.getElementById(id).addEventListener('input', (e) => {
           state[key] = parseFloat(e.target.value);
+          if (state.boxType === 'ecma055' && state.a55AutoFormula && (key === 'boxL' || key === 'boxW')) {
+            recomputeA55DerivedParams();
+            syncA55InputsUI();
+          }
           invalidateBoxAndRefresh();
         });
       };
@@ -5613,12 +5916,59 @@ ${innerPaths}${notchLines ? '\n' + notchLines : ''}
       bindBoxParam('inputBoxGlueW', 'boxGlueW');
       bindBoxParam('inputBoxTuckH', 'boxTuckH');
 
+      [
+        ['inA55TopB', 'a55TopB'],
+        ['inA55TopC', 'a55TopC'],
+        ['inA55TopD', 'a55TopD'],
+        ['inA55TopE', 'a55TopE'],
+        ['inA55BotB', 'a55BotB'],
+        ['inA55BotC', 'a55BotC'],
+        ['inA55BotD', 'a55BotD'],
+        ['inA55BotF', 'a55BotF'],
+        ['inA55BotG', 'a55BotG'],
+        ['inA55BotK', 'a55BotK'],
+        ['inA55BotR', 'a55BotR']
+      ].forEach(([id, key]) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener('input', (e) => {
+          const val = parseFloat(e.target.value);
+          if (!Number.isNaN(val)) {
+            state[key] = val;
+            if (state.a55AutoFormula && key === 'a55BotF') {
+              recomputeA55DerivedParams();
+              syncA55InputsUI();
+            }
+            invalidateBoxAndRefresh();
+          }
+        });
+      });
+
+      document.getElementById('chkA55AutoFormula')?.addEventListener('change', (e) => {
+        state.a55AutoFormula = e.target.checked;
+        if (state.a55AutoFormula) {
+          recomputeA55DerivedParams();
+          syncA55InputsUI();
+          invalidateBoxAndRefresh();
+        }
+      });
+
+      document.getElementById('btnA55Recalc')?.addEventListener('click', () => {
+        recomputeA55DerivedParams();
+        syncA55InputsUI();
+        invalidateBoxAndRefresh();
+      });
+
       document.getElementById('btnBoxSwapLW').addEventListener('click', () => {
         const tmp = state.boxL;
         state.boxL = state.boxW;
         state.boxW = tmp;
         document.getElementById('inputBoxL').value = state.boxL;
         document.getElementById('inputBoxW').value = state.boxW;
+        if (state.boxType === 'ecma055' && state.a55AutoFormula) {
+          recomputeA55DerivedParams();
+          syncA55InputsUI();
+        }
         invalidateBoxAndRefresh();
       });
 
